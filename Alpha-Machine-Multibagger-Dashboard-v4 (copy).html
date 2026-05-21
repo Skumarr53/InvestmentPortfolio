@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alpha Machine — Multibagger Intelligence Dashboard v4</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root[data-theme="dark"] {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface-2: #1a1a24;
+      --surface-3: #22222e;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #f59e0b;
+      --accent-2: #06b6d4;
+      --accent-3: #8b5cf6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f97316;
+      --border: #27273a;
+      --gradient-1: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+      --gradient-2: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+      --glow: 0 0 40px rgba(245, 158, 11, 0.15);
+    }
+    :root[data-theme="light"] {
+      --bg: #ffffff;
+      --surface: #f8fafc;
+      --surface-2: #f1f5f9;
+      --surface-3: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #d97706;
+      --accent-2: #0891b2;
+      --accent-3: #7c3aed;
+      --success: #059669;
+      --danger: #dc2626;
+      --warning: #ea580c;
+      --border: #cbd5e1;
+      --gradient-1: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
+      --gradient-2: linear-gradient(135deg, #0891b2 0%, #7c3aed 100%);
+      --glow: 0 0 40px rgba(217, 119, 6, 0.1);
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: all 0.3s ease;
+    }
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .nav-container {
+      position: fixed; top: 0; left: 0; right: 0;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      z-index: 1000;
+      padding: 0.75rem 2rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    :root[data-theme="light"] .nav-container { background: rgba(255,255,255,0.9); }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-link {
+      color: var(--text-muted); text-decoration: none; font-size: 0.875rem;
+      font-weight: 500; padding: 0.5rem 0; position: relative;
+      transition: color 0.2s;
+    }
+    .nav-link:hover, .nav-link.active { color: var(--accent); }
+    .nav-link::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px; background: var(--gradient-1); transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+    .nav-link:hover::after, .nav-link.active::after { transform: scaleX(1); }
+    .theme-toggle {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.5rem 0.75rem; cursor: pointer;
+      color: var(--text); transition: all 0.2s;
+    }
+    .theme-toggle:hover { border-color: var(--accent); }
+    .main-content { padding-top: 80px; }
+    .section { padding: 3rem 2rem; max-width: 1400px; margin: 0 auto; }
+    .hero {
+      text-align: center; padding: 4rem 2rem;
+      background: radial-gradient(ellipse at center top, rgba(245,158,11,0.1) 0%, transparent 50%);
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 700;
+      background: var(--gradient-1);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+    .hero-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;
+      max-width: 1000px; margin: 2rem auto 0;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.5rem; text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: var(--glow); }
+    .stat-value { font-size: 2rem; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .filter-bar {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      margin: 2rem 0; padding: 1.5rem; background: var(--surface); border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+    .filter-btn {
+      padding: 0.5rem 1.25rem; border-radius: 9999px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--text-muted); font-size: 0.875rem;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent); color: #000; border-color: var(--accent);
+    }
+    .stock-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 1.5rem;
+    }
+    .stock-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stock-card:hover { transform: translateY(-4px); box-shadow: var(--glow); }
+    .stock-header {
+      padding: 1.5rem; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .stock-ticker {
+      font-family: 'JetBrains Mono', monospace; font-size: 1.75rem; font-weight: 700;
+      color: var(--accent);
+    }
+    .stock-name { font-size: 0.8125rem; color: var(--text-muted); }
+    .stock-theme {
+      display: inline-block; padding: 0.25rem 0.75rem;
+      background: var(--surface-2); border-radius: 9999px;
+      font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.5px; margin-top: 0.5rem;
+    }
+    .conviction-badge {
+      text-align: right;
+    }
+    .conviction-score {
+      font-size: 2rem; font-weight: 700; color: var(--success);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .conviction-label { font-size: 0.6875rem; color: var(--text-muted); text-transform: uppercase; }
+    .stock-body { padding: 1.5rem; }
+    .stock-metrics {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+      margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+    }
+    .metric { text-align: center; }
+    .metric-value { font-size: 1.125rem; font-weight: 600; }
+    .metric-label { font-size: 0.625rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .dimensions { display: flex; flex-direction: column; gap: 0.75rem; }
+    .dimension {
+      display: grid; grid-template-columns: 100px 40px 1fr; gap: 0.75rem; align-items: center;
+    }
+    .dimension-name { font-size: 0.6875rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .dimension-score {
+      font-size: 0.875rem; font-weight: 700; text-align: right;
+    }
+    .dimension-bar {
+      height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden;
+    }
+    .dimension-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+    .dimension-detail {
+      grid-column: 1 / -1; font-size: 0.75rem; color: var(--text-muted);
+      line-height: 1.5; padding: 0.5rem; background: var(--surface-2);
+      border-radius: 6px; margin-top: 0.25rem;
+    }
+    .stock-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.5rem; background: var(--surface-2);
+      border-top: 1px solid var(--border);
+    }
+    .upside-tag {
+      font-size: 0.875rem; font-weight: 700; color: var(--success);
+    }
+    .risk-tag {
+      padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.6875rem;
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .risk-low { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+    .risk-med { background: rgba(249, 115, 22, 0.1); color: var(--warning); }
+    .risk-high { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+    .chart-section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2rem; margin: 3rem 0;
+    }
+    .chart-container { position: relative; height: 450px; }
+    .hidden { display: none !important; }
+    @media (max-width: 768px) {
+      .hero-stats { grid-template-columns: repeat(2, 1fr); }
+      .stock-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav-container">
+    <div class="flex items-center gap-3">
+      <i class="fas fa-chart-line" style="color: var(--accent);"></i>
+      <span class="font-bold mono text-sm">ALPHA MACHINE v4</span>
+    </div>
+    <button class="theme-toggle" id="themeToggleBtn">
+      <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Hero -->
+    <section class="hero" id="hero">
+      <h1>Fresh Multibagger Intelligence (v4)</h1>
+      <p class="text-lg" style="color: var(--text-muted); max-width: 720px; margin: 0 auto;">
+        Independent fresh screen — 8 US + 8 India names — as of <strong>May 18, 2026</strong>.
+        Thesis: AI infrastructure bottlenecks (US) + India manufacturing / defense / renewables / digital infra.
+        Compare with v1–v3 reports; not a continuation of prior lists.
+      </p>
+      <div class="hero-stats" id="hero-stats">
+        <!-- Stats will be dynamically generated -->
+      </div>
+    </section>
+
+    <!-- Filters & Watchlist -->
+    <section class="section" id="watchlist">
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All Stocks</button>
+        <button class="filter-btn" data-filter="us">🇺🇸 US Market</button>
+        <button class="filter-btn" data-filter="india">🇮🇳 India Market</button>
+      </div>
+
+      <!-- Stock Grid -->
+      <div class="stock-grid" id="stockGrid">
+        <!-- Stocks will be dynamically generated -->
+      </div>
+
+      <!-- Conviction Chart -->
+      <div class="chart-section" id="conviction">
+        <h2 class="text-2xl font-bold mb-6">Conviction vs Upside Matrix (v4 — May 2026)</h2>
+        <div class="chart-container">
+          <canvas id="convictionChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-section" id="summary">
+        <h2 class="text-2xl font-bold mb-4">v4 Watchlist at a Glance</h2>
+        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.5rem;">
+          Fresh screen — no names from v3. Compare with Alpha-Machine-Multibagger-Dashboard-v3.html.
+        </p>
+        <div style="overflow-x: auto;">
+          <table style="width:100%; border-collapse: collapse; font-size: 0.8125rem;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border); text-align: left;">
+                <th style="padding: 0.75rem;">Ticker</th><th>Market</th><th>Theme</th><th>Conviction</th><th>3Y Upside</th><th>Risk</th>
+              </tr>
+            </thead>
+            <tbody id="summaryTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="chart-section" id="methodology">
+        <h2 class="text-2xl font-bold mb-4">Methodology &amp; Sources</h2>
+        <ul style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.8; padding-left: 1.25rem;">
+          <li>Multibagger Analyst 5-dimension framework (Mgmt/Innovation/Demand/Business/Mispricing).</li>
+          <li>US: AI infra bottlenecks. India: solar, defense, EMS, cloud GPU, grid.</li>
+          <li>Sources: <a href="https://247wallst.com/investing/2026/04/03/liberation-day-1-year-later-how-this-tiny-ai-play-turned-into-a-3350-winner/" style="color: var(--accent);">AXT</a>,
+            <a href="https://economictimes.indiatimes.com/markets/stocks/news/vijay-kedia-backed-websol-energy-shares-jump-45-in-six-days-whats-driving-the-rally/articleshow/130596060.cms" style="color: var(--accent);">Websol</a>,
+            <a href="https://multibaggerhunt.com/bondada-engineering-results-fy26-153-growth-multibagger-story/" style="color: var(--accent);">Bondada</a>.</li>
+          <li>Not investment advice. Report date: May 18, 2026.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // v4 — Fresh screen May 18, 2026 (no overlap with v3 mandate)
+    const stocks = [
+      {
+        ticker: 'AXTI',
+        name: 'AXT Inc',
+        theme: 'Optical/AI',
+        market: 'us',
+        conviction: 91,
+        upside: '320%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '~$2.5B', theme_metric: 'InP backlog $60M+', growth: 'Capacity 2x by 2026', segment: 'AI optical' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 25, detail: `Execution on indium phosphide (InP) capacity expansion; management guiding doubling InP manufacturing by end-2026 per public commentary cited in 2026 coverage.` },
+          { name: 'Innovation', score: 10, weight: 25, detail: `InP substrates for high-speed optical transceivers — a structural bottleneck in AI data-center networking, not GPU silicon.` },
+          { name: 'Demand', score: 10, weight: 20, detail: `Q4 2025 InP revenue ~$8M with backlog >$60M (reported). Demand pull from 800G/1.6T optical buildout.` },
+          { name: 'Business', score: 7, weight: 20, detail: `Cyclical materials business with operating leverage if InP mix rises. Valuation reflects recent momentum — entry timing matters.` },
+          { name: 'Mispricing', score: 8, weight: 10, detail: `Narrative lag possible: market may still frame as legacy compound-semiconductor vs pure-play AI optical enabler.` }
+        ]
+      },
+      {
+        ticker: 'SIMO',
+        name: 'Silicon Motion Technology',
+        theme: 'Memory/AI',
+        market: 'us',
+        conviction: 89,
+        upside: '180%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '~$4B', revenue: 'Q1 ~$343M', growth: '+105% YoY', catalyst: 'NAND controllers' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 25, detail: `Consistent product roadmap in NAND controllers; analyst price-target revisions (e.g. JPMorgan) reflect improving visibility.` },
+          { name: 'Innovation', score: 9, weight: 25, detail: `Controller IP for enterprise SSDs and AI-adjacent storage — benefits from NAND recovery and higher-density drives.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `Reported ~105% YoY revenue growth in early 2026 quarter; YTD stock strength aligns with AI storage narrative.` },
+          { name: 'Business', score: 8, weight: 20, detail: `Profitable fabless model with scale in controllers. Less binary than pre-revenue AI names.` },
+          { name: 'Mispricing', score: 7, weight: 10, detail: `Often grouped with generic semi cycle; AI enterprise storage mix may be under-modeled.` }
+        ]
+      },
+      {
+        ticker: 'MXL',
+        name: 'MaxLinear',
+        theme: 'Connectivity',
+        market: 'us',
+        conviction: 86,
+        upside: '150%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '~$3B', revenue: 'Infra +136% YoY', guide: 'Q2 $160-170M', product: 'Keystone' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 25, detail: `Post-earnings re-rating on infrastructure segment execution; credible guide raises signal demand inflection.` },
+          { name: 'Innovation', score: 9, weight: 25, detail: `Keystone platform for GPU interconnect in data centers — connectivity layer of AI clusters.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `Infrastructure revenue up sharply YoY per 2026 earnings coverage; hyperscaler capex tailwind.` },
+          { name: 'Business', score: 7, weight: 20, detail: `Mixed legacy broadband + growth infra. Margin mix shift is the key variable.` },
+          { name: 'Mispricing', score: 7, weight: 10, detail: `Legacy revenue drag can mask infra acceleration in sum-of-parts view.` }
+        ]
+      },
+      {
+        ticker: 'SNDK',
+        name: 'SanDisk (post spin-off)',
+        theme: 'Storage/AI',
+        market: 'us',
+        conviction: 88,
+        upside: '120%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: 'Large-cap', revenue_mix: '~55% enterprise', catalyst: 'NAND / AI SSD', note: 'Post-WDC spin' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 25, detail: `Pure-play NAND focus after Western Digital separation; capital allocation now aligned with flash cycle.` },
+          { name: 'Innovation', score: 8, weight: 25, detail: `Enterprise SSD and high-performance client storage for AI PCs and data centers.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `2026 commentary highlights hyperscale storage demand and AI-driven NAND tightness.` },
+          { name: 'Business', score: 7, weight: 20, detail: `Highly cyclical — multibagger path requires sustained NAND pricing + share gains, not one-quarter spike.` },
+          { name: 'Mispricing', score: 8, weight: 10, detail: `New listing dynamics: index inclusion / analyst initiation can lag fundamental re-rating.` }
+        ]
+      },
+      {
+        ticker: 'CRDO',
+        name: 'Credo Technology',
+        theme: 'AI/Compute',
+        market: 'us',
+        conviction: 90,
+        upside: '200%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '~$8B', segment: 'High-speed SerDes', customers: 'Hyperscaler/OEM', growth: 'Hyper-growth' },
+        dimensions: [
+          { name: 'Management', score: 9, weight: 25, detail: `Founder-led compounder in high-speed connectivity; strong design-win cadence with cloud OEMs.` },
+          { name: 'Innovation', score: 9, weight: 25, detail: `Active electrical cables and SerDes for 800G+ AI networks — picks-and-shovels for cluster scale-out.` },
+          { name: 'Demand', score: 10, weight: 20, detail: `Direct beneficiary of AI cluster bandwidth upgrades; order visibility tied to hyperscaler capex.` },
+          { name: 'Business', score: 8, weight: 20, detail: `High gross-margin connectivity IP. Valuation premium reflects quality — sizing discipline required.` },
+          { name: 'Mispricing', score: 6, weight: 10, detail: `Well-discovered name; upside is execution-multiple expansion, not deep neglect.` }
+        ]
+      },
+      {
+        ticker: 'IREN',
+        name: 'IREN (Iris Energy)',
+        theme: 'AI Power',
+        market: 'us',
+        conviction: 84,
+        upside: '250%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '~$3B', model: 'BTC + AI HPC', power: 'Renewable sites', volatility: 'High beta' },
+        dimensions: [
+          { name: 'Management', score: 7, weight: 25, detail: `Pivot narrative from bitcoin mining to AI/HPC hosting; execution on power contracts is the gating factor.` },
+          { name: 'Innovation', score: 8, weight: 25, detail: `Low-cost renewable-powered compute sites — scarce input for AI data centers is megawatts, not only GPUs.` },
+          { name: 'Demand', score: 8, weight: 20, detail: `AI colocation demand + crypto hash economics create dual catalysts but also dual volatility.` },
+          { name: 'Business', score: 6, weight: 20, detail: `Capital-intensive, commodity-exposed. Multibagger requires sustained power monetization above cost of capital.` },
+          { name: 'Mispricing', score: 8, weight: 10, detail: `Market may still bucket as crypto miner vs AI infrastructure utility — narrative re-rating optionality.` }
+        ]
+      },
+      {
+        ticker: 'OKLO',
+        name: 'Oklo Inc',
+        theme: 'Nuclear/AI',
+        market: 'us',
+        conviction: 82,
+        upside: '400%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '~$4B', stage: 'Pre-commercial', catalyst: 'SMR licenses', theme: 'AI baseload power' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 25, detail: `Sam Altman association and advanced reactor narrative; regulatory path is the core execution variable.` },
+          { name: 'Innovation', score: 10, weight: 25, detail: `Fast-reactor / microreactor design for distributed baseload — structural answer to AI power constraints.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `Hyperscalers publicly exploring nuclear PPA models; demand signal is macro, delivery is long-dated.` },
+          { name: 'Business', score: 4, weight: 20, detail: `Pre-revenue, binary regulatory and financing risk. Not a fundamentals compounder yet — a catalyst option.` },
+          { name: 'Mispricing', score: 9, weight: 10, detail: `Option value on energy scarcity; traditional DCF models systematically underweight tail success.` }
+        ]
+      },
+      {
+        ticker: 'AEHR',
+        name: 'Aehr Test Systems',
+        theme: 'Semi Test',
+        market: 'us',
+        conviction: 87,
+        upside: '220%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '~$600M', product: 'Wafer-level burn-in', end_market: 'SiC / AI chips', cyclicality: 'Semi capex' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 25, detail: `Niche leader in wafer-level burn-in; disciplined focus vs broad test incumbents.` },
+          { name: 'Innovation', score: 9, weight: 25, detail: `Burn-in essential for high-power SiC and AI accelerators — quality gate as chip power rises.` },
+          { name: 'Demand', score: 8, weight: 20, detail: `EV + AI silicon volume growth increases test intensity per wafer.` },
+          { name: 'Business', score: 7, weight: 20, detail: `Smaller cap with order lumpiness. Works in portfolio as semi-capex torque, not core holding for all risk profiles.` },
+          { name: 'Mispricing', score: 8, weight: 10, detail: `Under-followed vs Teradyne/Advantest; AI silicon test TAM expansion may be under-modeled.` }
+        ]
+      },
+      {
+        ticker: 'WEBSOL',
+        name: 'Websol Energy System',
+        theme: 'Solar Mfg',
+        market: 'india',
+        conviction: 88,
+        upside: '200%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: 'Small-cap', profit: 'Q4 +158% YoY', revenue: 'Q4 +132% YoY', policy: 'ALMM / PLI' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 25, detail: `Kedia-tracked name; execution on cell/wafer capacity amid India solar localization policy.` },
+          { name: 'Innovation', score: 7, weight: 25, detail: `Domestic solar cell manufacturing — technology catch-up vs China leaders, but policy moat in India.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `Q4 FY26 profit and revenue surges reported in ET coverage; ALMM and PLI drive domestic offtake.` },
+          { name: 'Business', score: 7, weight: 20, detail: `Cyclical solar with working-capital intensity. Rally increases valuation risk — stagger entries.` },
+          { name: 'Mispricing', score: 8, weight: 10, detail: `Still under-researched vs large renewables; policy tailwind may exceed street models.` }
+        ]
+      },
+      {
+        ticker: 'BONDADA',
+        name: 'Bondada Engineering',
+        theme: 'Renewables EPC',
+        market: 'india',
+        conviction: 86,
+        upside: '180%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: 'Mid/small', revenue_fy26: '₹1,217cr', growth: '+153% YoY', order_book: '₹5,989cr' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 25, detail: `Aggressive Vision 2030 (25 GW renewable target) — execution on EPC delivery and WC is key.` },
+          { name: 'Innovation', score: 7, weight: 25, detail: `Expanding from telecom/infra EPC into data centers and defense manufacturing — platform optionality.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `Order book ~5x revenue scale per FY26 commentary; renewables + digital infra capex in India.` },
+          { name: 'Business', score: 7, weight: 20, detail: `EPC margins thin; growth must not sacrifice cash conversion. Verify pledge/debt quarterly.` },
+          { name: 'Mispricing', score: 8, weight: 10, detail: `Multibagger-hunt narrative gaining attention; early-stage institutional discovery possible.` }
+        ]
+      },
+      {
+        ticker: 'PREMIERENE',
+        name: 'Premier Energies',
+        theme: 'Solar',
+        market: 'india',
+        conviction: 85,
+        upside: '160%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: 'Listed 2024', segment: 'Solar cells/modules', tailwind: 'Domestic content', listing: 'NSE/BSE' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 25, detail: `Post-IPO governance visibility improving; capacity ramp execution post-listing is the test.` },
+          { name: 'Innovation', score: 7, weight: 25, detail: `Integrated solar manufacturing for India's utility-scale boom — efficiency gains vs global leaders still a gap.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `Utility and C&I solar pipelines in India remain structurally under-built for 2030 targets.` },
+          { name: 'Business', score: 8, weight: 20, detail: `Scale advantages emerging for top-tier domestic module/cell players. Margin sensitive to polysilicon prices.` },
+          { name: 'Mispricing', score: 7, weight: 10, detail: `Recent listing — index and fund flows may still be ramping.` }
+        ]
+      },
+      {
+        ticker: 'IDEAFORGE',
+        name: 'ideaForge Technology',
+        theme: 'Defense/Drones',
+        market: 'india',
+        conviction: 87,
+        upside: '220%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: 'Mid-cap', segment: 'UAV systems', customer: 'Defense/Paramilitary', moat: 'Indigenous IP' },
+        dimensions: [
+          { name: 'Management', score: 9, weight: 25, detail: `Founder-led defense tech with strong R&D culture; credible in Indian drone procurement cycles.` },
+          { name: 'Innovation', score: 9, weight: 25, detail: `Vertical take-off UAV platforms for surveillance — import substitution under Atmanirbhar.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `Defense modernization and border surveillance budgets provide multi-year order visibility.` },
+          { name: 'Business', score: 7, weight: 20, detail: `Order lumpiness and working capital typical of defense SMEs. Valuation sensitive to headline wins.` },
+          { name: 'Mispricing', score: 8, weight: 10, detail: `Compared to global defense primes, Indian pure-play drone equity is still nascent.` }
+        ]
+      },
+      {
+        ticker: 'ZENTEC',
+        name: 'Zen Technologies',
+        theme: 'Defense',
+        market: 'india',
+        conviction: 90,
+        upside: '150%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: 'Small-cap', theme: 'Training/simulation', return_2026: 'Strong YTD', sector: 'Defense' },
+        dimensions: [
+          { name: 'Management', score: 9, weight: 25, detail: `Promoter-led with deep domain expertise in defense training systems; repeat order track record.` },
+          { name: 'Innovation', score: 9, weight: 25, detail: `Simulation and anti-drone warfare training — high margin software/hardware mix vs commodity hardware.` },
+          { name: 'Demand', score: 10, weight: 20, detail: `ET and market coverage cite multibagger-style returns in 2026 defense upcycle; export potential.` },
+          { name: 'Business', score: 8, weight: 20, detail: `Asset-light IP model with strong ROCE potential. Valuation extended after sharp run — use pullbacks.` },
+          { name: 'Mispricing', score: 7, weight: 10, detail: `More discovered than micro-cap hidden gems; upside now needs earnings to catch price.` }
+        ]
+      },
+      {
+        ticker: 'PGEL',
+        name: 'PG Electroplast',
+        theme: 'Electronics Mfg',
+        market: 'india',
+        conviction: 84,
+        upside: '140%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: 'Mid-cap', segment: 'EMS/Plastics', customers: 'Consumer electronics', theme: 'PLI / Make in India' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 25, detail: `Consistent capacity additions for EMS and plastic components; beneficiary of India electronics PLI.` },
+          { name: 'Innovation', score: 7, weight: 25, detail: `Manufacturing depth for AC/LED/appliance OEMs — execution moat, not deep tech.` },
+          { name: 'Demand', score: 8, weight: 20, detail: `Domestic electronics consumption + export assembly shift from China.` },
+          { name: 'Business', score: 8, weight: 20, detail: `Working-capital-heavy but scalable. Monitor customer concentration and margin per segment.` },
+          { name: 'Mispricing', score: 7, weight: 10, detail: `EMS rerating in India can lift entire peer set — PGEL benefits from sector multiple expansion.` }
+        ]
+      },
+      {
+        ticker: 'E2E',
+        name: 'E2E Networks',
+        theme: 'Cloud/GPU',
+        market: 'india',
+        conviction: 83,
+        upside: '280%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: 'Small-cap', segment: 'GPU cloud India', listing: 'NSE: E2E', catalyst: 'AI inferencing' },
+        dimensions: [
+          { name: 'Management', score: 7, weight: 25, detail: `Early mover in Indian GPU-cloud; capital raises and GPU availability dictate growth pace.` },
+          { name: 'Innovation', score: 8, weight: 25, detail: `Local AI inferencing and cloud — data residency and latency advantages vs global hyperscalers for India workloads.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `India enterprise AI adoption curve steepening; sovereign/commercial demand for domestic compute.` },
+          { name: 'Business', score: 6, weight: 20, detail: `High capex, competitive global cloud pricing pressure. Profitability path still proving.` },
+          { name: 'Mispricing', score: 9, weight: 10, detail: `Micro-cap cloud — limited analyst coverage; optionality if India AI compute stays localized.` }
+        ]
+      },
+      {
+        ticker: 'TARIL',
+        name: 'Transformers and Rectifiers (India)',
+        theme: 'Power/Grid',
+        market: 'india',
+        conviction: 85,
+        upside: '170%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: 'Mid-cap', segment: 'Transformers', tailwind: 'Grid + data centers', theme: 'Electrification' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 25, detail: `Long track record in power transformers; order book benefits from T&D and industrial electrification.` },
+          { name: 'Innovation', score: 7, weight: 25, detail: `Not deep-tech — scale and certification moat in high-voltage transformers for grid and potentially AI power rooms.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `India grid capex + renewable integration + data-center substations drive multi-year demand.` },
+          { name: 'Business', score: 8, weight: 20, detail: `EPC-style revenue recognition can be lumpy; monitor working capital and commodity copper/aluminum pass-through.` },
+          { name: 'Mispricing', score: 8, weight: 10, detail: `Industrial compounder often valued as cyclical metal-bender — electrification rerating possible.` }
+        ]
+      }
+    ];
+
+    // Theme Colors
+    const themeColors = {
+        'Optical/AI': '#f59e0b',
+        'Memory/AI': '#eab308',
+        'Connectivity': '#06b6d4',
+        'Storage/AI': '#8b5cf6',
+        'AI/Compute': '#f97316',
+        'AI Power': '#10b981',
+        'Nuclear/AI': '#ef4444',
+        'Semi Test': '#a855f7',
+        'Solar Mfg': '#22c55e',
+        'Renewables EPC': '#14b8a6',
+        'Solar': '#84cc16',
+        'Defense/Drones': '#ef4444',
+        'Defense': '#dc2626',
+        'Electronics Mfg': '#6366f1',
+        'Cloud/GPU': '#0ea5e9',
+        'Power/Grid': '#f59e0b'
+    };
+
+    // Render Stocks
+    function renderStocks(filter = 'all') {
+      const grid = document.getElementById('stockGrid');
+      grid.innerHTML = '';
+
+      const filtered = filter === 'all' ? stocks : stocks.filter(s => s.market === filter);
+
+      filtered.forEach(stock => {
+        const card = document.createElement('div');
+        card.className = `stock-card ${stock.market}`;
+        card.innerHTML = `
+          <div class="stock-header">
+            <div>
+              <div class="stock-ticker">${stock.ticker}</div>
+              <div class="stock-name">${stock.name}</div>
+              <span class="stock-theme" style="color: ${themeColors[stock.theme]}; border: 1px solid ${themeColors[stock.theme]};">${stock.theme}</span>
+            </div>
+            <div class="conviction-badge">
+              <div class="conviction-score">${stock.conviction}</div>
+              <div class="conviction-label">Conviction</div>
+            </div>
+          </div>
+          <div class="stock-body">
+            <div class="stock-metrics">
+              ${Object.entries(stock.metrics).map(([k,v]) => `
+                <div class="metric">
+                  <div class="metric-value mono">${v}</div>
+                  <div class="metric-label">${k}</div>
+                </div>
+              `).join('')}
+            </div>
+            <div class="dimensions">
+              ${stock.dimensions.map(d => `
+                <div class="dimension">
+                  <span class="dimension-name">${d.name}</span>
+                  <span class="dimension-score" style="color: ${themeColors[stock.theme]}">${d.score}/10</span>
+                  <div class="dimension-bar">
+                    <div class="dimension-fill" style="width: ${d.score * 10}%; background: ${themeColors[stock.theme]};"></div>
+                  </div>
+                </div>
+                <div class="dimension-detail">${d.detail}</div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="stock-footer">
+            <span class="upside-tag">3Y: ${stock.upside}</span>
+            <span class="risk-tag ${stock.riskClass}">${stock.risk}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Filter Function
+    function filterStocks(type, clickedBtn) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      if (clickedBtn) clickedBtn.classList.add('active');
+      renderStocks(type);
+    }
+    
+    let convictionChartInstance = null;
+    function renderChart() {
+      const canvas = document.getElementById('convictionChart');
+      if (!canvas || stocks.length === 0) return;
+      
+      const ctx = canvas.getContext('2d');
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      const textColor = isDark ? '#94a3b8' : '#64748b';
+      const gridColor = isDark ? '#27273a' : '#e2e8f0';
+
+      if (convictionChartInstance) {
+        convictionChartInstance.destroy();
+      }
+
+      convictionChartInstance = new Chart(ctx, {
+        type: 'bubble',
+        data: {
+          datasets: stocks.map(s => ({
+            label: s.ticker,
+            data: [{
+              x: s.conviction,
+              y: parseInt(s.upside),
+              r: s.conviction / 5
+            }],
+            backgroundColor: (themeColors[s.theme] || '#f59e0b') + '80',
+            borderColor: themeColors[s.theme] || '#f59e0b',
+            borderWidth: 1
+          }))
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: { display: true, text: 'Conviction Score', color: textColor, font: { size: 14, weight: '600' } },
+              min: 70, max: 100,
+              grid: { color: gridColor },
+              ticks: { color: textColor }
+            },
+            y: {
+              title: { display: true, text: '3Y Upside Potential (%)', color: textColor, font: { size: 14, weight: '600' } },
+              min: 50, max: 600,
+              grid: { color: gridColor },
+              ticks: { color: textColor }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  if (!stocks[ctx.datasetIndex]) return '';
+                  const stock = stocks[ctx.datasetIndex];
+                  return `${stock.ticker}: ${stock.conviction}/100 | ${stock.upside} upside`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Theme Toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.dataset.theme === 'dark';
+      html.dataset.theme = isDark ? 'light' : 'dark';
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+      renderChart();
+    }
+    
+    function updateHeroStats() {
+      const heroStatsContainer = document.getElementById('hero-stats');
+      if (!heroStatsContainer) return;
+
+      const totalPositions = stocks.length;
+      const avgConviction = stocks.reduce((sum, s) => sum + s.conviction, 0) / totalPositions;
+      const avgUpside = stocks.reduce((sum, s) => sum + parseInt(s.upside), 0) / totalPositions;
+      const totalThemes = new Set(stocks.map(s => s.theme)).size;
+
+      heroStatsContainer.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-value mono">${totalPositions}</div>
+          <div class="stat-label">Positions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value mono">${Math.round(avgConviction)}<span style="font-size:1rem;">/100</span></div>
+          <div class="stat-label">Avg Conviction</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value mono">${Math.round(avgUpside)}%</div>
+          <div class="stat-label">Avg 3Y Upside</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value mono">${totalThemes}</div>
+          <div class="stat-label">Themes</div>
+        </div>
+      `;
+    }
+
+    function renderSummaryTable() {
+      const tbody = document.getElementById('summaryTableBody');
+      if (!tbody) return;
+      const sorted = [...stocks].sort((a, b) => b.conviction - a.conviction);
+      tbody.innerHTML = sorted.map(s => `
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 0.75rem; font-weight: 600; color: var(--accent);" class="mono">${s.ticker}</td>
+          <td style="padding: 0.75rem;">${s.market === 'us' ? '🇺🇸 US' : '🇮🇳 India'}</td>
+          <td style="padding: 0.75rem;">${s.theme}</td>
+          <td style="padding: 0.75rem;">${s.conviction}</td>
+          <td style="padding: 0.75rem; color: var(--success);">${s.upside}</td>
+          <td style="padding: 0.75rem;"><span class="risk-tag ${s.riskClass}">${s.risk}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      renderStocks('all');
+      renderChart();
+      updateHeroStats();
+      renderSummaryTable();
+
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          filterStocks(this.dataset.filter, this);
+        });
+      });
+      
+      const themeBtn = document.getElementById('themeToggleBtn');
+      if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+    });
+  </script>
+</body>
+</html>

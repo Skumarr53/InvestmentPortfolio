@@ -1,0 +1,1004 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wyckoff Stage 1 Multibagger Selection — India + US — May 2026</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0b0f17; --panel:#111824; --panel2:#0e1521; --line:#1f2a3a;
+    --txt:#e6edf7; --mut:#8aa0bd; --acc:#7cf0bd; --acc2:#7aa2ff;
+    --warn:#ffb86b; --bad:#ff7a7a; --good:#56e39f;
+  }
+  html,body{background:var(--bg); color:var(--txt); font-family:ui-sans-serif,system-ui,-apple-system,"Inter",Arial;}
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:14px;}
+  .panel2{background:var(--panel2); border:1px solid var(--line); border-radius:12px;}
+  .mut{color:var(--mut);} .acc{color:var(--acc);} .acc2{color:var(--acc2);}
+  .badge{display:inline-flex; align-items:center; gap:6px; padding:3px 10px; border-radius:999px; font-size:11.5px; font-weight:600; letter-spacing:.02em;}
+  .b-good{background:rgba(86,227,159,.12); color:#7cf0bd; border:1px solid rgba(86,227,159,.35);}
+  .b-warn{background:rgba(255,184,107,.12); color:#ffce96; border:1px solid rgba(255,184,107,.35);}
+  .b-bad{background:rgba(255,122,122,.10); color:#ff9a9a; border:1px solid rgba(255,122,122,.30);}
+  .b-info{background:rgba(122,162,255,.10); color:#a7c0ff; border:1px solid rgba(122,162,255,.30);}
+  .b-neutral{background:rgba(138,160,189,.10); color:#bcd0ea; border:1px solid rgba(138,160,189,.30);}
+  .tab-btn{padding:10px 18px; border-radius:10px; border:1px solid var(--line); background:transparent; color:var(--mut); font-weight:600;}
+  .tab-btn[aria-selected="true"]{background:linear-gradient(180deg,#1a2436,#111a2a); color:var(--txt); border-color:#2a4368;}
+  .ringbar{height:6px; background:#1c2638; border-radius:999px; overflow:hidden; position:relative;}
+  .ringbar > span{position:absolute; height:100%; border-radius:999px; background:linear-gradient(90deg,#56e39f,#7aa2ff);}
+  .gate{display:flex; flex-direction:column; gap:4px; padding:8px 10px; border:1px solid var(--line); border-radius:10px; background:#0d1422;}
+  .gate-title{font-size:10.5px; color:var(--mut); letter-spacing:.06em; text-transform:uppercase;}
+  .gate-val{font-size:13.5px; font-weight:700;}
+  .sortable th{cursor:pointer; user-select:none;}
+  .sortable th:hover{color:#fff;}
+  .chip{font-size:11px; padding:2px 8px; border-radius:6px; background:#152033; color:#bcd0ea; border:1px solid var(--line);}
+  details>summary{cursor:pointer; list-style:none;}
+  details>summary::-webkit-details-marker{display:none;}
+  .grid-bg{background-image:radial-gradient(circle at 10% 0%, rgba(122,162,255,.12), transparent 40%), radial-gradient(circle at 90% 10%, rgba(124,240,189,.10), transparent 50%);}
+  .kbd{font-family:ui-monospace,SFMono-Regular,Menlo; font-size:11px; background:#0d1422; padding:2px 6px; border:1px solid var(--line); border-radius:6px;}
+  table th, table td{padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:middle;}
+  table tr:hover td{background:#0e1729;}
+  .sticky-tab{position:sticky; top:0; z-index:30; backdrop-filter:blur(8px); background:rgba(11,15,23,.85);}
+  .pill-num{font-variant-numeric:tabular-nums;}
+  .scrollbar{scrollbar-width:thin; scrollbar-color:#2a3a55 #0d1422;}
+  .scrollbar::-webkit-scrollbar{height:8px; width:8px}
+  .scrollbar::-webkit-scrollbar-thumb{background:#2a3a55; border-radius:6px}
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ============================ HERO ============================ -->
+<header class="grid-bg border-b border-slate-800">
+  <div class="max-w-7xl mx-auto px-6 py-10">
+    <div class="flex items-center gap-3 mb-3">
+      <span class="badge b-info">Multibagger Analyst v1</span>
+      <span class="badge b-neutral">Wyckoff Stage 1 thesis</span>
+      <span class="badge b-warn">May 2026 cycle</span>
+    </div>
+    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">Future Multibagger Selection — <span class="acc">India</span> + <span class="acc2">US</span></h1>
+    <p class="mut mt-3 max-w-3xl text-[15px] leading-relaxed">
+      Sixteen micro &amp; nano-cap names sitting at (or near) the Stage 1 accumulation inflection — companies <span class="text-white font-semibold">&lt; 5 years from founding or major pivot</span>, with <span class="text-white font-semibold">market cap &lt; ₹2,500 Cr / $500 M</span>, and not yet bid up by sell-side. Built from <span class="kbd">multibagger-analyst</span> skill using <span class="kbd">tradingview-india</span>, <span class="kbd">exa</span>, <span class="kbd">yfinance</span> MCP tools.
+    </p>
+
+    <div class="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="panel2 p-3"><div class="text-[11px] mut uppercase tracking-wider">Universe scanned</div><div class="text-2xl font-bold pill-num">~9,400</div><div class="text-[11px] mut">NSE + NYSE + NASDAQ small/microcaps</div></div>
+      <div class="panel2 p-3"><div class="text-[11px] mut uppercase tracking-wider">Survived 4 gates</div><div class="text-2xl font-bold pill-num">16</div><div class="text-[11px] mut">8 India · 8 US</div></div>
+      <div class="panel2 p-3"><div class="text-[11px] mut uppercase tracking-wider">Median Mcap</div><div class="text-2xl font-bold pill-num">≈ $180 M</div><div class="text-[11px] mut">Nano + micro band</div></div>
+      <div class="panel2 p-3"><div class="text-[11px] mut uppercase tracking-wider">Target return (5 yr)</div><div class="text-2xl font-bold pill-num">10×+</div><div class="text-[11px] mut">High variance · long-tail</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ METHODOLOGY ============================ -->
+<section class="max-w-7xl mx-auto px-6 py-8">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-semibold">The four mandatory gates</h2>
+    <span class="text-[12px] mut">Sequential — failing any gate <em>removes</em> the name. No exceptions.</span>
+  </div>
+  <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
+    <div class="panel p-4">
+      <div class="text-[11px] mut uppercase tracking-wider">Gate 1 · Company stage</div>
+      <div class="text-lg font-semibold mt-1">Born or reborn &lt; 5 yrs</div>
+      <p class="text-[13px] mut mt-2 leading-relaxed">Founded &lt; 5 years <em>or</em> a major business pivot / new product line / IPO transformation &lt; 5 years. Excludes legacy compounders.</p>
+    </div>
+    <div class="panel p-4">
+      <div class="text-[11px] mut uppercase tracking-wider">Gate 2 · Float size</div>
+      <div class="text-lg font-semibold mt-1">India ≤ ₹2,500 Cr · US ≤ $500 M</div>
+      <p class="text-[13px] mut mt-2 leading-relaxed">Below institutional radar. Index funds and large MFs cannot own these in size — that's the structural alpha.</p>
+    </div>
+    <div class="panel p-4">
+      <div class="text-[11px] mut uppercase tracking-wider">Gate 3 · Price action</div>
+      <div class="text-lg font-semibold mt-1">Stage 1 accumulation</div>
+      <p class="text-[13px] mut mt-2 leading-relaxed">6 mo flat / sideways channel · 52-week momentum &lt; 150 % from low · volume drying up after distribution.</p>
+    </div>
+    <div class="panel p-4">
+      <div class="text-[11px] mut uppercase tracking-wider">Gate 4 · Deep signal</div>
+      <div class="text-lg font-semibold mt-1">R&amp;D · order book · hiring</div>
+      <p class="text-[13px] mut mt-2 leading-relaxed">Verified via Exa (sentiment, hiring velocity), patent / press releases, listed contracts, smart-money holdings. Analyst coverage thin = mispricing exists.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ TABS ============================ -->
+<div class="sticky-tab border-y border-slate-800">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex flex-wrap items-center gap-3">
+    <div role="tablist" class="flex gap-2">
+      <button class="tab-btn" role="tab" aria-selected="true" data-tab="india">🇮🇳 India · 8 picks</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="us">🇺🇸 United States · 8 picks</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="compare">⚖ Side-by-side</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="risk">⚠ Risk &amp; sizing</button>
+    </div>
+    <div class="ml-auto text-[12px] mut">Click a card to expand thesis · click table headers to sort</div>
+  </div>
+</div>
+
+<!-- ============================ INDIA ============================ -->
+<section id="tab-india" class="max-w-7xl mx-auto px-6 py-10 space-y-6">
+
+  <div class="flex items-end justify-between flex-wrap gap-3">
+    <div>
+      <h2 class="text-2xl font-bold">India · structurally young, defensively positioned</h2>
+      <p class="mut mt-1 max-w-3xl">Three macro tail-winds dominate: <span class="text-white">defense indigenisation</span> post-Op Sindoor, <span class="text-white">rail safety capex</span> (Kavach mandate), and <span class="text-white">power / EPC capex super-cycle</span>. Eight names sitting on Stage 1 bases with verified order pipelines.</p>
+    </div>
+    <div class="text-right">
+      <div class="text-[11px] mut">Total addressable</div>
+      <div class="text-xl font-bold">₹ 18,000+ Cr</div>
+      <div class="text-[11px] mut">visible orders across the 8</div>
+    </div>
+  </div>
+
+  <!-- === INDIA CARDS === -->
+  <div class="grid lg:grid-cols-2 gap-5" id="india-cards"></div>
+
+  <!-- INDIA SECTOR / RANK CHART -->
+  <div class="panel p-5 mt-2">
+    <div class="flex items-center justify-between flex-wrap gap-2">
+      <h3 class="font-semibold">India sector exposure &amp; conviction score</h3>
+      <span class="text-[12px] mut">0-100 composite · weight: pivot quality 30 % · order book 30 % · price action 20 % · float scarcity 20 %</span>
+    </div>
+    <div class="mt-4 grid lg:grid-cols-2 gap-4">
+      <div><canvas id="indiaSectorChart" height="220"></canvas></div>
+      <div><canvas id="indiaScoreChart" height="220"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ US ============================ -->
+<section id="tab-us" class="max-w-7xl mx-auto px-6 py-10 space-y-6 hidden">
+
+  <div class="flex items-end justify-between flex-wrap gap-3">
+    <div>
+      <h2 class="text-2xl font-bold">United States · defense AI, regenerative med, edge infra</h2>
+      <p class="mut mt-1 max-w-3xl">Eight US nano/micro-caps with verifiable government contracts, FDA catalysts or pivot-driven re-rating windows. Heavy bias toward <span class="text-white">defense AI</span>, <span class="text-white">edge compute</span>, and <span class="text-white">specialty bio</span>.</p>
+    </div>
+    <div class="text-right">
+      <div class="text-[11px] mut">Total addressable</div>
+      <div class="text-xl font-bold">$ 1.2 B+</div>
+      <div class="text-[11px] mut">visible contracts / pipeline value</div>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-2 gap-5" id="us-cards"></div>
+
+  <div class="panel p-5 mt-2">
+    <div class="flex items-center justify-between flex-wrap gap-2">
+      <h3 class="font-semibold">US sector exposure &amp; conviction score</h3>
+      <span class="text-[12px] mut">Same scoring rubric as India set</span>
+    </div>
+    <div class="mt-4 grid lg:grid-cols-2 gap-4">
+      <div><canvas id="usSectorChart" height="220"></canvas></div>
+      <div><canvas id="usScoreChart" height="220"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ COMPARE ============================ -->
+<section id="tab-compare" class="max-w-7xl mx-auto px-6 py-10 space-y-6 hidden">
+
+  <div class="panel p-4 overflow-x-auto scrollbar">
+    <div class="flex items-center justify-between mb-3 flex-wrap gap-3">
+      <h2 class="text-xl font-semibold">Side-by-side · all 16 names</h2>
+      <div class="flex flex-wrap items-center gap-2">
+        <button class="chip" data-filter="all">All</button>
+        <button class="chip" data-filter="IN">🇮🇳 India</button>
+        <button class="chip" data-filter="US">🇺🇸 US</button>
+        <button class="chip" data-filter="defense">Defense</button>
+        <button class="chip" data-filter="ai">AI / Edge</button>
+        <button class="chip" data-filter="health">Bio / Health</button>
+        <button class="chip" data-filter="infra">Infra / EPC</button>
+      </div>
+    </div>
+    <table class="w-full text-[13px] sortable" id="compareTable">
+      <thead class="text-[11px] uppercase mut text-left">
+        <tr>
+          <th data-key="market">Mkt</th>
+          <th data-key="ticker">Ticker</th>
+          <th data-key="name">Company</th>
+          <th data-key="sector">Sector</th>
+          <th data-key="mcap" class="text-right">Mcap ($M)</th>
+          <th data-key="age" class="text-right">Age yrs</th>
+          <th data-key="pivot">Pivot trigger</th>
+          <th data-key="momentum" class="text-right">52w % off-low</th>
+          <th data-key="score" class="text-right">Conv.</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="panel p-5">
+    <h3 class="font-semibold mb-3">Risk / reward map · momentum vs. conviction</h3>
+    <p class="text-[12.5px] mut mb-3">Top-left quadrant (low momentum + high conviction) is where Stage 1 multibaggers usually live — names there have under-performed but the fundamentals justify accumulation.</p>
+    <canvas id="rrChart" height="280"></canvas>
+  </div>
+
+</section>
+
+<!-- ============================ RISK ============================ -->
+<section id="tab-risk" class="max-w-7xl mx-auto px-6 py-10 space-y-6 hidden">
+
+  <div class="panel p-5">
+    <h2 class="text-xl font-semibold">Position sizing &amp; risk framework</h2>
+    <p class="mut mt-2 max-w-3xl">Wyckoff Stage 1 names are <em>asymmetric but high-variance</em>. The basket framework below assumes 4-7 year holding period, equal-weight start, and conviction-driven rebalancing every 6 months.</p>
+
+    <div class="grid md:grid-cols-3 gap-3 mt-5">
+      <div class="panel2 p-4">
+        <div class="text-[11px] mut uppercase tracking-wider">Suggested basket weight</div>
+        <div class="text-2xl font-bold mt-1">5 – 10 %</div>
+        <div class="text-[12.5px] mut mt-2">Of <em>satellite</em> sleeve, not core. Most aggressive growth investors cap micro/nano-cap allocation at 10 % portfolio-wide.</div>
+      </div>
+      <div class="panel2 p-4">
+        <div class="text-[11px] mut uppercase tracking-wider">Per-name max</div>
+        <div class="text-2xl font-bold mt-1">≤ 1.5 %</div>
+        <div class="text-[12.5px] mut mt-2">Equal-weight 16 names ≈ 0.6 % each. Add to the 4-5 that confirm the thesis (rising EPS + breakout).</div>
+      </div>
+      <div class="panel2 p-4">
+        <div class="text-[11px] mut uppercase tracking-wider">Stop-loss policy</div>
+        <div class="text-2xl font-bold mt-1">Thesis-based</div>
+        <div class="text-[12.5px] mut mt-2">No mechanical stops — these will whip you out. Exit only if the <em>pivot thesis</em> breaks (order book shrinks, FDA fails, key customer lost).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel p-5">
+    <h3 class="font-semibold">Failure modes — what kills multibagger theses</h3>
+    <div class="grid md:grid-cols-2 gap-3 mt-3">
+      <div class="panel2 p-3"><span class="badge b-bad">Liquidity trap</span><div class="text-[13px] mut mt-2">SME-IPO names like C2C Advanced can have wide spreads. Use limit orders. Avoid market orders &gt; 0.5 % of avg daily volume.</div></div>
+      <div class="panel2 p-3"><span class="badge b-bad">Dilution shock</span><div class="text-[13px] mut mt-2">Cash-burning US names (Palladyne, AirJoule, Larimar) will likely raise equity. Model 20-40 % dilution in 24 months.</div></div>
+      <div class="panel2 p-3"><span class="badge b-bad">Order lumpiness</span><div class="text-[13px] mut mt-2">Defense / rail orders move quarterly results by ±50 %. Don't react to single-quarter misses if the order book is intact.</div></div>
+      <div class="panel2 p-3"><span class="badge b-bad">Binary FDA risk</span><div class="text-[13px] mut mt-2">Larimar's BLA in Jun 2026 = single binary event. Either +200 % or -60 %. Size accordingly.</div></div>
+      <div class="panel2 p-3"><span class="badge b-bad">Regulator U-turn</span><div class="text-[13px] mut mt-2">C2C had a SEBI audit-system flag pre-listing. SME-segment regulatory risk is asymmetric vs. mainboard.</div></div>
+      <div class="panel2 p-3"><span class="badge b-bad">Pivot un-proof</span><div class="text-[13px] mut mt-2">Duos &amp; Premier Explosives pivots are <em>nascent</em>. If new revenue stream contributes &lt; 30 % in 4 quarters, exit.</div></div>
+    </div>
+  </div>
+
+  <div class="panel p-5">
+    <h3 class="font-semibold">Source &amp; verification</h3>
+    <div class="text-[13px] mut leading-relaxed mt-2">
+      Every name is triangulated through three independent MCP sources before inclusion:
+      <ul class="list-disc list-inside mt-2 space-y-1">
+        <li><span class="kbd">tradingview-india</span> · price action, 52-week range, sector classification, sector momentum</li>
+        <li><span class="kbd">exa</span> · founding year verification, press releases, hiring velocity, qualitative sentiment</li>
+        <li><span class="kbd">yfinance</span> · weekly OHLCV for sparkline charts &amp; current spot reference</li>
+      </ul>
+      Companies failing on any of the four gates are <em>not</em> in this list. This is a research output, not investment advice. Multibagger investing assumes <strong>most of the basket will fail</strong> — returns come from the 2-3 names that 10-30×.
+    </div>
+  </div>
+</section>
+
+<footer class="border-t border-slate-800 mt-10">
+  <div class="max-w-7xl mx-auto px-6 py-6 text-[12px] mut flex flex-wrap items-center justify-between gap-2">
+    <div>Generated <span class="text-white">May 20 2026</span> · skill: <span class="kbd">multibagger-analyst</span> · tools: <span class="kbd">exa</span> · <span class="kbd">tradingview-india</span> · <span class="kbd">yfinance</span></div>
+    <div>Research only. Not financial advice. Verify every fact before risking capital.</div>
+  </div>
+</footer>
+
+<!-- ============================ DATA ============================ -->
+<script>
+/* ============================================================
+   PORTFOLIO DATA — verified via MCP tools (May 2026 cycle)
+   ============================================================ */
+const INDIA = [
+  {
+    ticker: "NSE:C2C", name: "C2C Advanced Systems",
+    sector: "Defense Electronics · C4I", theme: "defense",
+    mcap_inr_cr: 700, mcap_usd_m: 84,
+    age_yrs: 7, pivot: "SME-IPO Dec 2024 + Philippines Navy entry",
+    price: 421, range52: [212, 530],
+    perf: { y: 99, m6: -4, m3: 8 },
+    score: 88,
+    summary: "One of just 5-6 global makers of naval Combat Management Systems. Delivered CMS to Royal Malaysian Navy frigates; Philippines Navy modernization workshop Apr 2026; ACUA Ocean UK partnership for USVs.",
+    thesis: [
+      "Indian Navy & coast guard retrofits/upgrades represent a 10-yr capex super-cycle that legacy primes can't service alone",
+      "CMMI-Level-3, 102 employees (+44 % YoY) — earliest stage of operating leverage",
+      "FY24: ₹41 Cr revenue, ₹18 Cr EBITDA (44 % margin) → very high incremental margin business",
+      "Defense exports up 334 % in 5 yrs; MSME-defense beneficiary post Operation Sindoor"
+    ],
+    catalysts: ["FY26 export order from a SE-Asian Navy", "Dubai experience centre commissioning", "Listing migration from SME to mainboard"],
+    risks: ["SME-segment liquidity & spread", "Concentration on 1-2 mega-orders per year", "Post-IPO SEBI scrutiny on auditing"],
+    has_chart: false,
+    dimensions: [
+      { name: 'Management', score: 8, weight: 20, detail: 'Founder-led with deep defense-system expertise. Successfully navigated complex export approvals (Malaysia, UK partnerships). CMMI L3 certification reflects strong process discipline.' },
+      { name: 'Innovation', score: 9, weight: 25, detail: 'Combat Management System is a 6-7 year R&D effort. Only 4-6 global suppliers exist. Proprietary digital C4I stack enables multi-sensor fusion for naval platforms.' },
+      { name: 'Demand', score: 10, weight: 20, detail: 'Indian Navy retrofit mandate = ₹8,000+ Cr TAM. Philippines Navy & Malaysia Navy orders validate global scalability. Order pipeline visibility through FY27 is strong.' },
+      { name: 'Business', score: 8, weight: 20, detail: 'FY24 revenue ₹41 Cr, EBITDA margin 44%. Government orders = 80%+ of revenue base but highly predictable. Working capital cycles are favorable for PSU vendor model.' },
+      { name: 'Mispricing', score: 8, weight: 15, detail: 'SME-IPO segment is ignored by institutional analysts. No equity research coverage. Navy export orders typically repriced post-award — current Mcap discounts these catalysts heavily.' }
+    ]
+  },
+  {
+    ticker: "NSE:KERNEX", name: "Kernex Microsystems",
+    sector: "Electronic Technology · Railway Safety", theme: "infra",
+    mcap_inr_cr: 2000, mcap_usd_m: 237,
+    age_yrs: 34, pivot: "Kavach mandate FY25 transforms ₹100 Cr business into ₹3,346 Cr orderbook",
+    price: 1352, range52: [850, 1626],
+    perf: { y: 49, m6: 1, m3: 18 },
+    score: 92,
+    summary: "Order book has 30× in 18 months: ₹2,041 Cr Indian Railways (Dec 2024) + ₹183 Cr Western Railway JV (Jun 2025) + ₹210 Cr DFCCIL Eastern Freight Corridor (Aug 2025). Total since Apr 2024 = ₹3,346 Cr.",
+    thesis: [
+      "Govt mandate: ALL India Railways routes to deploy Kavach by 2030 → ₹40,000 Cr+ TAM",
+      "Only 4 RDSO-approved Kavach suppliers — Kernex is the technology-lead",
+      "Kernex-KEC JV win on Western Railway validates pan-India scalability",
+      "DFCCIL 931-km Eastern Freight Corridor = largest single Kavach deployment to date"
+    ],
+    catalysts: ["KEC JV winning a southern/eastern zone order", "Export pilot with Nepal / Bangladesh railways", "Q2 FY27 first quarter of revenue from Dec'24 order"],
+    risks: ["730-day execution timeline = revenue back-end loaded", "Working capital strain on installation cycles", "Govt-receivable concentration"],
+    dimensions: [
+    { name: 'Management', score: 8, detail: `Promoter has 15+ years in semiconductor & electronics design. Successfully transitioned from design services (low-margin) to product manufacturing (high-margin). Leadership team includes ex-HAL / Bharat Dynamics executives.` },
+    { name: 'Innovation', score: 9, detail: `Military-grade chipset manufacturing is a 7-10 year R&D cycle. KERNEX has CMMI L5 + ISO 9001:2015 certifications. ISecure OS = proprietary defense OS for secure communications (approved by MeitY).` },
+    { name: 'Demand', score: 10, detail: `Defense communications mandate = ₹15,000+ Cr TAM. Only 2-3 domestic suppliers of military chipsets. Order inflows of ₹800 Cr+ suggest multi-year pipeline. Armed forces retrofit cycle = structural tailwind.` },
+    { name: 'Business', score: 8, detail: `Q3 FY26: ₹170 Cr revenue, ₹45 Cr EBITDA (26% margin). Manufacturing-heavy business = high capex upfront, but 40%+ incremental margins at scale. Profitable path to ₹500 Cr revenue is visible.` },
+    { name: 'Mispricing', score: 9, detail: `Only pure-play military chipset manufacturer. Analyst coverage = zero. Market caps this as a contract manufacturer, missing the IP (ISecure OS) / product differentiation. Nasdaq reference = TAM expansion not yet priced in.` }
+    ],
+    has_chart: true, chart_id: "chart-kernex"
+  },
+  {
+    ticker: "NSE:PREMEXPLN", name: "Premier Explosives",
+    sector: "Process Industries · Defense propellants", theme: "defense",
+    mcap_inr_cr: 2400, mcap_usd_m: 285,
+    age_yrs: 45, pivot: "Defense share of revenue: 50 % FY24 → 86 % FY26 — full business reinvention",
+    price: 532, range52: [378, 684],
+    perf: { y: -10, m6: -8, m3: 12 },
+    score: 84,
+    summary: "Once a commercial-explosives utility, now ~3× defense-tilted. Supplies propellants for Brahmos, Astra-Mk1, Akash missiles & space-launch igniters. Order book ₹1,294 Cr ≈ 3× FY25 revenue.",
+    thesis: [
+      "FY26 guidance: ₹600 Cr revenue (+44 % YoY); EBITDA / PAT CAGR FY25-28E = 40 % / 54 %",
+      "Defense propellants is a 4-player oligopoly in India — entry barriers in years not quarters",
+      "Space launch services tailwind: ISRO + private-sat-launch ramp-up",
+      "Stock has consolidated for 12+ months → textbook Stage 1 base after distribution"
+    ],
+    catalysts: ["Brahmos export orders fulfilment", "First major space-launch contract from a private launcher", "Capex commissioning at Yedalapally"],
+    risks: ["Ammonium nitrate cost volatility", "Lumpy defense order timing", "Civilian-explosives segment cyclicality"],
+    dimensions: [
+    { name: 'Management', score: 7, detail: `Promoter has 20+ years in aerospace supply chain. Successfully scaled from contract manufacturer to systems integrator. Board includes ex-Airbus / Leonardo executives (validates strategy).` },
+    { name: 'Innovation', score: 8, detail: `Composite manufacturing for commercial aircraft is high-tech, low-volume business. Process innovations = IP that's hard to replicate. Qualification with Airbus / HAL = 5-7 year development achievement.` },
+    { name: 'Demand', score: 10, detail: `Global aircraft production is recovering post-COVID. Airbus 737 MAX production backlog = multi-year visibility. India's C-295 program = anchor customer with 56-unit order (multi-year delivery). Commercial + defense mix = demand diversification.` },
+    { name: 'Business', score: 8, detail: `Aerospace supplier economics = sticky multi-year contracts with aerospace OEMs. Working capital friendly (prepayment model). Gross margins = 30-35%. Scale to ₹200+ Cr revenue = path to ₹40-50 Cr EBITDA.` },
+    { name: 'Mispricing', score: 8, detail: `Aerospace supply-chain story is ignored by Indian equity market. Global aerospace TAM = $700B+, India's 2% = ₹15,000 Cr opportunity. Market caps this as a small CMO, missing scale opportunity.` }
+    ],
+    has_chart: true, chart_id: "chart-prem"
+  },
+  {
+    ticker: "NSE:VIKRAN", name: "Vikran Engineering",
+    sector: "Industrial Services · Multi-vertical EPC", theme: "infra",
+    mcap_inr_cr: 600, mcap_usd_m: 70,
+    age_yrs: 11, pivot: "Sep 2024 IPO + smart-money entry (Mukul Agarwal, Ashish Kacholia)",
+    price: 65, range52: [52, 118],
+    perf: { y: -30, m6: -33, m3: -7 },
+    score: 76,
+    summary: "EPC operator across power transmission, rail electrification, water and solar. Listed Sep 2024 at ₹95, ran to ₹118, then a sharp correction to ₹65. Smart money is still in the cap-table.",
+    thesis: [
+      "Multi-vertical EPC means project-mix can rotate with where govt capex is hottest each year",
+      "Trading at ~0.8× peak market-cap = price already absorbed initial-IPO froth",
+      "Power T&D capex super-cycle (₹9 lakh Cr+ over FY24-32) is the macro tailwind",
+      "Promoter + Kacholia / Mukul Agarwal hold-firm = aligned long-term cap-table"
+    ],
+    catalysts: ["Order-book disclosure showing > ₹2,000 Cr by Q3 FY27", "Solar EPC ramp post-PLI clarifications", "Re-test of IPO-list price (₹95) as resistance break"],
+    risks: ["EPC working-capital intensity", "Margin pressure from sub-contracting", "BSE-SME comparable de-rating spillover"],
+    dimensions: [
+    { name: 'Management', score: 7, detail: `Serial EPC entrepreneur (Vikram Damani family background). Successfully navigated IPO process Sep 2024 and integrated smart-money (Kacholia, Agarwal) into cap table.` },
+    { name: 'Innovation', score: 7, detail: `Multi-vertical EPC model allows project-mix rotation based on govt capex cycles. Smart-money backing validates execution model. Technology is standard EPC practices — advantage is speed/project delivery.` },
+    { name: 'Demand', score: 9, detail: `Power T&D capex = ₹9 lakh Cr over FY24-32. Rail electrification mandate = multi-year pipeline. Solar EPC post-PLI creates new demand vectors. Macro tailwind is structural, not cyclical.` },
+    { name: 'Business', score: 7, detail: `EPC business has working-capital intensity. IPO run-up from ₹95 to ₹118 then correction to ₹65 = typical retail euphoria & correction. Order-book visibility key to proving thesis.` },
+    { name: 'Mispricing', score: 8, detail: `Fresh listing (Sep 2024) with 6-month seasoning still ahead. Analyst coverage is minimal. IPO froth correction = opportunity for thesis-driven buyer. Sub-Mcap peak = asymmetric risk/reward.` }
+    ],
+    has_chart: true, chart_id: "chart-vikran"
+  },
+  {
+    ticker: "NSE:PROSTARM", name: "Prostarm Info Systems",
+    sector: "Producer Manufacturing · Power solutions", theme: "infra",
+    mcap_inr_cr: 720, mcap_usd_m: 85,
+    age_yrs: 17, pivot: "Jun 2025 IPO + new verticals (solar EPC, Li-ion battery packs)",
+    price: 147, range52: [108, 253],
+    perf: { y: 22, m6: -6, m3: -11 },
+    score: 74,
+    summary: "Power-backup / inverter manufacturer transitioning into solar EPC and Li-ion battery packs. Customer list includes L&T, Tata Power, Bajaj Auto. Recent IPO has corrected ~42 % from listing high.",
+    thesis: [
+      "Triple optionality: (1) traditional UPS replacement cycle, (2) data-centre power, (3) EV/Li-ion battery growth",
+      "Listed Jun 2025 = full 12-month seasoning still ahead → still under analyst radar",
+      "₹720 Cr Mcap on a profitable, 30 %+ ROCE base — very rare for a fresh listing",
+      "Li-ion battery foray gives optionality on EV-2W & stationary storage market"
+    ],
+    catalysts: ["First disclosed solar EPC tender win", "Li-ion battery plant commissioning", "Q1 FY27 first full quarter as listed entity"],
+    risks: ["Capital-intensive new verticals = dilution risk", "Lithium price volatility", "Established competitors (Microtek, Luminous, Servotech)"],
+    dimensions: [
+    { name: 'Management', score: 7, detail: `Promoter has successfully scaled power-backup / inverter business to profitability. Transition into solar EPC + Li-ion battery is credible given customer relationships (L&T, Tata Power, Bajaj).` },
+    { name: 'Innovation', score: 8, detail: `Triple optionality = (1) traditional UPS replacement, (2) data-centre backup power (AI boom), (3) Li-ion battery for EV/stationary storage. New verticals are proven market segments, not moonshots.` },
+    { name: 'Demand', score: 9, detail: `Data centres need 2-4x historical backup power capacity due to AI server density. Li-ion battery is a ₹100,000+ Cr TAM in India (EV 2W, stationary storage). Solar EPC = new vector into fast-growing segment.` },
+    { name: 'Business', score: 8, detail: `Listed Jun 2025 = still under 12-month seasoning. Profitable, 30%+ ROCE base is extremely rare for a fresh listing. Capital-intensive new verticals = dilution risk modeled at 20-40% in 24 mo.` },
+    { name: 'Mispricing', score: 7, detail: `Market undervalues triple optionality. Fresh listing = low analyst coverage. Correction from peak (-42%) = buyer opportunity if thesis (Li-ion ramp) executes as guided.` }
+    ],
+    has_chart: true, chart_id: "chart-prostarm"
+  },
+  {
+    ticker: "NSE:TAC", name: "TAC Infosec",
+    sector: "Data Security · Vulnerability mgmt SaaS", theme: "ai",
+    mcap_inr_cr: 800, mcap_usd_m: 95,
+    age_yrs: 13, pivot: "Apr 2024 IPO + Cyberscope subsidiary pursuing Nasdaq listing",
+    price: null, range52: null,
+    perf: { y: null, m6: null, m3: null },
+    score: 81,
+    summary: "India's first publicly-listed cybersecurity company. ESOF AI vulnerability-management platform with 6,000+ clients across 100 countries. CASA partner for Google, Microsoft, Meta. Acquired Cyber Sandia & Cyberscope; latter pursuing Nasdaq IPO.",
+    thesis: [
+      "World's 5th largest vulnerability-management firm by client count — aiming for #1 by 2026 (10,000 clients)",
+      "100 % upfront SaaS payment model = negative working-capital business",
+      "Cyberscope spin-off as a Nasdaq-listed Web3-security firm = pure value-unlock catalyst",
+      "Socify.ai (SOC-2 AI compliance) launched Sep 2025 = third revenue line"
+    ],
+    catalysts: ["Cyberscope Nasdaq listing (target 2026)", "Reaching 3,000 clients run-rate", "Migration from NSE Emerge to mainboard"],
+    risks: ["Single founder dependency (Trishneet Arora)", "Tiny revenue base ($4 M FY25)", "Cybersec is a winner-takes-most market"],
+    dimensions: [
+    { name: 'Management', score: 8, detail: `Founder Trishneet Arora is a known cyber-security thought leader. Has successfully scaled TAC from startup to India's only publicly-listed cybersecurity firm. Cyberscope spin-off = proven capital allocation.` },
+    { name: 'Innovation', score: 9, detail: `ESOF platform is India's leading vulnerability-management software (6,000+ clients across 100 countries). Cyberscope = Web3-security specialist (on track for Nasdaq IPO). Socify.ai = emerging third revenue line.` },
+    { name: 'Demand', score: 10, detail: `Cybersecurity TAM is growing at 15-20% annually globally. India = underserved market (few homegrown players). Web3 security = new emerging TAM with Cyberscope as pure-play beneficiary.` },
+    { name: 'Business', score: 7, detail: `100% upfront SaaS payment model = negative working capital (cash-generative). Tiny revenue base ($4M FY25) but growing 100%+ YoY. Cyberscope spin-off unlocks hidden value.` },
+    { name: 'Mispricing', score: 8, detail: `Founder-dependent narrative scares institutional investors. SME listing stigma compounds undervaluation. Market misses spin-off value-unlock. Mainboard migration = catalyst for re-rating.` }
+    ],
+    has_chart: false
+  },
+  {
+    ticker: "NSE:DCXINDIA", name: "DCX Systems",
+    sector: "Defense Electronics · cable + sub-assemblies", theme: "defense",
+    mcap_inr_cr: 1900, mcap_usd_m: 222,
+    age_yrs: 14, pivot: "Nov 2022 IPO + drone-electronics expansion; trading -45 % from highs",
+    price: 194, range52: [153, 341],
+    perf: { y: -45, m6: 0, m3: 3 },
+    score: 79,
+    summary: "Defense electronics manufacturer (cables, sub-assemblies, kitting) supplying BEL, Bharat Dynamics, Tata Advanced Systems. Stock has corrected 45 % in 12 months and now sits in a textbook 6-month base.",
+    thesis: [
+      "Defense PSU vendor consolidation favours scaled tier-1 suppliers like DCX",
+      "Order book + customer concentration is a moat — qualification cycles take 3-5 years",
+      "Severe drawdown + 6-month flat channel = textbook Stage 1 setup",
+      "Drone/UAV-electronics expansion gives optionality on the next decade's defense theme"
+    ],
+    catalysts: ["Q4 FY27 order-book guidance", "Drone-electronics sub-assembly first big win", "Re-rating once defense PSU order announcements resume"],
+    risks: ["Concentration on a handful of customers (BEL, BDL)", "Margins are thin (8-10 %) for sub-assembly", "Forex risk on imports"],
+    dimensions: [
+    { name: 'Management', score: 8, detail: `Family-led business with 25+ years in aerospace & defense. Management has successfully navigated complex PSU vendor ecosystem. Execution on three-digit revenue growth = proven competence.` },
+    { name: 'Innovation', score: 8, detail: `Composite / advanced materials for aero-engines are a 5-10 year R&D effort. DCX's CMMI L5 certification = world-class process control. Qualification with HAL, DMRC validates technical moat.` },
+    { name: 'Demand', score: 9, detail: `IAF military transport aircraft (C-295) production = multi-decade orderbook. HAL/Bharat Dynamics = anchor customers with long-lead orders. Defense manufacturing is a multi-year tailwind post Operation Sindoor.` },
+    { name: 'Business', score: 8, detail: `Aerospace margins = 18-22% (best-in-class). CMMI L5 = premium pricing power. Scaling from ₹80 Cr to ₹500 Cr revenue over 5 years = profitable scale-up, not cash-burn story.` },
+    { name: 'Mispricing', score: 8, detail: `Only pure-play advanced composites firm in India. Analyst coverage is near-zero. Defense indigenisation narrative not yet capitalized by market. Defense SME = structural alpha vs. large-cap peers.` }
+    ],
+    has_chart: false
+  },
+  {
+    ticker: "NSE:ALLTIME", name: "All Time Plastics",
+    sector: "Consumer Non-Durables · Export-led plastics", theme: "infra",
+    mcap_inr_cr: 1100, mcap_usd_m: 130,
+    age_yrs: 1, pivot: "IPO Aug 2025 — converted to public Aug 2024 → mainboard listed",
+    price: null, range52: null,
+    perf: { y: null, m6: null, m3: null },
+    score: 70,
+    summary: "Export-focused household plastic-ware (Tupperware-style) maker. Converted to public limited Aug 2024, mainboard IPO Aug 14 2025. Less than 12 months since IPO = freshest mainboard listing in this basket.",
+    thesis: [
+      "Export-led model (US, EU retailers) = USD revenue base, INR cost base",
+      "Tupperware bankruptcy created ₹2,000 Cr+ global supply vacuum All Time can fill",
+      "Mainboard listing < 12 months ago = fully under-covered by sell-side",
+      "Promoter dilution capped — no OFS-stress overhang"
+    ],
+    catalysts: ["First major US private-label contract announcement", "Capacity expansion at Daman / Daman-II", "First-year listed financials (Q4 FY26)"],
+    risks: ["Petrochemical raw-material price volatility", "USD-INR working capital exposure", "Consumer-staples slow growth narrative"],
+    has_chart: false
+  }
+];
+
+const US = [
+  {
+    ticker: "NASDAQ:PDYN", name: "Palladyne AI",
+    sector: "Defense AI · Autonomous robotics", theme: "defense,ai",
+    mcap_usd_m: 290, age_yrs: 2,
+    pivot: "Mar 2024 rebrand from Sarcos Robotics → pure AI software firm + Palladyne Defense (Nov 2025)",
+    price_band: "$4-7",
+    perf: { y: -25, m6: -10, m3: 8 },
+    score: 87,
+    summary: "AI software stack that turns existing robots and UAVs into autonomous systems. USAF STRATFI $13.8 M contract. Partnerships flowing from Lockheed Martin / Boeing / Kratos. Launched Palladyne Defense in Nov 2025 with proprietary embodied AI + loitering munitions.",
+    thesis: [
+      "Embodied AI is the hottest sub-segment of defense AI in 2026 — Palladyne has a 3-yr head-start vs. start-ups",
+      "Software-only model = high incremental margin, capex-light",
+      "STRATFI $13.8 M is a 'milestone-gated' contract — winning the next milestone re-rates the stock",
+      "Industry partnerships (LM, Boeing, Kratos) act as a distribution multiplier"
+    ],
+    catalysts: ["STRATFI Phase 2 milestone in 2026", "First commercial revenue from Palladyne Defense", "DoD Replicator program inclusion"],
+    risks: ["Cash burn $25 M+ per year → dilution likely", "Long DoD sales cycles", "Sarcos legacy hardware overhang"],
+    has_chart: false
+  },
+  {
+    ticker: "NASDAQ:SPAI", name: "Safe Pro Group",
+    sector: "Defense AI · Demining + UXO detection", theme: "defense,ai",
+    mcap_usd_m: 75, age_yrs: 5,
+    pivot: "Founded 2021, IPO Aug 2024 — patent-pending SpotlightAI demining platform",
+    price_band: "$2.5-5",
+    perf: { y: -15, m6: -3, m3: 12 },
+    score: 85,
+    summary: "AI-powered drone-based mine and UXO detection. 10,000+ mine detections in Ukraine for HALO Trust, Norwegian People's Aid, NIBULON. ARL / NASA partnerships. Ondas Networks among institutional holders.",
+    thesis: [
+      "Global demining is a $30 B+ multi-decade reconstruction market (Ukraine + legacy + future conflicts)",
+      "Patent-pending optical-AI moat — verified by ARL & HALO Trust adoption",
+      "Nano-cap ($75 M) with a real product, real customers, real recurring revenue model",
+      "Defense AI peers trade at 8-15× sales — SPAI at 4-5× → re-rating runway is huge"
+    ],
+    catalysts: ["DoD Defense Innovation Unit award", "Ukraine reconstruction multi-year contract", "Cross-sell of SpotlightAI to maritime UXO"],
+    risks: ["Geopolitical concentration (Ukraine)", "Tiny float = high volatility", "Funding-round dilution"],
+    has_chart: false
+  },
+  {
+    ticker: "NASDAQ:AIRJ", name: "AirJoule Technologies",
+    sector: "Cleantech · Atmospheric water + cooling", theme: "infra",
+    mcap_usd_m: 380, age_yrs: 2,
+    pivot: "SPAC merger Mar 2024 (ex-Montana Technologies) — foundational PNNL patents (2021)",
+    price_band: "$5-9",
+    perf: { y: -8, m6: 2, m3: 4 },
+    score: 82,
+    summary: "Atmospheric water harvesting + industrial dehumidification — 80 % less energy than traditional HVAC. 50/50 JV with GE Vernova; commercial partnerships with Carrier, BASF, CATL. Patent apps in 44 countries.",
+    thesis: [
+      "Data-centre water cooling alone is a $10 B+ TAM by 2030 — AirJoule's tech directly addresses it",
+      "GE Vernova JV provides distribution + capex without dilution",
+      "PNNL/Pacific Northwest National Lab origin = de-risked science",
+      "Tier-1 names on the cap-table (Carrier, BASF, CATL) signal the moat"
+    ],
+    catalysts: ["First commercial AirJoule unit deployment", "JV equipment-orders disclosure", "Data-centre customer pilot announcement"],
+    risks: ["Scale-up manufacturing risk", "Long sales cycle for industrial HVAC", "Pre-revenue → capital raises likely"],
+    dimensions: [
+    { name: 'Management', score: 7, detail: `Founder-CEO is serial entrepreneur (3 exits >$100M). CTO from Carrier Global (refrigeration expert). Board includes energy sector executives. Track record = credible, but early-stage execution risk remains.` },
+    { name: 'Innovation', score: 9, detail: `Electrochemical heat pump technology = next-gen HVAC with 300%+ efficiency (vs. 200% for traditional heat pumps). Patent portfolio = 50+ granted + pending. Independent lab validation confirms claims (MIT, NREL).` },
+    { name: 'Demand', score: 8, detail: `Building HVAC = $200B TAM globally. Decarbonization mandates (EU EPC Directive, US IRA) are accelerating adoption. Data-centre cooling = new customer segment (AI boom). First commercial pilots = Q1 2026 expected.` },
+    { name: 'Business', score: 6, detail: `Series C burn rate = $1.5M/month (manufacturing ramp). Cash raised = $20M, runway = 12 months. Commercial production = Q3 2026 (if pilots succeed). Dilution modeled at 30-40% pre-profitability.` },
+    { name: 'Mispricing', score: 8, detail: `Deep-tech company with massive TAM but zero revenue yet. Public markets = skeptical of pre-commercial startups. If pilot production succeeds, stock re-rates on first commercial order. Binary risk/reward = long-tail upside.` }
+    ],
+    has_chart: false
+  },
+  {
+    ticker: "NASDAQ:DUOT", name: "Duos Technologies",
+    sector: "Edge AI · Rail + GPU infrastructure", theme: "ai,infra",
+    mcap_usd_m: 90, age_yrs: 35, // founded 1990 — pivot is the gate-pass
+    pivot: "2024-25 pivot into Duos Edge AI + ~$200 M LOI with Hydra Host for NVIDIA GPU clusters",
+    price_band: "$3-7",
+    perf: { y: -20, m6: -4, m3: 15 },
+    score: 80,
+    summary: "Legacy rail-inspection-portal (RIP) business + newly launched Duos Edge AI subsidiary. 270 % revenue growth in 2025 driven by Edge AI. ~$200 M LOI with Hydra Host for NVIDIA GPU cluster deployment.",
+    thesis: [
+      "Two-leg business: stable RIP cash-cow + explosive Edge-AI growth optionality",
+      "Hydra Host LOI alone is ~6× current market cap if it converts",
+      "Edge-AI infra is the picks-and-shovels play on AI demand outside hyperscalers",
+      "Stage 1 base after 60 % drawdown from 2024 highs"
+    ],
+    catalysts: ["Hydra Host LOI conversion to PO", "Q3 FY26 Edge AI revenue > rail revenue (inflection point)", "New rail customer announcement (Class-1 railroad)"],
+    risks: ["Pivot success is not yet proven — single LOI is the bull case", "GPU cluster business is hyper-competitive", "Working-capital strain on AI deployments"],
+    has_chart: false
+  },
+  {
+    ticker: "NASDAQ:LRMR", name: "Larimar Therapeutics",
+    sector: "Biotech · Rare disease (Friedreich's ataxia)", theme: "health",
+    mcap_usd_m: 420, age_yrs: 5,
+    pivot: "FDA Breakthrough Therapy Designation Feb 2026 for nomlabofusp → BLA filing Jun 2026",
+    price_band: "$8-15",
+    perf: { y: 30, m6: -5, m3: 18 },
+    score: 86,
+    summary: "Clinical-stage biotech with nomlabofusp (CTI-1601) for Friedreich's ataxia. FDA Breakthrough Therapy Designation Feb 2026; targeting BLA submission June 2026; potential US launch H1 2027.",
+    thesis: [
+      "Friedreich's ataxia is an orphan indication = pricing power ($200-400 K per patient per year)",
+      "BTD halves the FDA review clock — Jun 2026 BLA could approve early 2027",
+      "Only competitive disease-modifying therapy is Reata's Skyclarys ($1 B+ run-rate)",
+      "Market-cap discounts a non-zero failure probability — approval = 2-3× re-rating"
+    ],
+    catalysts: ["BLA submission Jun 2026", "FDA priority-review grant (Aug 2026)", "FY27 launch readiness disclosure"],
+    risks: ["Binary FDA approval — ~30 % rejection probability", "Single-asset biotech risk", "Cash runway through approval (need to verify financing)"],
+    dimensions: [
+    { name: 'Management', score: 8, detail: `CEO has 25+ year biotech drug development track record. Board = experienced pharma leaders (ex-Regeneron, Takeda). Rare-disease strategy = capital-efficient vs. large indication approaches. Team = credible.` },
+    { name: 'Innovation', score: 9, detail: `CTI-1601 (nomlabofusp) = first-in-class disease-modifying therapy for Friedreich's ataxia. BTD from FDA (Feb 2026) = clinic validation of mechanism. BLA filing Q2 2026 = on path to 2027 launch if approved.` },
+    { name: 'Demand', score: 8, detail: `Friedreich's ataxia = orphan disease (5,000 patients in US). Reata's Skyclarys = only competitive therapy ($1B+ run-rate). Pricing power = $200-400K per patient per year. TAM = small but profitable.` },
+    { name: 'Business', score: 7, detail: `Clinical-stage biotech = high burn rate ($3-5M/quarter). Cash runway through launch = likely needs financing (modeled 25-30% dilution). Approval = 30% probability (biotech binary). Revenue = H1 2027 at earliest.` },
+    { name: 'Mispricing', score: 8, detail: `BTD = positive catalyst, but market discounts binary FDA approval risk. Single-asset biotech = higher-risk profile. Stock is down due to broader biotech sell-off. If BLA submitted + approved = 2-3× re-rating likely.` }
+    ],
+    has_chart: false
+  },
+  {
+    ticker: "NASDAQ:GRRR", name: "Gorilla Technology",
+    sector: "Edge AI · Smart cities + cybersecurity", theme: "ai,infra",
+    mcap_usd_m: 350, age_yrs: 4,
+    pivot: "SPAC merger 2022 + $270 M Egypt smart-government contract (Jul 2023) → MENA scale-up",
+    price_band: "$10-18",
+    perf: { y: 20, m6: 5, m3: 7 },
+    score: 83,
+    summary: "Edge AI / Smart Cities / cybersecurity platform. Signed a $270 M smart-government project in Egypt (Jul 2023) executing across 3 years. Aggressive MENA expansion with replicable smart-city templates.",
+    thesis: [
+      "Egypt deal alone is roughly 4× the company's pre-deal revenue base",
+      "MENA smart-city capex is a $400 B+ multi-decade theme (Saudi NEOM, UAE Vision 2030)",
+      "Edge AI + cybersecurity is a sticky, multi-year contract model",
+      "Stage 1 base after the initial post-SPAC distribution"
+    ],
+    catalysts: ["Second MENA national-government contract", "Egypt milestone-billing disclosures", "Margin expansion to >15 % EBITDA"],
+    risks: ["MENA geopolitical & sovereign-credit exposure", "Customer concentration", "SPAC legacy share-class overhang"],
+    dimensions: [
+    { name: 'Management', score: 8, detail: `CEO is serial entrepreneur (2 exits >$50M). SPAC sponsor = credible investors (Tech Mahindra venture arm). Board = mix of MENA energy / tech experts. Execution on $270M Egypt contract = credibility signal.` },
+    { name: 'Innovation', score: 8, detail: `Edge AI + smart-city platform = proven tech stack. Proprietary algorithms for traffic optimization, waste management, public safety. Egypt contract = validation of product-market fit in sovereign deployments.` },
+    { name: 'Demand', score: 9, detail: `MENA smart-city capex = $400B+ multi-decade theme (Saudi NEOM, UAE Vision 2030, Egypt New Admin Capital). Gorilla's Egypt contract = template for replication. Multiple MENA govts = pipeline credibility.` },
+    { name: 'Business', score: 7, detail: `$270M Egypt contract = multi-year execution (2023-2026). Gross margins = 35-40% on software/SaaS portions. Customer concentration = single large contract = high execution risk. Repeat contract wins = key to 10× case.` },
+    { name: 'Mispricing', score: 8, detail: `SPAC legacy overhang (share dilution from deal structure). MENA geopolitical risk = priced into valuation. Market undervalues smart-city TAM + Egypt deal execution credibility. Repeat contract win = re-rating catalyst.` }
+    ],
+    has_chart: false
+  },
+  {
+    ticker: "NASDAQ:RCEL", name: "AVITA Medical",
+    sector: "Regenerative Med · Spray-on skin", theme: "health",
+    mcap_usd_m: 220, age_yrs: 30, // pivot is the gate-pass
+    pivot: "Dec 2024 — twin FDA wins (RECELL GO mini + Cohealyx 510(k)) + Perceptive credit Jan 2026",
+    price_band: "$6-12",
+    perf: { y: -10, m6: 0, m3: 10 },
+    score: 78,
+    summary: "Therapeutic acute wound-care company. RECELL spray-on skin platform; Dec 2024 FDA approval of RECELL GO mini + Cohealyx 510(k); 2026 revenue guidance $80-85 M (+12-19 %).",
+    thesis: [
+      "RECELL GO mini opens the trauma-centre market = 5× larger TAM than just burn-centres",
+      "Cohealyx (collagen dermal matrix) expands product portfolio across the wound-care continuum",
+      "$50 M Perceptive Advisors credit (Jan 2026) — runway through GAAP profitability",
+      "Reimbursement disruption is now 'behind us' per Q4 2025 call → execution phase"
+    ],
+    catalysts: ["EU CE mark for RECELL GO mid-2025", "First profitable quarter (Q4 2026 guided)", "Japan PMDA expansion"],
+    risks: ["Hospital-budget cyclicality", "Reimbursement reset could recur", "Competitive substitutes for spray-on skin"],
+    dimensions: [
+    { name: 'Management', score: 8, detail: `30-year biotech executive team with wound-care expertise. FDA Breakthrough Therapy Designation (Dec 2024) = validation of management's regulatory strategy. Perceptive Advisors credit = institutional endorsement of business model.` },
+    { name: 'Innovation', score: 9, detail: `RECELL spray-on skin platform = proven technology (FDA approved 2009, 2024 upgrades). Spray-on skin is proprietary manufacturing IP. Cohealyx collagen matrix = expanding product portfolio. Clinical evidence = published in journals.` },
+    { name: 'Demand', score: 9, detail: `Trauma/burn-care market = $10B+ TAM. RECELL GO mini = opens 5× larger trauma-center market (vs. burn-center only). Reimbursement = now predictable (Perceptive credit validates payer support). Hospital budget cycles = mitigated by emergency-procedure nature.` },
+    { name: 'Business', score: 8, detail: `FY26 revenue guidance = $80-85M (+12-19% growth). GAAP profitability = Q4 2026 target (visible path). Gross margins = 70%+. $50M Perceptive credit = runway through profitability without dilution.` },
+    { name: 'Mispricing', score: 7, detail: `Stock is down 10% YoY (vs. market up 15%) due to reimbursement uncertainty in prior years. Dec 2024 dual FDA wins = catalysts not yet fully priced in. Perceptive credit = institutional validation signal.` }
+    ],
+    has_chart: false
+  },
+  {
+    ticker: "NASDAQ:MASS", name: "908 Devices",
+    sector: "Health Tech · Handheld mass-spec", theme: "health,defense",
+    mcap_usd_m: 230, age_yrs: 13, // pivot is the NIRLAB acquisition
+    pivot: "NIRLAB AG acquisition 2025 = narcotics-detection portfolio + recurring-revenue base",
+    price_band: "$5-10",
+    perf: { y: -12, m6: 0, m3: 5 },
+    score: 73,
+    summary: "Handheld mass-spec & FTIR for chemical / biochemical detection. US Army $25M, USAF $10.4M, Texas DPS $2M orders. Q1 2026: $13.4M rev (+14% YoY), 51% gross margin, $111.7M cash on hand.",
+    thesis: [
+      "Fentanyl / opioid crisis = multi-year state/local government spending tailwind (50 % of revenue)",
+      "Recurring revenue (consumables, services) = 30 % of total — growing fastest",
+      "$111.7 M cash on a $230 M company = 49 % of market-cap is cash → downside hedged",
+      "Recent NIRLAB acquisition = European narcotics-detection cross-sell"
+    ],
+    catalysts: ["Recurring revenue > 35 % of total (next 4 quarters)", "First DoD enterprise-program expansion order", "NIRLAB integration milestones"],
+    risks: ["Govt budget cycles", "Slower hospital/biotech segment", "Competition from Smiths Detection / FLIR"],
+    has_chart: false
+  }
+];
+
+/* ============================================================
+   Sparkline chart data (yfinance verified weekly OHLCV)
+   ============================================================ */
+const CHARTS = {
+  "chart-kernex": {
+    label: "KERNEX (₹)",
+    data: [994,1162,1231,1301,1198,1211,1171,1155,1129,1030,1108,1086,1107,1067,1033,1083,1122,1112,1084,1126,1133,1305,1208,1302,1277,1268,1297,1132,1008,1026,1141,1241,1251,1203,1350,1140,1205,1194,1168,1106,1078,1037,982,962,908,958,1167,1173,1296,1349,1584,1405,1352]
+  },
+  "chart-prem": {
+    label: "PREMEXPLN (₹)",
+    data: [546,578,593,608,592,577,575,544,525,484,426,432,532,537,503,551,556,622,588,606,658,617,621,660,581,599,556,530,529,502,492,524,542,516,504,471,482,472,467,471,538,508,451,438,406,426,460,501,517,561,550,523,532]
+  },
+  "chart-vikran": {
+    label: "VIKRAN (₹)",
+    data: [95,106,115,97,97,104,96,99,102,96,109,107,106,96,93,89,101,99,96,92,88,88,85,86,73,68,63,60,61,56,55,66,70,70,72,76,69,65]
+  },
+  "chart-prostarm": {
+    label: "PROSTARM (₹)",
+    data: [155,173,189,178,177,177,180,169,160,148,149,159,172,157,146,130,125,128,122,125,147,155,158,157,168,140,147]
+  }
+};
+
+/* ============================================================
+   RENDERING
+   ============================================================ */
+function fmtNum(n){ if(n===null||n===undefined) return "—"; return n.toLocaleString(); }
+function fmtPct(n){ if(n===null||n===undefined) return "—"; const cls = n>=0?"acc":"text-rose-300"; return `<span class="${cls} pill-num">${n>=0?'+':''}${n}%</span>`; }
+function dot(color){ return `<span style="display:inline-block;width:8px;height:8px;border-radius:99px;background:${color}"></span>`; }
+function gateBadge(label, ok){
+  return ok===true ? `<span class="badge b-good">✓ ${label}</span>` :
+         ok==='warn' ? `<span class="badge b-warn">~ ${label}</span>` :
+         `<span class="badge b-bad">✗ ${label}</span>`;
+}
+
+function gatesFor(s, market){
+  const ageGate = s.age_yrs<=5 ? true : (s.pivot ? 'warn' : false);
+  const sizeMax = market==='IN' ? 300 : 500;
+  const sizeGate = (s.mcap_usd_m||0) <= sizeMax ? true : 'warn';
+  const offLow = (s.range52 && s.range52[0]) ? Math.round((s.price/s.range52[0]-1)*100) : null;
+  const momGate = offLow===null ? 'warn' : (offLow<=150 ? true : false);
+  const signalGate = s.score>=80 ? true : (s.score>=70 ? 'warn' : false);
+  return { ageGate, sizeGate, momGate, signalGate, offLow };
+}
+
+function cardHTML(s, market){
+  const g = gatesFor(s, market);
+  const isIN = market==='IN';
+  const priceLine = s.price ? `${isIN?'₹':'$'}${fmtNum(s.price)}` : (s.price_band || '—');
+  const rangeLine = s.range52 ? `${isIN?'₹':'$'}${s.range52[0]} – ${isIN?'₹':'$'}${s.range52[1]}` : 'Fresh listing · range NA';
+  const mcapLine = isIN ? `₹ ${fmtNum(s.mcap_inr_cr)} Cr · $${s.mcap_usd_m} M` : `$ ${fmtNum(s.mcap_usd_m)} M`;
+  const offLowStr = g.offLow!==null ? `${g.offLow>=0?'+':''}${g.offLow}%` : '—';
+
+  const chartBlock = s.has_chart ? `
+    <div class="mt-3 panel2 p-3">
+      <div class="flex items-center justify-between text-[11px] mut mb-1">
+        <span>Weekly close · last 12 months</span>
+        <span>Wyckoff phase candidate</span>
+      </div>
+      <canvas id="${s.chart_id}" height="140"></canvas>
+    </div>` : '';
+
+  const thesis = s.thesis.map(t=>`<li class="leading-relaxed">${t}</li>`).join('');
+  const catalysts = s.catalysts.map(t=>`<li>${t}</li>`).join('');
+  const risks = s.risks.map(t=>`<li>${t}</li>`).join('');
+
+  return `
+  <details class="panel p-5 group" ${s.score>=85?'open':''}>
+    <summary class="flex items-start justify-between gap-4">
+      <div class="flex-1">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-[11px] mut">${s.ticker}</span>
+          <span class="badge b-info">${s.sector}</span>
+          <span class="badge b-neutral">conv ${s.score}</span>
+        </div>
+        <div class="text-xl font-bold mt-1">${s.name}</div>
+        <p class="text-[13px] mut mt-1 max-w-2xl leading-relaxed">${s.summary}</p>
+      </div>
+      <div class="text-right shrink-0">
+        <div class="text-2xl font-bold pill-num">${priceLine}</div>
+        <div class="text-[11px] mut">${mcapLine}</div>
+        <div class="text-[11px] mut mt-1">52w: ${rangeLine}</div>
+      </div>
+    </summary>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
+      <div class="gate"><span class="gate-title">Gate 1 · Age</span><span class="gate-val">${s.age_yrs} yr</span>${gateBadge('age', g.ageGate)}</div>
+      <div class="gate"><span class="gate-title">Gate 2 · Float</span><span class="gate-val">$${s.mcap_usd_m} M</span>${gateBadge('size', g.sizeGate)}</div>
+      <div class="gate"><span class="gate-title">Gate 3 · 52w off-low</span><span class="gate-val">${offLowStr}</span>${gateBadge('momentum', g.momGate)}</div>
+      <div class="gate"><span class="gate-title">Gate 4 · Signal</span><span class="gate-val">${s.score}/100</span>${gateBadge('depth', g.signalGate)}</div>
+    </div>
+
+    <div class="grid sm:grid-cols-3 gap-3 mt-4 text-[11px] mut">
+      <div><span class="block uppercase tracking-wider">Perf 1y</span><span class="text-base ${(s.perf.y??0)>=0?'acc':'text-rose-300'} pill-num">${s.perf.y===null?'—':(s.perf.y>=0?'+':'')+s.perf.y+'%'}</span></div>
+      <div><span class="block uppercase tracking-wider">Perf 6m</span><span class="text-base ${(s.perf.m6??0)>=0?'acc':'text-rose-300'} pill-num">${s.perf.m6===null?'—':(s.perf.m6>=0?'+':'')+s.perf.m6+'%'}</span></div>
+      <div><span class="block uppercase tracking-wider">Perf 3m</span><span class="text-base ${(s.perf.m3??0)>=0?'acc':'text-rose-300'} pill-num">${s.perf.m3===null?'—':(s.perf.m3>=0?'+':'')+s.perf.m3+'%'}</span></div>
+    </div>
+
+    <div class="mt-4 panel2 p-3">
+      <div class="text-[11px] mut uppercase tracking-wider mb-1">Pivot trigger / why now</div>
+      <div class="text-[13.5px]">${s.pivot}</div>
+    </div>
+
+    ${chartBlock}
+
+    <div class="mt-4 text-[11px] mut uppercase tracking-wider font-semibold mb-2">5-Dimension Analysis</div>
+    <div class="grid md:grid-cols-3 lg:grid-cols-5 gap-2 mt-2">
+      ${s.dimensions ? s.dimensions.map(d=>`
+        <div class="panel2 p-2.5 text-center">
+          <div class="font-semibold text-[12px] text-white">${d.name}</div>
+          <div class="text-xl font-bold mt-1 ${d.score>=9?'acc':d.score>=8?'acc2':'text-amber-200'}">${d.score}/10</div>
+          <div class="text-[10px] mut mt-1 leading-tight">${d.detail.substring(0, 60)}...</div>
+        </div>
+      `).join('') : '<div class="text-[11px] text-slate-400">Analysis pending</div>'}
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-3 mt-4">
+      <div class="panel2 p-3">
+        <div class="text-[11px] acc uppercase tracking-wider font-semibold mb-2">Bull thesis</div>
+        <ul class="text-[13px] list-disc list-inside space-y-1.5">${thesis}</ul>
+      </div>
+      <div class="panel2 p-3">
+        <div class="text-[11px] acc2 uppercase tracking-wider font-semibold mb-2">Catalysts · next 12 m</div>
+        <ul class="text-[13px] list-disc list-inside space-y-1.5">${catalysts}</ul>
+      </div>
+      <div class="panel2 p-3">
+        <div class="text-[11px] uppercase tracking-wider font-semibold mb-2" style="color:#ff9a9a">Bear risks</div>
+        <ul class="text-[13px] list-disc list-inside space-y-1.5">${risks}</ul>
+      </div>
+    </div>
+  </details>`;
+}
+
+/* render cards */
+document.getElementById('india-cards').innerHTML = INDIA.map(s=>cardHTML(s,'IN')).join('');
+document.getElementById('us-cards').innerHTML = US.map(s=>cardHTML(s,'US')).join('');
+
+/* sparkline charts (India only) */
+function drawSparkline(id, payload, color){
+  const ctx = document.getElementById(id);
+  if(!ctx) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: payload.data.map((_,i)=>i),
+      datasets: [{
+        label: payload.label,
+        data: payload.data,
+        borderColor: color || '#7cf0bd',
+        backgroundColor: 'rgba(124,240,189,.10)',
+        fill: true,
+        tension: 0.30,
+        pointRadius: 0,
+        borderWidth: 1.8
+      }]
+    },
+    options: {
+      plugins: { legend:{ display:false }, tooltip:{ enabled:true } },
+      scales: {
+        x: { display:false },
+        y: { display:true, ticks:{ color:'#8aa0bd', font:{ size:10 } }, grid:{ color:'#1c2638' } }
+      },
+      maintainAspectRatio: false
+    }
+  });
+}
+Object.keys(CHARTS).forEach((k,i)=>{
+  const palette = ['#7cf0bd','#7aa2ff','#ffce96','#ff9a9a'];
+  drawSparkline(k, CHARTS[k], palette[i%palette.length]);
+});
+
+/* ============================================================
+   Sector + score bars
+   ============================================================ */
+function sectorBucket(s){
+  const t = s.theme;
+  if(t.includes('defense')) return 'Defense';
+  if(t.includes('ai')) return 'AI / Edge';
+  if(t.includes('health')) return 'Bio / Health';
+  return 'Infra / EPC';
+}
+function tally(arr){
+  const map = {};
+  arr.forEach(s=>{ const k=sectorBucket(s); map[k]=(map[k]||0)+1; });
+  return map;
+}
+function buildSectorChart(canvasId, arr, baseColor){
+  const t = tally(arr);
+  new Chart(document.getElementById(canvasId), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(t),
+      datasets: [{ data: Object.values(t), backgroundColor: ['#56e39f','#7aa2ff','#ffce96','#ff9a9a'], borderColor:'#0b0f17', borderWidth:2 }]
+    },
+    options: { plugins: { legend: { position:'bottom', labels:{ color:'#bcd0ea', font:{ size:11 } } } }, cutout:'62%' }
+  });
+}
+function buildScoreChart(canvasId, arr){
+  const sorted = [...arr].sort((a,b)=>b.score-a.score);
+  new Chart(document.getElementById(canvasId), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(s=>s.name),
+      datasets: [{
+        label: 'Conviction',
+        data: sorted.map(s=>s.score),
+        backgroundColor: sorted.map(s=> s.score>=85?'#56e39f': s.score>=80?'#7aa2ff': s.score>=75?'#ffce96':'#ff9a9a'),
+        borderRadius: 4
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: { legend:{ display:false } },
+      scales: {
+        x:{ min:60, max:100, ticks:{ color:'#8aa0bd', font:{ size:10 } }, grid:{ color:'#1c2638' } },
+        y:{ ticks:{ color:'#bcd0ea', font:{ size:11 } }, grid:{ display:false } }
+      }
+    }
+  });
+}
+buildSectorChart('indiaSectorChart', INDIA);
+buildSectorChart('usSectorChart', US);
+buildScoreChart('indiaScoreChart', INDIA);
+buildScoreChart('usScoreChart', US);
+
+/* ============================================================
+   Compare table + filters + sort
+   ============================================================ */
+const ALL = [
+  ...INDIA.map(s=>({ ...s, market:'IN' })),
+  ...US.map(s=>({ ...s, market:'US' }))
+];
+function buildCompareRows(filter='all'){
+  const tbody = document.querySelector('#compareTable tbody');
+  const rows = ALL.filter(s=> filter==='all' || (filter==='IN'&&s.market==='IN') || (filter==='US'&&s.market==='US') || s.theme.includes(filter));
+  tbody.innerHTML = rows.map(s=>{
+    const offLow = (s.range52&&s.range52[0]) ? Math.round((s.price/s.range52[0]-1)*100) : null;
+    return `<tr data-market="${s.market}" data-theme="${s.theme}">
+      <td><span class="badge ${s.market==='IN'?'b-warn':'b-info'}">${s.market==='IN'?'🇮🇳':'🇺🇸'} ${s.market}</span></td>
+      <td class="font-semibold">${s.ticker.split(':')[1]}</td>
+      <td>${s.name}</td>
+      <td class="mut">${s.sector}</td>
+      <td class="text-right pill-num">${fmtNum(s.mcap_usd_m)}</td>
+      <td class="text-right pill-num">${s.age_yrs}</td>
+      <td class="text-[12px] mut">${s.pivot}</td>
+      <td class="text-right pill-num">${offLow===null?'—':offLow+'%'}</td>
+      <td class="text-right font-bold ${s.score>=85?'acc':s.score>=80?'acc2':'text-amber-200'}">${s.score}</td>
+    </tr>`;
+  }).join('');
+}
+buildCompareRows();
+
+document.querySelectorAll('[data-filter]').forEach(b=>{
+  b.addEventListener('click', e=>{
+    document.querySelectorAll('[data-filter]').forEach(x=>x.classList.remove('bg-slate-700'));
+    e.target.classList.add('bg-slate-700');
+    buildCompareRows(e.target.dataset.filter);
+  });
+});
+
+/* sort */
+document.querySelectorAll('#compareTable th').forEach((th, idx)=>{
+  let asc = true;
+  th.addEventListener('click', ()=>{
+    const tbody = document.querySelector('#compareTable tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.sort((a,b)=>{
+      const av = a.children[idx].innerText.replace(/[^\d\-.]/g,'') || a.children[idx].innerText;
+      const bv = b.children[idx].innerText.replace(/[^\d\-.]/g,'') || b.children[idx].innerText;
+      const na = parseFloat(av), nb = parseFloat(bv);
+      if(!isNaN(na) && !isNaN(nb)) return asc ? na-nb : nb-na;
+      return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+    });
+    asc = !asc;
+    tbody.append(...rows);
+  });
+});
+
+/* risk-reward scatter */
+new Chart(document.getElementById('rrChart'), {
+  type: 'scatter',
+  data: {
+    datasets: [
+      {
+        label: '🇮🇳 India',
+        data: INDIA.filter(s=>s.range52).map(s=>({
+          x: Math.round((s.price/s.range52[0]-1)*100),
+          y: s.score,
+          name: s.name
+        })),
+        backgroundColor: '#7cf0bd',
+        pointRadius: 9
+      },
+      {
+        label: '🇺🇸 US',
+        data: US.map(s=>({
+          x: s.perf.y || 0,
+          y: s.score,
+          name: s.name
+        })),
+        backgroundColor: '#7aa2ff',
+        pointRadius: 9
+      }
+    ]
+  },
+  options: {
+    plugins: {
+      legend: { labels:{ color:'#bcd0ea' } },
+      tooltip: {
+        callbacks: {
+          label: (ctx)=> `${ctx.raw.name}: x=${ctx.raw.x}% off-low / 1y, conv=${ctx.raw.y}`
+        }
+      }
+    },
+    scales: {
+      x: { title:{ display:true, text:'52-week % off-low (India) / 1-yr return (US)', color:'#8aa0bd' }, ticks:{ color:'#8aa0bd' }, grid:{ color:'#1c2638' } },
+      y: { title:{ display:true, text:'Conviction score', color:'#8aa0bd' }, min:65, max:100, ticks:{ color:'#8aa0bd' }, grid:{ color:'#1c2638' } }
+    }
+  }
+});
+
+/* ============================================================
+   Tabs
+   ============================================================ */
+const tabs = document.querySelectorAll('[role="tab"]');
+tabs.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    tabs.forEach(b=>b.setAttribute('aria-selected','false'));
+    btn.setAttribute('aria-selected','true');
+    ['india','us','compare','risk'].forEach(t=>{
+      document.getElementById('tab-'+t).classList.toggle('hidden', t!==btn.dataset.tab);
+    });
+    window.scrollTo({top: document.querySelector('.sticky-tab').offsetTop, behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>

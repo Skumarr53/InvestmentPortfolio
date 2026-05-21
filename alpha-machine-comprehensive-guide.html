@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alpha Machine: Comprehensive Strategy Guide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root[data-theme="dark"] {
+      --color-bg: #050505;
+      --color-surface: #111111;
+      --color-text: #ffffff;
+      --color-text-muted: #a1a1aa;
+      --color-accent: #f59e0b;
+      --color-border: #27272a;
+      --color-success: #10b981;
+      --color-danger: #ef4444;
+    }
+    :root[data-theme="light"] {
+      --color-bg: #ffffff;
+      --color-surface: #f4f4f5;
+      --color-text: #09090b;
+      --color-text-muted: #71717a;
+      --color-accent: #d97706;
+      --color-border: #e4e4e7;
+      --color-success: #059669;
+      --color-danger: #dc2626;
+    }
+
+    body {
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+
+    .section-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 1000;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      color: var(--color-text);
+    }
+
+    .rationale-box {
+      border-left: 4px solid var(--color-accent);
+      background: rgba(245, 158, 11, 0.05);
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    .pitfall-tag {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--color-danger);
+      border: 1px solid var(--color-danger);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .liquid-fund-card {
+      border: 1px solid var(--color-border);
+      padding: 1rem;
+      border-radius: 8px;
+      transition: border-color 0.2s;
+    }
+    .liquid-fund-card:hover { border-color: var(--color-accent); }
+  </style>
+</head>
+<body class="p-6 md:p-16 max-w-5xl mx-auto">
+  <button class="theme-toggle" aria-label="Toggle theme">
+    <span class="theme-icon">🌙</span>
+  </button>
+
+  <header class="mb-16 border-b border-border pb-8">
+    <h1 class="text-5xl font-bold mb-4">Alpha Machine: The Comprehensive Guide</h1>
+    <p class="text-xl text-muted">A deep-dive into the rationale, execution, and risk-management of your aggressive portfolio transition.</p>
+  </header>
+
+  <!-- 1. The Exit Strategy -->
+  <section class="section-card">
+    <h2 class="text-3xl font-bold mb-6">1. The Exit Strategy & Liquid Parking</h2>
+    <p class="mb-4">You asked if exiting within 1 month is correct. <strong>Yes, but with a caveat.</strong></p>
+    
+    <div class="rationale-box">
+      <h4 class="font-bold text-accent">The "Why" (Graham's Safety)</h4>
+      <p class="text-sm">Exiting "Defensive" funds in a bull market feels like losing out, but Graham teaches that <strong>safety of principal</strong> is paramount. By exiting now, you are securing ₹16.5L in gains. Parking in liquid funds isn't "doing nothing"; it's creating a <strong>Strategic Reserve</strong> for the next correction.</p>
+    </div>
+
+    <h3 class="text-xl font-bold mt-8 mb-4">Recommended Liquid Funds (May 2026)</h3>
+    <p class="text-sm text-muted mb-6">Based on current yield-to-maturity (YTM) and expense ratios:</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="liquid-fund-card">
+        <div class="font-bold">HDFC Liquid Fund</div>
+        <div class="text-xs text-muted">Direct - Growth</div>
+        <div class="text-lg font-bold text-success mt-2">~6.8% Est.</div>
+        <div class="text-[10px] uppercase mt-1">Highest Liquidity</div>
+      </div>
+      <div class="liquid-fund-card">
+        <div class="font-bold">ICICI Pru Liquid</div>
+        <div class="text-xs text-muted">Direct - Growth</div>
+        <div class="text-lg font-bold text-success mt-2">~6.75% Est.</div>
+        <div class="text-[10px] uppercase mt-1">Low Expense Ratio</div>
+      </div>
+      <div class="liquid-fund-card">
+        <div class="font-bold">ABSL Liquid Fund</div>
+        <div class="text-xs text-muted">Direct - Growth</div>
+        <div class="text-lg font-bold text-success mt-2">~6.85% Est.</div>
+        <div class="text-[10px] uppercase mt-1">Consistent Yield</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Allocation Deep Dive -->
+  <section class="section-card">
+    <h2 class="text-3xl font-bold mb-6">2. Allocation Rationale: The 4 Engines</h2>
+    
+    <div class="space-y-8">
+      <div>
+        <h3 class="text-xl font-bold text-accent mb-2">Engine 1: Direct Equity (India) - 40%</h3>
+        <p class="text-sm mb-2"><strong>What:</strong> Concentrated portfolio of 10-12 stocks.</p>
+        <p class="text-sm mb-2"><strong>Why (Fisher's 15 Points):</strong> Mutual funds are forced to diversify (often owning 50-100 stocks). This "di-worsification" kills alpha. By picking 10 "Outstanding" companies with massive R&D and integrity, you capture the full growth curve.</p>
+        <p class="text-sm"><strong>How:</strong> We will screen for companies with >20% Revenue growth and <0.5 Debt/Equity.</p>
+      </div>
+
+      <div>
+        <h3 class="text-xl font-bold text-accent mb-2">Engine 2: Global Tech (US) - 30%</h3>
+        <p class="text-sm mb-2"><strong>What:</strong> Nasdaq 100 (MON100) or S&P 500 (MASP500).</p>
+        <p class="text-sm mb-2"><strong>Why:</strong> The INR has historically depreciated ~3-4% annually against the USD. Investing in US tech gives you <strong>Currency Alpha + Innovation Alpha</strong>. You own the world's AI infrastructure (Nvidia, Microsoft) which Indian MFs cannot access effectively.</p>
+        <p class="text-sm"><strong>How:</strong> Use Motilal Oswal or Navi US Index funds for low-cost entry.</p>
+      </div>
+
+      <div>
+        <h3 class="text-xl font-bold text-accent mb-2">Engine 3: Aggressive MFs (Momentum) - 20%</h3>
+        <p class="text-sm mb-2"><strong>What:</strong> Quant Small Cap + HSBC Midcap.</p>
+        <p class="text-sm mb-2"><strong>Why:</strong> These funds use momentum algorithms (VLRT) to churn portfolios fast. They are your "Tactical" engine that rides market waves. We keep this at 20% to limit "Algorithm Risk."</p>
+        <p class="text-sm"><strong>How:</strong> Continue SIPs; rebalance if they grow >25% of total portfolio.</p>
+      </div>
+
+      <div>
+        <h3 class="text-xl font-bold text-accent mb-2">Engine 4: Speculative Alpha - 10%</h3>
+        <p class="text-sm mb-2"><strong>What:</strong> Crypto (BTC/ETH) or High-Growth Smallcases.</p>
+        <p class="text-sm mb-2"><strong>Why:</strong> In an "Aggressive Machine," you need a moonshot. BTC/ETH act as "Digital Gold" and a hedge against global monetary expansion.</p>
+        <p class="text-sm"><strong>How:</strong> Limit to 10%. If it doubles, sell the principal and ride the "house money."</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. The Small/Mid Cap Critique -->
+  <section class="section-card border-l-4 border-danger">
+    <h2 class="text-3xl font-bold mb-6">3. The 100% Small/Mid Cap Risk</h2>
+    <p class="mb-4">You asked if I am okay with 100% Small/Mid cap allocation in your MF bucket. <strong>Honestly? No.</strong></p>
+    <div class="rationale-box">
+      <h4 class="font-bold text-danger">The "Machine" Correction</h4>
+      <p class="text-sm">Small/Mid caps have high "Beta" (they move 1.5x the market). In a 10% Nifty correction, your MF portfolio will drop 15-20%. To build a true machine, we need a <strong>Defensive Buffer</strong>. I recommend moving 10% of this bucket into a <strong>Nifty 50 Index</strong> to act as a shock absorber.</p>
+    </div>
+  </section>
+
+  <!-- 4. Multi-Market Pitfalls -->
+  <section class="section-card">
+    <h2 class="text-3xl font-bold mb-6">4. Pitfalls & Knowledge Matrix</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead>
+          <tr class="border-b border-border">
+            <th class="py-3">Vehicle</th>
+            <th class="py-3">Taxation (India)</th>
+            <th class="py-3">Pitfall to Avoid</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-border">
+            <td class="py-4 font-bold">Indian Equity</td>
+            <td class="py-4">10% LTCG (>1.25L profit)</td>
+            <td><span class="pitfall-tag">CHASING TIPS</span> Buying based on news rather than Fisher's 15 Points.</td>
+          </tr>
+          <tr class="border-b border-border">
+            <td class="py-4 font-bold">US Stocks/Funds</td>
+            <td class="py-4">Slab Rate (Debt-like tax)</td>
+            <td><span class="pitfall-tag">TCS LEVY</span> 20% TCS on remittances over 7L. (Plan your transfers!)</td>
+          </tr>
+          <tr class="border-b border-border">
+            <td class="py-4 font-bold">Crypto</td>
+            <td class="py-4">Flat 30% + 1% TDS</td>
+            <td><span class="pitfall-tag">CUSTODY RISK</span> Keeping funds on exchanges. Use a hardware wallet for 10L+.</td>
+          </tr>
+          <tr class="border-b border-border">
+            <td class="py-4 font-bold">Liquid Funds</td>
+            <td class="py-4">Slab Rate</td>
+            <td><span class="pitfall-tag">EXIT LOAD</span> Some funds have loads for first 7 days. Check before moving.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="mt-20 text-center text-muted text-xs opacity-50">
+    STRATEGIC ADVISORY REPORT • MAY 2026 • PREPARED BY SENIOR ANALYST
+  </footer>
+
+  <script>
+    document.querySelector('.theme-toggle').addEventListener('click', () => {
+      const html = document.documentElement;
+      const isDark = html.dataset.theme === 'dark';
+      html.dataset.theme = isDark ? 'light' : 'dark';
+      document.querySelector('.theme-icon').textContent = isDark ? '☀️' : '🌙';
+    });
+  </script>
+</body>
+</html>

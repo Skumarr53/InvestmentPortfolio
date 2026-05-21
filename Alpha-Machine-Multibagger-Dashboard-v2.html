@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alpha Machine — Multibagger Intelligence Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root[data-theme="dark"] {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface-2: #1a1a24;
+      --surface-3: #22222e;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #f59e0b;
+      --accent-2: #06b6d4;
+      --accent-3: #8b5cf6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f97316;
+      --border: #27273a;
+      --gradient-1: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+      --gradient-2: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+      --glow: 0 0 40px rgba(245, 158, 11, 0.15);
+    }
+    :root[data-theme="light"] {
+      --bg: #ffffff;
+      --surface: #f8fafc;
+      --surface-2: #f1f5f9;
+      --surface-3: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #d97706;
+      --accent-2: #0891b2;
+      --accent-3: #7c3aed;
+      --success: #059669;
+      --danger: #dc2626;
+      --warning: #ea580c;
+      --border: #cbd5e1;
+      --gradient-1: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
+      --gradient-2: linear-gradient(135deg, #0891b2 0%, #7c3aed 100%);
+      --glow: 0 0 40px rgba(217, 119, 6, 0.1);
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: all 0.3s ease;
+    }
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .nav-container {
+      position: fixed; top: 0; left: 0; right: 0;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      z-index: 1000;
+      padding: 0.75rem 2rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    :root[data-theme="light"] .nav-container { background: rgba(255,255,255,0.9); }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-link {
+      color: var(--text-muted); text-decoration: none; font-size: 0.875rem;
+      font-weight: 500; padding: 0.5rem 0; position: relative;
+      transition: color 0.2s;
+    }
+    .nav-link:hover, .nav-link.active { color: var(--accent); }
+    .nav-link::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px; background: var(--gradient-1); transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+    .nav-link:hover::after, .nav-link.active::after { transform: scaleX(1); }
+    .theme-toggle {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.5rem 0.75rem; cursor: pointer;
+      color: var(--text); transition: all 0.2s;
+    }
+    .theme-toggle:hover { border-color: var(--accent); }
+    .main-content { padding-top: 80px; }
+    .section { padding: 3rem 2rem; max-width: 1400px; margin: 0 auto; }
+    .hero {
+      text-align: center; padding: 4rem 2rem;
+      background: radial-gradient(ellipse at center top, rgba(245,158,11,0.1) 0%, transparent 50%);
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 700;
+      background: var(--gradient-1);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+    .hero-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;
+      max-width: 1000px; margin: 2rem auto 0;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.5rem; text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: var(--glow); }
+    .stat-value { font-size: 2rem; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .filter-bar {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      margin: 2rem 0; padding: 1.5rem; background: var(--surface); border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+    .filter-btn {
+      padding: 0.5rem 1.25rem; border-radius: 9999px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--text-muted); font-size: 0.875rem;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent); color: #000; border-color: var(--accent);
+    }
+    .stock-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 1.5rem;
+    }
+    .stock-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stock-card:hover { transform: translateY(-4px); box-shadow: var(--glow); }
+    .stock-header {
+      padding: 1.5rem; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .stock-ticker {
+      font-family: 'JetBrains Mono', monospace; font-size: 1.75rem; font-weight: 700;
+      color: var(--accent);
+    }
+    .stock-name { font-size: 0.8125rem; color: var(--text-muted); }
+    .stock-theme {
+      display: inline-block; padding: 0.25rem 0.75rem;
+      background: var(--surface-2); border-radius: 9999px;
+      font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.5px; margin-top: 0.5rem;
+    }
+    .conviction-badge {
+      text-align: right;
+    }
+    .conviction-score {
+      font-size: 2rem; font-weight: 700; color: var(--success);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .conviction-label { font-size: 0.6875rem; color: var(--text-muted); text-transform: uppercase; }
+    .stock-body { padding: 1.5rem; }
+    .stock-metrics {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+      margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+    }
+    .metric { text-align: center; }
+    .metric-value { font-size: 1.125rem; font-weight: 600; }
+    .metric-label { font-size: 0.625rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .dimensions { display: flex; flex-direction: column; gap: 0.75rem; }
+    .dimension {
+      display: grid; grid-template-columns: 100px 40px 1fr; gap: 0.75rem; align-items: center;
+    }
+    .dimension-name { font-size: 0.6875rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .dimension-score {
+      font-size: 0.875rem; font-weight: 700; text-align: right;
+    }
+    .dimension-bar {
+      height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden;
+    }
+    .dimension-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+    .dimension-detail {
+      grid-column: 1 / -1; font-size: 0.75rem; color: var(--text-muted);
+      line-height: 1.5; padding: 0.5rem; background: var(--surface-2);
+      border-radius: 6px; margin-top: 0.25rem;
+    }
+    .stock-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.5rem; background: var(--surface-2);
+      border-top: 1px solid var(--border);
+    }
+    .upside-tag {
+      font-size: 0.875rem; font-weight: 700; color: var(--success);
+    }
+    .risk-tag {
+      padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.6875rem;
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .risk-low { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+    .risk-med { background: rgba(249, 115, 22, 0.1); color: var(--warning); }
+    .risk-high { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+    .chart-section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2rem; margin: 3rem 0;
+    }
+    .chart-container { position: relative; height: 450px; }
+    .hidden { display: none !important; }
+    @media (max-width: 768px) {
+      .hero-stats { grid-template-columns: repeat(2, 1fr); }
+      .stock-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav-container">
+    <div class="flex items-center gap-3">
+      <i class="fas fa-chart-line" style="color: var(--accent);"></i>
+      <span class="font-bold mono text-sm">ALPHA MACHINE v2</span>
+    </div>
+    <button class="theme-toggle" id="themeToggleBtn">
+      <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Hero -->
+    <section class="hero" id="hero">
+      <h1>Fresh Multibagger Intelligence</h1>
+      <p class="text-lg" style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">
+        A fresh list of 16 potential multibagger stocks (8 US + 8 India) screened as of May 18, 2026.
+      </p>
+      <div class="hero-stats" id="hero-stats">
+        <!-- Stats will be dynamically generated -->
+      </div>
+    </section>
+
+    <!-- Filters & Watchlist -->
+    <section class="section" id="watchlist">
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All Stocks</button>
+        <button class="filter-btn" data-filter="us">🇺🇸 US Market</button>
+        <button class="filter-btn" data-filter="india">🇮🇳 India Market</button>
+      </div>
+
+      <!-- Stock Grid -->
+      <div class="stock-grid" id="stockGrid">
+        <!-- Stocks will be dynamically generated -->
+      </div>
+
+      <!-- Conviction Chart -->
+      <div class="chart-section" id="conviction">
+        <h2 class="text-2xl font-bold mb-6">Conviction vs Upside Matrix (2026)</h2>
+        <div class="chart-container">
+          <canvas id="convictionChart"></canvas>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Stock Data will be populated here
+    const stocks = [
+      {
+        ticker: 'MTAR',
+        name: 'MTAR Technologies',
+        theme: 'AI/Compute',
+        market: 'india',
+        conviction: 90,
+        upside: '220%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '₹19,914cr', revenue: '₹876cr', pat_margin: '10.7%', order_book: '₹2,582cr' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20,
+            detail: `Stable management with a strong track record. Upward revision of FY27 revenue growth guidance to over 80% shows high confidence. Average tenure is solid.` },
+          { name: 'Innovation', score: 9, weight: 25,
+            detail: `Pivotal supplier to Bloom Energy for fuel cells, which are critical for AI data centers. This positions MTAR as a key enabler of the AI hardware boom. New oil and gas facility adds diversification.` },
+          { name: 'Demand', score: 10, weight: 20,
+            detail: `Record order inflows of ₹2,453cr in FY26, with a total order book nearly 3x FY26 revenue. The Clean Energy segment is the primary growth driver, directly linked to hyperscaler demand.` },
+          { name: 'Business', score: 8, weight: 20,
+            detail: `Exceptional Q4 FY26 results with 223% PAT growth and 67% revenue growth. Improving operating margins (20.2%) and PAT margins (10.7%). Diversified into Civil Nuclear and Aerospace.` },
+          { name: 'Mispricing', score: 6, weight: 15,
+            detail: `The market has started to recognize MTAR as an AI beneficiary, but the stock trades at an extremely high valuation (290x P/E). The core risk is valuation, not business performance. The mispricing opportunity has narrowed.` }
+        ]
+      },
+      {
+        ticker: 'NETWEB',
+        name: 'Netweb Technologies',
+        theme: 'AI/Compute',
+        market: 'india',
+        conviction: 92,
+        upside: '250%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '₹2,183cr', revenue: '₹2,184cr', pat_growth: '+81%', order_book: '₹4,431cr' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20,
+            detail: `Management has successfully pivoted the company to an AI-first model. Strategic inventory build-up to secure deals shows foresight in a tight supply chain, even if it impacts short-term margins.` },
+          { name: 'Innovation', score: 9, weight: 25,
+            detail: `AI Systems business grew 460% YoY, now forming 43% of revenue. In-house R&D and manufacturing of advanced AI systems for the IndiaAI Mission creates a strong technical moat.` },
+          { name: 'Demand', score: 10, weight: 20,
+            detail: `Massive order pipeline of ₹4,431cr provides strong revenue visibility. Guided revenue growth of 30-35% for FY27, capitalizing on sovereign AI and data center trends.` },
+          { name: 'Business', score: 7, weight: 20,
+            detail: `Exceptional 90% YoY revenue growth. However, operating margins have compressed to 13.3% due to higher expenses and strategic inventory costs. The company remains net-debt-free.` },
+          { name: 'Mispricing', score: 8, weight: 15,
+            detail: `The stock price fell 7% post-results as the market focused on short-term margin compression, ignoring the massive revenue pivot to AI. This is a classic case of the market punishing a good long-term story for short-term pain.` }
+        ]
+      },
+      {
+        ticker: 'RPPL',
+        name: 'Rashi Peripherals',
+        theme: 'AI/Compute',
+        market: 'india',
+        conviction: 85,
+        upside: '150%',
+        risk: 'LOW',
+        riskClass: 'risk-low',
+        metrics: { mcap: '₹3,500cr', revenue: '₹13,772cr', pat_growth: '+64%', pat_margin: '1.93%' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20,
+            detail: `Experienced management team with deep OEM relationships. Has successfully navigated the volatile ICT distribution market. Consistent dividend payer.` },
+          { name: 'Innovation', score: 7, weight: 25,
+            detail: `Not a direct innovator, but a key enabler. Positioned to benefit from the AI-PC refresh cycle and rising demand for high-end memory and storage. Pan-India distribution network is a key asset.` },
+          { name: 'Demand', score: 9, weight: 20,
+            detail: `Strong secular tailwinds from increasing digitalization and the AI-PC boom. Q4 FY26 revenue grew 51% YoY, and PAT grew 64% YoY, indicating robust demand.` },
+          { name: 'Business', score: 8, weight: 20,
+            detail: `A leading ICT distribution partner in India with a strong balance sheet. While margins are thin (typical for distribution), the business model is asset-light and generates strong cash flow.` },
+          { name: 'Mispricing', score: 7, weight: 15,
+            detail: `The market views this as a low-margin distribution business, potentially underappreciating its critical role in the high-growth AI-PC supply chain. Trading at a reasonable valuation given the growth.` }
+        ]
+      },
+      {
+        ticker: 'CRSP',
+        name: 'CRISPR Therapeutics',
+        theme: 'Genomics',
+        market: 'us',
+        conviction: 88,
+        upside: '300%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '$4.5B', cash: '$2.44B', product: 'CASGEVY', pat_pipeline: '500+' },
+        dimensions: [
+          { name: 'Management', score: 9, weight: 20,
+            detail: `Successfully navigated complex global regulatory approvals for CASGEVY. Strengthened balance sheet with $2.44B in cash, providing a long runway for R&D and commercialization.` },
+          { name: 'Innovation', score: 10, weight: 25,
+            detail: `Pioneer of the Nobel Prize-winning CRISPR/Cas9 gene-editing technology. Pipeline is expanding from rare diseases to major indications like autoimmune disorders and hypertension, vastly increasing the addressable market.` },
+          { name: 'Demand', score: 8, weight: 20,
+            detail: `Over 500 patients have initiated the CASGEVY treatment journey for sickle cell disease, validating strong initial demand for a one-time curative therapy despite a complex process.` },
+          { name: 'Business', score: 7, weight: 20,
+            detail: `Pre-commercial stage finance, with losses expected. However, strong reimbursement coverage (~90% in the US) for CASGEVY is a critical leading indicator for future revenue success.` },
+          { name: 'Mispricing', score: 8, weight: 15,
+            detail: `Stock is significantly off its all-time highs. DCF analysis suggests it is highly undervalued, as the market is overly focused on current losses rather than the long-term platform value.` }
+        ]
+      },
+      {
+        ticker: 'TXG',
+        name: '10x Genomics',
+        theme: 'Genomics',
+        market: 'us',
+        conviction: 91,
+        upside: '280%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '$5.5B', revenue: '$625M', consumables_growth: '+31%', gross_margin: '70%' },
+        dimensions: [
+          { name: 'Management', score: 9, weight: 20,
+            detail: `Visionary CEO Serge Saxonov is leading the company through a major platform transition. Raised cash reserves, showing prudent financial management ahead of a major product launch.` },
+          { name: 'Innovation', score: 9, weight: 25,
+            detail: `Launching Atera, its most significant product ever, which enables spatial whole-transcriptome analysis at single-cell sensitivity. This could transform the spatial biology market.` },
+          { name: 'Demand', score: 8, weight: 20,
+            detail: `While instrument sales are down (customers awaiting Atera), high-margin spatial consumables grew 31%, indicating strong existing platform adoption and a sticky customer base.` },
+          { name: 'Business', score: 8, weight: 20,
+            detail: `High gross margins (70%) and improving operating losses. The business model is shifting towards recurring revenue from consumables, which is a positive sign.` },
+          { name: 'Mispricing', score: 8, weight: 15,
+            detail: `The market is focused on the headline 3% revenue decline (which was due to a one-off event) and ignoring the surging consumables growth. The stock price does not seem to price in the massive catalyst of the upcoming Atera launch.` }
+        ]
+      },
+      {
+        ticker: 'ALMU',
+        name: 'Aeluma',
+        theme: 'AI/Compute',
+        market: 'us',
+        conviction: 90,
+        upside: '450%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '$575M', revenue: '$4.6M', cash: '$37.8M', contracts: '$5M' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20,
+            detail: `CEO is pragmatic and transparent about government contract delays, while highlighting accelerated engagement with the AI datacom market. Strong technical leadership.` },
+          { name: 'Innovation', score: 10, weight: 25,
+            detail: `Quantum-dot photonic integrated circuits are a breakthrough for AI optical interconnects. A NASA award and partnerships with major foundries like Tower Semi validate the core technology.` },
+          { name: 'Demand', score: 8, weight: 20,
+            detail: `Currently reliant on government R&D contracts. However, the key leading indicator is the CEO's statement of 'accelerated engagements in the AI datacom market,' signaling a major commercial inflection point.` },
+          { name: 'Business', score: 6, weight: 20,
+            detail: `Classic pre-commercial R&D firm. Low revenue, burning cash. However, a strong cash position ($37.8M) and non-dilutive funding ($5M) provide a solid runway.` },
+          { name: 'Mispricing', score: 9, weight: 15,
+            detail: `The stock dropped 15% on a slight downward revision of revenue guidance based on the *timing* of government contracts. This is a massive overreaction, ignoring the far more important news of foundry partnerships and AI market engagement.` }
+        ]
+      },
+      {
+        ticker: 'VRT',
+        name: 'Vertiv Holdings',
+        theme: 'AI/Compute',
+        market: 'us',
+        conviction: 89,
+        upside: '180%',
+        risk: 'LOW',
+        riskClass: 'risk-low',
+        metrics: { mcap: '$50B', revenue: '$14B', organic_growth: '+24%', adj_eps: '$6.35' },
+        dimensions: [
+          { name: 'Management', score: 9, weight: 20,
+            detail: `CEO Giordano Albertazzi has executed a brilliant acquisition strategy, acquiring key liquid cooling tech. Significant upward revision of full-year guidance shows strong operational control.` },
+          { name: 'Innovation', score: 8, weight: 25,
+            detail: `Strategic acquisitions of Strategic Thermal Labs and ThermoKey have transformed VRT into a leader in direct-to-chip liquid cooling, a critical enabler for next-gen AI chips.` },
+          { name: 'Demand', score: 10, weight: 20,
+            detail: `Pure-play exposure to the AI data center build-out. 30% net sales growth and a raised full-year guidance highlight the massive demand for their power and cooling solutions.` },
+          { name: 'Business', score: 9, weight: 20,
+            detail: `A cash-generating machine with strong operating leverage. Strong partnerships with key players like NVIDIA solidify its position in the AI ecosystem.` },
+          { name: 'Mispricing', score: 6, weight: 15,
+            detail: `The market has rewarded VRT with a huge run-up. While it trades at a premium, the valuation is justified by strong growth and a clear line of sight into future AI-driven demand.` }
+        ]
+      },
+      {
+        ticker: 'RKLB',
+        name: 'Rocket Lab',
+        theme: 'Space',
+        market: 'us',
+        conviction: 93,
+        upside: '350%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '$8.5B', revenue: '$200M', backlog: '$2.2B', gross_margin: '43%' },
+        dimensions: [
+          { name: 'Management', score: 9, weight: 20,
+            detail: `Founder-led (Peter Beck) with a proven track record of execution. Strategic acquisition of Motiv Space Systems for vertical integration shows foresight.` },
+          { name: 'Innovation', score: 9, weight: 25,
+            detail: `Leader in small and medium satellite launch with a reusable rocket (Electron). The upcoming Neutron rocket provides a massive upside catalyst and entry into a larger market.` },
+          { name: 'Demand', score: 10, weight: 20,
+            detail: `Record backlog of $2.2 billion (up 108% YoY) and major contracts with the Department of War show surging demand for both launch and space systems.` },
+          { name: 'Business', score: 8, weight: 20,
+            detail: `Space Systems is a high-margin (43%) cash-flow engine, now contributing 68% of revenue. This stable, growing business de-risks the overall company profile.` },
+          { name: 'Mispricing', score: 9, weight: 15,
+            detail: `The market is incorrectly valuing RKLB as a pure-play, high-risk launch company, ignoring the profitable and rapidly growing Space Systems division. The Neutron rocket is a call option, not the entire business.` }
+        ]
+      },
+];
+
+    // Theme Colors
+    const themeColors = {
+        'AI/Compute': '#f59e0b',
+        'Genomics': '#10b981',
+        'Space': '#8b5cf6',
+        'Robotics': '#f97316',
+        'Defense': '#ef4444',
+        'Specialty Chemicals': '#06b6d4',
+    };
+
+    // Render Stocks
+    function renderStocks(filter = 'all') {
+      const grid = document.getElementById('stockGrid');
+      grid.innerHTML = '';
+
+      const filtered = filter === 'all' ? stocks : stocks.filter(s => s.market === filter);
+
+      filtered.forEach(stock => {
+        const card = document.createElement('div');
+        card.className = `stock-card ${stock.market}`;
+        card.innerHTML = `
+          <div class="stock-header">
+            <div>
+              <div class="stock-ticker">${stock.ticker}</div>
+              <div class="stock-name">${stock.name}</div>
+              <span class="stock-theme" style="color: ${themeColors[stock.theme]}; border: 1px solid ${themeColors[stock.theme]};">${stock.theme}</span>
+            </div>
+            <div class="conviction-badge">
+              <div class="conviction-score">${stock.conviction}</div>
+              <div class="conviction-label">Conviction</div>
+            </div>
+          </div>
+          <div class="stock-body">
+            <div class="stock-metrics">
+              ${Object.entries(stock.metrics).map(([k,v]) => `
+                <div class="metric">
+                  <div class="metric-value mono">${v}</div>
+                  <div class="metric-label">${k}</div>
+                </div>
+              `).join('')}
+            </div>
+            <div class="dimensions">
+              ${stock.dimensions.map(d => `
+                <div class="dimension">
+                  <span class="dimension-name">${d.name}</span>
+                  <span class="dimension-score" style="color: ${themeColors[stock.theme]}">${d.score}/10</span>
+                  <div class="dimension-bar">
+                    <div class="dimension-fill" style="width: ${d.score * 10}%; background: ${themeColors[stock.theme]};"></div>
+                  </div>
+                </div>
+                <div class="dimension-detail">${d.detail}</div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="stock-footer">
+            <span class="upside-tag">3Y: ${stock.upside}</span>
+            <span class="risk-tag ${stock.riskClass}">${stock.risk}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Filter Function
+    function filterStocks(type, clickedBtn) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      if (clickedBtn) clickedBtn.classList.add('active');
+      renderStocks(type);
+    }
+    
+    let convictionChartInstance = null;
+    function renderChart() {
+      const canvas = document.getElementById('convictionChart');
+      if (!canvas || stocks.length === 0) return;
+      
+      const ctx = canvas.getContext('2d');
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      const textColor = isDark ? '#94a3b8' : '#64748b';
+      const gridColor = isDark ? '#27273a' : '#e2e8f0';
+
+      if (convictionChartInstance) {
+        convictionChartInstance.destroy();
+      }
+
+      convictionChartInstance = new Chart(ctx, {
+        type: 'bubble',
+        data: {
+          datasets: stocks.map(s => ({
+            label: s.ticker,
+            data: [{
+              x: s.conviction,
+              y: parseInt(s.upside),
+              r: s.conviction / 5
+            }],
+            backgroundColor: (themeColors[s.theme] || '#f59e0b') + '80',
+            borderColor: themeColors[s.theme] || '#f59e0b',
+            borderWidth: 1
+          }))
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: { display: true, text: 'Conviction Score', color: textColor, font: { size: 14, weight: '600' } },
+              min: 70, max: 100,
+              grid: { color: gridColor },
+              ticks: { color: textColor }
+            },
+            y: {
+              title: { display: true, text: '3Y Upside Potential (%)', color: textColor, font: { size: 14, weight: '600' } },
+              min: 50, max: 500,
+              grid: { color: gridColor },
+              ticks: { color: textColor }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  if (!stocks[ctx.datasetIndex]) return '';
+                  const stock = stocks[ctx.datasetIndex];
+                  return `${stock.ticker}: ${stock.conviction}/100 | ${stock.upside} upside`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Theme Toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.dataset.theme === 'dark';
+      html.dataset.theme = isDark ? 'light' : 'dark';
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+      renderChart();
+    }
+    
+    function updateHeroStats() {
+      const heroStatsContainer = document.getElementById('hero-stats');
+      if (!heroStatsContainer) return;
+
+      const totalPositions = stocks.length;
+      const avgConviction = stocks.reduce((sum, s) => sum + s.conviction, 0) / totalPositions;
+      const avgUpside = stocks.reduce((sum, s) => sum + parseInt(s.upside), 0) / totalPositions;
+      const totalThemes = new Set(stocks.map(s => s.theme)).size;
+
+      heroStatsContainer.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-value mono">${totalPositions}</div>
+          <div class="stat-label">Positions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value mono">${Math.round(avgConviction)}<span style="font-size:1rem;">/100</span></div>
+          <div class="stat-label">Avg Conviction</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value mono">${Math.round(avgUpside)}%</div>
+          <div class="stat-label">Avg 3Y Upside</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value mono">${totalThemes}</div>
+          <div class="stat-label">Themes</div>
+        </div>
+      `;
+    }
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // populate data, then render
+      renderStocks('all');
+      renderChart();
+      updateHeroStats();
+
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          filterStocks(this.dataset.filter, this);
+        });
+      });
+      
+      const themeBtn = document.getElementById('themeToggleBtn');
+      if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alpha Machine — Multibagger Intelligence Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root[data-theme="dark"] {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface-2: #1a1a24;
+      --surface-3: #22222e;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #f59e0b;
+      --accent-2: #06b6d4;
+      --accent-3: #8b5cf6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f97316;
+      --border: #27273a;
+      --gradient-1: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+      --gradient-2: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+      --glow: 0 0 40px rgba(245, 158, 11, 0.15);
+    }
+    :root[data-theme="light"] {
+      --bg: #ffffff;
+      --surface: #f8fafc;
+      --surface-2: #f1f5f9;
+      --surface-3: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #d97706;
+      --accent-2: #0891b2;
+      --accent-3: #7c3aed;
+      --success: #059669;
+      --danger: #dc2626;
+      --warning: #ea580c;
+      --border: #cbd5e1;
+      --gradient-1: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
+      --gradient-2: linear-gradient(135deg, #0891b2 0%, #7c3aed 100%);
+      --glow: 0 0 40px rgba(217, 119, 6, 0.1);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: all 0.3s ease;
+    }
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Navigation */
+    .nav-container {
+      position: fixed; top: 0; left: 0; right: 0;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      z-index: 1000;
+      padding: 0.75rem 2rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    :root[data-theme="light"] .nav-container { background: rgba(255,255,255,0.9); }
+
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-link {
+      color: var(--text-muted); text-decoration: none; font-size: 0.875rem;
+      font-weight: 500; padding: 0.5rem 0; position: relative;
+      transition: color 0.2s;
+    }
+    .nav-link:hover, .nav-link.active { color: var(--accent); }
+    .nav-link::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px; background: var(--gradient-1); transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+    .nav-link:hover::after, .nav-link.active::after { transform: scaleX(1); }
+
+    .theme-toggle {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.5rem 0.75rem; cursor: pointer;
+      color: var(--text); transition: all 0.2s;
+    }
+    .theme-toggle:hover { border-color: var(--accent); }
+
+    /* Main Content */
+    .main-content { padding-top: 80px; }
+    .section { padding: 3rem 2rem; max-width: 1400px; margin: 0 auto; }
+
+    /* Hero */
+    .hero {
+      text-align: center; padding: 4rem 2rem;
+      background: radial-gradient(ellipse at center top, rgba(245,158,11,0.1) 0%, transparent 50%);
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 700;
+      background: var(--gradient-1);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+    .hero-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;
+      max-width: 1000px; margin: 2rem auto 0;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.5rem; text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: var(--glow); }
+    .stat-value { font-size: 2rem; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Filters */
+    .filter-bar {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      margin: 2rem 0; padding: 1.5rem; background: var(--surface); border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+    .filter-btn {
+      padding: 0.5rem 1.25rem; border-radius: 9999px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--text-muted); font-size: 0.875rem;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent); color: #000; border-color: var(--accent);
+    }
+
+    /* Stock Grid */
+    .stock-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 1.5rem;
+    }
+    .stock-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stock-card:hover { transform: translateY(-4px); box-shadow: var(--glow); }
+    .stock-header {
+      padding: 1.5rem; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .stock-ticker {
+      font-family: 'JetBrains Mono', monospace; font-size: 1.75rem; font-weight: 700;
+      color: var(--accent);
+    }
+    .stock-name { font-size: 0.8125rem; color: var(--text-muted); }
+    .stock-theme {
+      display: inline-block; padding: 0.25rem 0.75rem;
+      background: var(--surface-2); border-radius: 9999px;
+      font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.5px; margin-top: 0.5rem;
+    }
+    .conviction-badge {
+      text-align: right;
+    }
+    .conviction-score {
+      font-size: 2rem; font-weight: 700; color: var(--success);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .conviction-label { font-size: 0.6875rem; color: var(--text-muted); text-transform: uppercase; }
+
+    .stock-body { padding: 1.5rem; }
+    .stock-metrics {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+      margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+    }
+    .metric { text-align: center; }
+    .metric-value { font-size: 1.125rem; font-weight: 600; }
+    .metric-label { font-size: 0.625rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Dimension Scores */
+    .dimensions { display: flex; flex-direction: column; gap: 0.75rem; }
+    .dimension {
+      display: grid; grid-template-columns: 100px 40px 1fr; gap: 0.75rem; align-items: center;
+    }
+    .dimension-name { font-size: 0.6875rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .dimension-score {
+      font-size: 0.875rem; font-weight: 700; text-align: right;
+    }
+    .dimension-bar {
+      height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden;
+    }
+    .dimension-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+
+    .dimension-detail {
+      grid-column: 1 / -1; font-size: 0.75rem; color: var(--text-muted);
+      line-height: 1.5; padding: 0.5rem; background: var(--surface-2);
+      border-radius: 6px; margin-top: 0.25rem;
+    }
+
+    /* Risk & Upside Footer */
+    .stock-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.5rem; background: var(--surface-2);
+      border-top: 1px solid var(--border);
+    }
+    .upside-tag {
+      font-size: 0.875rem; font-weight: 700; color: var(--success);
+    }
+    .risk-tag {
+      padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.6875rem;
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .risk-low { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+    .risk-med { background: rgba(249, 115, 22, 0.1); color: var(--warning); }
+    .risk-high { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+    /* Chart Section */
+    .chart-section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2rem; margin: 3rem 0;
+    }
+    .chart-container { position: relative; height: 450px; }
+
+    /* Theme Markers */
+    .theme-section {
+      margin: 3rem 0;
+    }
+    .theme-header {
+      display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;
+      padding: 1rem 1.5rem; border-radius: 12px;
+    }
+    .theme-quantum { background: linear-gradient(90deg, rgba(139,92,246,0.1) 0%, transparent 100%); border-left: 4px solid #8b5cf6; }
+    .theme-robotics { background: linear-gradient(90deg, rgba(249,115,22,0.1) 0%, transparent 100%); border-left: 4px solid #f97316; }
+    .theme-gene { background: linear-gradient(90deg, rgba(16,185,129,0.1) 0%, transparent 100%); border-left: 4px solid #10b981; }
+    .theme-ai { background: linear-gradient(90deg, rgba(6,182,212,0.1) 0%, transparent 100%); border-left: 4px solid #06b6d4; }
+    .theme-india-tech { background: linear-gradient(90deg, rgba(245,158,11,0.1) 0%, transparent 100%); border-left: 4px solid #f59e0b; }
+    .theme-india-fin { background: linear-gradient(90deg, rgba(236,72,153,0.1) 0%, transparent 100%); border-left: 4px solid #ec4899; }
+
+    /* Allocation Panel */
+    .allocation-panel {
+      position: fixed; right: 2rem; top: 100px;
+      width: 280px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 1.5rem;
+      display: none;
+    }
+    @media (min-width: 1400px) { .allocation-panel { display: block; } }
+    .allocation-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem; }
+    .allocation-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.75rem 0; border-bottom: 1px solid var(--border); font-size: 0.8125rem;
+    }
+    .allocation-bar {
+      height: 4px; background: var(--surface-2); border-radius: 2px; margin-top: 0.5rem;
+    }
+    .allocation-fill { height: 100%; border-radius: 2px; }
+
+    .hidden { display: none !important; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-stats { grid-template-columns: repeat(2, 1fr); }
+      .stock-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav-container">
+    <div class="flex items-center gap-3">
+      <i class="fas fa-chart-line" style="color: var(--accent);"></i>
+      <span class="font-bold mono text-sm">ALPHA MACHINE</span>
+    </div>
+    <div class="nav-links">
+      <a href="#watchlist" class="nav-link active" data-section="watchlist">Watchlist</a>
+      <a href="#summary-tables" class="nav-link" data-section="themes">Ranked Tables</a>
+      <a href="#conviction" class="nav-link" data-section="conviction">Conviction Map</a>
+      <a href="#execution" class="nav-link" data-section="execution">Execution Plan</a>
+    </div>
+    <button class="theme-toggle" id="themeToggleBtn">
+      <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Hero -->
+    <section class="hero" id="hero">
+      <h1>Multibagger Intelligence</h1>
+      <p class="text-lg" style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">
+        23 asymmetric equity positions (14 US + 9 India) screened across <strong>AI Infrastructure, Quantum Computing, Gene Editing, GLP-1 Biotech, Nuclear Power, Space, Robotics,</strong> and <strong>India Manufacturing / Defense / Retail</strong> supercycles.
+      </p>
+      <div class="hero-stats">
+        <div class="stat-card">
+          <div class="stat-value mono">23</div>
+          <div class="stat-label">Positions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value mono">83<span style="font-size:1rem;">/100</span></div>
+          <div class="stat-label">Avg Conviction</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value mono">180%</div>
+          <div class="stat-label">Avg 3Y Upside</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value mono">12</div>
+          <div class="stat-label">Themes</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filters & Watchlist -->
+    <section class="section" id="watchlist">
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All Stocks</button>
+        <button class="filter-btn" data-filter="us">🇺🇸 US Market</button>
+        <button class="filter-btn" data-filter="india">🇮🇳 India Market</button>
+        <button class="filter-btn" data-filter="quantum">🔬 Quantum</button>
+        <button class="filter-btn" data-filter="ai">🤖 AI/Compute</button>
+        <button class="filter-btn" data-filter="gene">🧬 Gene Editing</button>
+        <button class="filter-btn" data-filter="india-tech">🏭 India Tech</button>
+      </div>
+
+      <!-- Stock Grid -->
+      <div class="stock-grid" id="stockGrid">
+        <!-- Stocks will be dynamically generated -->
+      </div>
+
+      <!-- Conviction Chart -->
+      <div class="chart-section" id="conviction">
+        <h2 class="text-2xl font-bold mb-6">Conviction vs Upside Matrix</h2>
+        <div class="chart-container">
+          <canvas id="convictionChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Allocation Section (Mobile Visible) -->
+      <div class="chart-section block xl:hidden" id="allocation-section">
+        <h2 class="text-2xl font-bold mb-6">Target Allocation</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <div class="allocation-item">
+              <span>Direct Equity (India)</span>
+              <span class="mono" style="color: var(--accent);">40%</span>
+            </div>
+            <div class="allocation-bar"><div class="allocation-fill" style="width: 40%; background: var(--accent);"></div></div>
+            
+            <div class="allocation-item">
+              <span>US Tech Core</span>
+              <span class="mono" style="color: var(--accent-2);">30%</span>
+            </div>
+            <div class="allocation-bar"><div class="allocation-fill" style="width: 30%; background: var(--accent-2);"></div></div>
+          </div>
+          <div>
+            <div class="allocation-item">
+              <span>Aggressive MFs</span>
+              <span class="mono" style="color: var(--accent-3);">20%</span>
+            </div>
+            <div class="allocation-bar"><div class="allocation-fill" style="width: 20%; background: var(--accent-3);"></div></div>
+            
+            <div class="allocation-item">
+              <span>Speculative/Crypto</span>
+              <span class="mono" style="color: var(--danger);">10%</span>
+            </div>
+            <div class="allocation-bar"><div class="allocation-fill" style="width: 10%; background: var(--danger);"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="summary-tables">
+      <h2 class="text-2xl font-bold mb-6 text-center">Ranked Summary Tables</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <h3 class="text-xl font-semibold mb-4 text-center">🇺🇸 US Market</h3>
+          <div id="us-summary-table"></div>
+        </div>
+        <div>
+          <h3 class="text-xl font-semibold mb-4 text-center">🇮🇳 India Market</h3>
+          <div id="india-summary-table"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="execution">
+      <h2 class="text-3xl font-bold mb-8 text-center">Investment Strategy & Execution</h2>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Allocation Strategy -->
+        <div class="lg:col-span-2">
+          <div class="stat-card text-left h-full">
+            <h3 class="text-xl font-bold mb-4 text-[var(--accent)]"><i class="fas fa-pie-chart mr-2"></i> Custom Allocation Model</h3>
+            <p class="text-sm text-[var(--text-muted)] mb-6">Position sizing based on Conviction-Risk Matrix for your <strong>10 Selected Stocks</strong> (Total Portfolio = 100%).</p>
+            
+            <div class="overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead>
+                  <tr class="border-b border-[var(--border)]">
+                    <th class="py-2 text-left">Stock</th>
+                    <th class="py-2 text-center">Weight</th>
+                    <th class="py-2 text-left">Rationale</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--border)]">
+                  <tr class="bg-[var(--surface-2)]">
+                    <td colspan="3" class="py-2 px-4 font-bold text-xs uppercase tracking-wider text-[var(--accent)]">🇮🇳 India Core (40% Total)</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold px-4">NETWEB</td>
+                    <td class="py-3 text-center mono text-[var(--accent)]">10%</td>
+                    <td>Highest conviction; Sovereign AI compute mandate; 34% ROE.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold px-4">DATAPATTNS</td>
+                    <td class="py-3 text-center mono text-[var(--accent)]">8%</td>
+                    <td>Defense indigenization; High visibility order book; IP-led.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold px-4">MTAR</td>
+                    <td class="py-3 text-center mono text-[var(--accent)]">8%</td>
+                    <td>Clean energy + AI play (Bloom Energy); 7-10yr qualification moat.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold px-4">SYRMA / KAYNES</td>
+                    <td class="py-3 text-center mono text-[var(--accent)]">14%</td>
+                    <td>India manufacturing hub (7% each); EMS to ODM high-margin shift.</td>
+                  </tr>
+                  <tr class="bg-[var(--surface-2)]">
+                    <td colspan="3" class="py-2 px-4 font-bold text-xs uppercase tracking-wider text-[var(--accent-2)]">🇺🇸 US Tech & Speculative (30% Total)</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold px-4">ALAB</td>
+                    <td class="py-3 text-center mono text-[var(--accent-2)]">10%</td>
+                    <td>Critical AI connectivity (CXL); Hyperscaler capex tailwind.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold px-4">SYM</td>
+                    <td class="py-3 text-center mono text-[var(--accent-2)]">6%</td>
+                    <td>Warehouse automation; Walmart validation; High scalability.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold px-4">NTLA / IONQ</td>
+                    <td class="py-3 text-center mono text-[var(--danger)]">10%</td>
+                    <td>High-risk moonshots (5% each); In-vivo gene editing & Quantum.</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 font-semibold px-4">BEAM</td>
+                    <td class="py-3 text-center mono text-[var(--danger)]">4%</td>
+                    <td>Speculative/Early stage; Base editing platform optionality.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="mt-6 p-4 bg-[var(--surface-2)] rounded-lg border-l-4 border-[var(--accent)]">
+              <p class="text-xs italic text-[var(--text-muted)]">Remaining 30% of portfolio: 20% Aggressive MFs (Quant/Nippon), 10% Speculative/Crypto.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Execution Playbook -->
+        <div class="space-y-8">
+          <div class="stat-card text-left">
+            <h3 class="text-lg font-bold mb-4 text-[var(--success)]"><i class="fas fa-shield-alt mr-2"></i> Volatility Shield</h3>
+            <ul class="text-sm space-y-3 text-[var(--text-muted)]">
+              <li><strong class="text-[var(--text)]">4-Tranche Entry:</strong> Deploy 25% every 45 days. Avoids "all-in" timing risk.</li>
+              <li><strong class="text-[var(--text)]">Add to Winners:</strong> Increase allocation only if proxy signals improve (e.g., Neutron launch success).</li>
+              <li><strong class="text-[var(--text)]">Platforms:</strong> Zerodha (India), IndMoney/Vested (US).</li>
+            </ul>
+          </div>
+
+          <div class="stat-card text-left">
+            <h3 class="text-lg font-bold mb-4 text-[var(--accent-2)]"><i class="fas fa-radar mr-2"></i> Performance Radar</h3>
+            <ul class="text-sm space-y-3 text-[var(--text-muted)]">
+              <li><strong class="text-[var(--text)]">Benchmarking:</strong> India vs Nifty Midcap 100; US vs Nasdaq 100.</li>
+              <li><strong class="text-[var(--text)]">Proxy Checks:</strong> Quarterly review of Glassdoor trends & R&D spend.</li>
+              <li><strong class="text-[var(--text)]">Exit Rule:</strong> Exit if Management Quality score drops below 5/10.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Side Panel: Allocation (Desktop Only) -->
+  <aside class="allocation-panel" id="allocation">
+    <div class="allocation-title">Target Allocation</div>
+    <div class="allocation-item">
+      <span>Direct Equity (India)</span>
+      <span class="mono" style="color: var(--accent);">40%</span>
+    </div>
+    <div class="allocation-bar"><div class="allocation-fill" style="width: 40%; background: var(--accent);"></div></div>
+    
+    <div class="allocation-item">
+      <span>US Tech Core</span>
+      <span class="mono" style="color: var(--accent-2);">30%</span>
+    </div>
+    <div class="allocation-bar"><div class="allocation-fill" style="width: 30%; background: var(--accent-2);"></div></div>
+    
+    <div class="allocation-item">
+      <span>Aggressive MFs</span>
+      <span class="mono" style="color: var(--accent-3);">20%</span>
+    </div>
+    <div class="allocation-bar"><div class="allocation-fill" style="width: 20%; background: var(--accent-3);"></div></div>
+    
+    <div class="allocation-item">
+      <span>Speculative/Crypto</span>
+      <span class="mono" style="color: var(--danger);">10%</span>
+    </div>
+    <div class="allocation-bar"><div class="allocation-fill" style="width: 10%; background: var(--danger);"></div></div>
+
+    <div class="mt-6 pt-6 border-t" style="border-color: var(--border);">
+      <div class="allocation-title">Risk Distribution</div>
+      <div class="allocation-item">
+        <span>Low-Med Risk</span>
+        <span class="mono" style="color: var(--success);">31%</span>
+      </div>
+      <div class="allocation-item">
+        <span>High Risk</span>
+        <span class="mono" style="color: var(--warning);">38%</span>
+      </div>
+      <div class="allocation-item">
+        <span>Very High Risk</span>
+        <span class="mono" style="color: var(--danger);">31%</span>
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    // Stock Data with Full 5-Dimension Analysis
+    const stocks = [
+      // ============ US MARKET: AI INFRASTRUCTURE ============
+      {
+        ticker: 'ALAB',
+        name: 'Astera Labs',
+        theme: 'AI Infrastructure',
+        market: 'us',
+        themeClass: 'theme-ai',
+        conviction: 92,
+        upside: '300%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '$8.2B', revenue: '$398M', gm: '~70%', employees: '350' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20, fill: '#f59e0b', 
+            detail: `CEO Jitendra Mohan since 2017; COO Sanjay Gajendra ex-Synaptics/LSI Logic; 100% CEO approval TrueUp; 4.2/5 Blind rating; Bay Area Best Places to Work 2024-25; Long work hours/burnout concerns` },
+          { name: 'Innovation', score: 10, weight: 25, fill: '#f59e0b',
+            detail: `CXL (Compute Express Link) connectivity silicon — critical for AI memory expansion; Only pure-play CXL chip company; 200+ patents; PCIe Retimers used by hyperscalers; Cloud-Scale Interop Lab validates at scale` },
+          { name: 'Demand', score: 9, weight: 20, fill: '#f59e0b',
+            detail: `$725B hyperscaler capex in 2026; All major cloud providers (AWS/Azure/GCP) need CXL for GPU memory pooling; AI server BOM increasing from $3k to $30k+; Backlog visibility into 2027` },
+          { name: 'Business', score: 8, weight: 20, fill: '#f59e0b',
+            detail: `70% gross margins (fabless model); Asset-light, high-IP business; Leading CXL market position; Competition from Marvell, Rambus but 2-3yr headstart; Customer concentration risk` },
+          { name: 'Mispricing', score: 8, weight: 15, fill: '#f59e0b',
+            detail: `Market sees "just another chip company"; misses CXL inflection in 2025-26; Trading at discount to AI semis despite being mission-critical infrastructure; Not yet in Nasdaq 100 = passive buying ahead` }
+        ]
+      },
+      {
+        ticker: 'VRT',
+        name: 'Vertiv Holdings',
+        theme: 'AI Infrastructure',
+        market: 'us',
+        themeClass: 'theme-ai',
+        conviction: 88,
+        upside: '150%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '$42B', revenue: '$8.0B', margin: '19%', backlog: '$15B+' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20, fill: '#f59e0b',
+            detail: `CEO Giordano Albertazzi (Jan 2023); 20+ yrs at Vertiv; Stanford MBA; Delivered 136% shareholder returns 2024; $18M comp tied to performance; Successfully navigated tariff headwinds` },
+          { name: 'Innovation', score: 8, weight: 25, fill: '#f59e0b',
+            detail: `Data center power + thermal; Liquid cooling MANDATORY for GB200 (Blackwell) GPUs; Coolant distribution units, rear-door heat exchangers; Partnerships with Nvidia; Edge computing infrastructure` },
+          { name: 'Demand', score: 10, weight: 20, fill: '#f59e0b',
+            detail: `$15B+ backlog (largest ever); Order book extends to 2027; Every hyperscaler AI buildout needs Vertiv; Revenue growth 17% (2024) accelerating; GI liquid cooling growing triple digits` },
+          { name: 'Business', score: 9, weight: 20, fill: '#f59e0b',
+            detail: `19% adjusted operating margin; $1.1B free cash flow; Integrated power-thermal solution is sticky; Switching costs high (entire datacenter mission critical); Services revenue recurring` },
+          { name: 'Mispricing', score: 6, weight: 15, fill: '#f59e0b',
+            detail: `Market recognizes AI infrastructure story; Trading at premium multiples; Limited mispricing but execution story continues; Risk is over-earning cyclicality not undervaluation` }
+        ]
+      },
+      {
+        ticker: 'PLTR',
+        name: 'Palantir Technologies',
+        theme: 'AI Infrastructure',
+        market: 'us',
+        themeClass: 'theme-ai',
+        conviction: 82,
+        upside: '120%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '$165B', revenue: '$2.8B', fcf: '$2.1B', pe: '150x+' },
+        dimensions: [
+          { name: 'Management', score: 6, weight: 20, fill: '#f59e0b',
+            detail: `CEO Alex Karp 63% Glassdoor approval; 78/100 Comparably (Top 10%); Polarizing figure; "Mission-driven" culture; Concerns on transparency/favoritism; High pressure environment; Compensation inequities flagged` },
+          { name: 'Innovation', score: 9, weight: 25, fill: '#f59e0b',
+            detail: `AIP (AI Platform) — enterprise AI operating system; Ontology architecture unique; Government + Commercial dual engine; AIP Bootcamps converting customers at unprecedented velocity; TITAN military contract` },
+          { name: 'Demand', score: 9, weight: 20, fill: '#f59e0b',
+            detail: `US commercial revenue +70% YoY; Customer count accelerating; Government contracts sticky (multi-year); Healthcare growing (NIH, NHS); NATO contract expansion; AIP demand exceeding supply` },
+          { name: 'Business', score: 7, weight: 20, fill: '#f59e0b',
+            detail: `25%+ FCF margins; Rule of 40 consistently exceeded; Expansion revenue > new logo revenue (land-expand); High switching costs (ontology investment); BUT: Dilutive SBC 20%+ of revenue` },
+          { name: 'Mispricing', score: 6, weight: 15, fill: '#f59e0b',
+            detail: `Market prices in perfection; 150x P/E not sustainable without flawless execution; Meme stock dynamics; Short interest creates volatility; NOT mispriced — momentum + growth premium` }
+        ]
+      },
+
+      // ============ US MARKET: QUANTUM ============
+      {
+        ticker: 'IONQ',
+        name: 'IonQ Inc.',
+        theme: 'Quantum Computing',
+        market: 'us',
+        themeClass: 'theme-quantum',
+        conviction: 79,
+        upside: '400%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '$2.8B', revenue: '$65M/run', growth: '+755%', qubits: '256' },
+        dimensions: [
+          { name: 'Management', score: 6, weight: 20, fill: '#8b5cf6',
+            detail: `CEO Peter Chapman 53% Glassdoor approval; 50/100 Comparably (Bottom 10%); Strategic clarity on milestones; BUT: High-pressure environment, 100% burnout reported; Frequent reorgs, communication gaps; Execution complexity from acquisitions` },
+          { name: 'Innovation', score: 9, weight: 25, fill: '#8b5cf6',
+            detail: `1,000+ total IP assets (owned/licensed); Trapped-ion approach (most accurate quantum); 256-qubit system sold to Cambridge; DARPA + Space Development Agency contracts; Quantum networking patents (US 12,260,113); Photonic integrated circuits 2026` },
+          { name: 'Demand', score: 8, weight: 20, fill: '#8b5cf6',
+            detail: `Q1 2026: $64.7M revenue (+755% YoY); FY26 guide $260-270M; Einride 3yr partnership (logistics optimization); CCRM biotech collaboration (regenerative medicine); 15 quantum use cases assessed with Einride; First real-world quantum transport application` },
+          { name: 'Business', score: 6, weight: 20, fill: '#8b5cf6',
+            detail: `No product moat yet (vs superconducting: IBM, Google); Trapped-ion vs competing qubit modalities; FIRST-MOVER in quantum networking (high leverage); Cash burn $310-330M EBITDA loss FY26; Need capital raises if commercial traction delays` },
+          { name: 'Mispricing', score: 8, weight: 15, fill: '#8b5cf6',
+            detail: `Market misses QUANTUM-CLASSICAL HYBRID trajectory; Compares to "quantum winter" fears; Stock 40%+ below 2024 highs; Under-estimating enterprise use-cases (optimization, ML); S-curve adoption mis-modeled` }
+        ]
+      },
+
+      // ============ US MARKET: ROBOTICS ============
+      {
+        ticker: 'SYM',
+        name: 'Symbotic Inc.',
+        theme: 'Robotics/Automation',
+        market: 'us',
+        themeClass: 'theme-robotics',
+        conviction: 86,
+        upside: '250%',
+        risk: 'MED-HIGH',
+        riskClass: 'risk-med',
+        metrics: { mcap: '$38B', target: '$62.50', io: '99.5%', softbank: '31.7%' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20, fill: '#f97316',
+            detail: `CEO Rick Cohen 83/100 rating; Culture 75/100 (Top 30%); 76% excited to work; Executed Walmart rollout (validation); Mixed LLC subsidiary reviews (49/100); 20+ year founder-led vision; Strategic patience capital` },
+          { name: 'Innovation', score: 8, weight: 25, fill: '#f97316',
+            detail: `Proprietary AI vision + robotic arms; GreenBox JV with SoftBank (mid-market play); Modular, scalable architecture; System throughput 2-3x competitors; Continuous improvement via AI; Software stack integrated with hardware` },
+          { name: 'Demand', score: 10, weight: 20, fill: '#f97316',
+            detail: `Multi-year Walmart contract ($50B+ retailer); Albertsons deployment; 271 institutional BUYERS vs 107 sellers; $936M inflows vs $534M outflows; 99.5% institutional ownership; Warehouse automation TAM $15B→$70B by 2030` },
+          { name: 'Business', score: 8, weight: 20, fill: '#f97316',
+            detail: `SoftBank 31.7% (strategic patient capital); Walmart 11.9% (customer validation); HIGH SWITCHING COSTS once deployed (mission critical); Recurring software revenue growing; GreenBox opens TAM to mid-market; Long implementation cycles` },
+          { name: 'Mispricing', score: 7, weight: 15, fill: '#f97316',
+            detail: `Analyst target $62.50 (slight premium to current); Goldman Strong Sell creates contrarian signal; Market under-appreciates mid-market GreenBox TAM; Focuses on Walmart concentration misses broader opportunity` }
+        ]
+      },
+
+      // ============ US MARKET: GENE EDITING ============
+      {
+        ticker: 'CRSP',
+        name: 'CRISPR Therapeutics',
+        theme: 'Gene Editing',
+        market: 'us',
+        themeClass: 'theme-gene',
+        conviction: 84,
+        upside: '180%',
+        risk: 'MED-HIGH',
+        riskClass: 'risk-med',
+        metrics: { mcap: '$9.5B', revenue: '$116M', patients: '500+', coverage: '90%' },
+        dimensions: [
+          { name: 'Management', score: 9, weight: 20, fill: '#10b981',
+            detail: `CEO Sam Kulkarni (McKinsey → CEO 2017); Architected Vertex partnership; Built company from seed to first approved gene therapy; 16+ years CRISPR leadership; Board includes Nobel laureates; Strong BD track record` },
+          { name: 'Innovation', score: 8, weight: 25, fill: '#10b981',
+            detail: `Casgevy = WORLD FIRST approved CRISPR therapy (sickle cell/beta thalassemia); Pipeline: CTX110 (CAR-T), TIR-101 (TTR amyloid), CTX112 (autoimmune); Allogeneic (off-the-shelf) vs autologous advantage; Massive manufacturing moat` },
+          { name: 'Demand', score: 9, weight: 20, fill: '#10b981',
+            detail: `500+ patients initiated Casgevy globally; 900% patient growth YoY; 90% US coverage/reimbursement; UK, Italy, Austria Denmark reimbursed; Middle East approvals; Addressable >60,000 patients; Children 5-11 submission with Priority Voucher` },
+          { name: 'Business', score: 7, weight: 20, fill: '#10b981',
+            detail: `Vertex 60/40 profit share (strong partner); $2.5B cash runway; Manufacturing network advantage; Oncology, autoimmune, cardiovascular expansion; Platform licensing potential; Heavy R&D spend required` },
+          { name: 'Mispricing', score: 7, weight: 15, fill: '#10b981',
+            detail: `Market sees "SCD-only" company; misses CARDIO + AUTOIMMUNE pipeline; Casgevy cash flow funds pipeline; Valuation disconnect from proven platform; Stock 60% below highs despite approval` }
+        ]
+      },
+      {
+        ticker: 'NTLA',
+        name: 'Intellia Therapeutics',
+        theme: 'Gene Editing',
+        market: 'us',
+        themeClass: 'theme-gene',
+        conviction: 82,
+        upside: '300%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '$3.2B', cash: '$1B', runway: '2027', ceo: '86/100' },
+        dimensions: [
+          { name: 'Management', score: 9, weight: 20, fill: '#10b981',
+            detail: `CEO John Leonard: 86/100 rating (Top 5%); Abbott/AbbVie heritage 22 years; Developed Norvir, Kaletra, Humira; Joined Intellia 2014, CEO 2018; Deep drug development expertise; Exec team 73/100 (Top 30%)` },
+          { name: 'Innovation', score: 9, weight: 25, fill: '#10b981',
+            detail: `IN-VIVO gene editing leader (vs CRSP ex-vivo); NTLA-2001 ATTR program (first in-human in-vivo); CRISPR/Cas9 platform IP; Nobel Prize foundational tech; Regeneron partnership; Single-dose potential cure` },
+          { name: 'Demand', score: 6, weight: 20, fill: '#10b981',
+            detail: `Phase 2 data (2025); Regeneron partner funding 50%; Early clinical demand but not commercial yet; Buffalo cohort expansion; Polyneuropathy indication; Excitement from cardiomyopathy milestone` },
+          { name: 'Business', score: 6, weight: 20, fill: '#10b981',
+            detail: `NO REVENUE YET; Platform licensing potential; Cash $1B runway to 2027; Regeneron milestone payments; High R&D burn; Need Phase 3 success for value; Binary outcome profile` },
+          { name: 'Mispricing', score: 8, weight: 15, fill: '#10b981',
+            detail: `Stock 70%+ below highs; Market misses IN-VIVO difference (one-time injection vs bone marrow transplant); Misunderstands ATTR TAM; Over-penalized for being pre-revenue; Success = multibagger, failure = significant loss` }
+        ]
+      },
+      {
+        ticker: 'BEAM',
+        name: 'Beam Therapeutics',
+        theme: 'Gene Editing',
+        market: 'us',
+        themeClass: 'theme-gene',
+        conviction: 76,
+        upside: '350%',
+        risk: 'VERY HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '$1.8B', cash: '$500M', stage: 'Pre-comm', platform: 'BASE' },
+        dimensions: [
+          { name: 'Management', score: 7, weight: 20, fill: '#10b981',
+            detail: `CEO John Evans (Agios Pharma/Wharton); McKinsey background; Top Workplace 2019 (Boston Globe); 79% positive reviews; Team values-driven; Focus on diversity/inclusion; Solid execution pre-commercial` },
+          { name: 'Innovation', score: 9, weight: 25, fill: '#10b981',
+            detail: `BASE EDITING (precision point mutations); NO double-strand breaks (safer than CRISPR); Can edit C→T, A→G; Cardiovascular pipeline (targets not addressable by CRISPR); Academic founders from Harvard/MIT` },
+          { name: 'Demand', score: 5, weight: 20, fill: '#10b981',
+            detail: `PRE-COMMERCIAL; Phase 1/2 data 2025-2026; Beam-101 (PKU); BEACON trial; Academic/biotech interest high; Partner with Apellis (C3G), Lilly; No patient revenue yet; Proof-of-concept stage` },
+          { name: 'Business', score: 5, weight: 20, fill: '#10b981',
+            detail: `NO PRODUCT; Cash ~$500M (tighter runway); Partnership revenue limited; High burn rate; Need capital raise if trials extend; Platform value but unproven commercially` },
+          { name: 'Mispricing', score: 8, weight: 15, fill: '#10b981',
+            detail: `BASE editing SUPERIOR for select diseases; Valuation collapsed from tech skepticism; 80%+ below 2021 highs; Market conflates with all gene editing; If 1-2 programs succeed = 5-10x; Highest uncertainty` }
+        ]
+      },
+
+      // ============ INDIA MARKET ============
+      {
+        ticker: 'NETWEB',
+        name: 'Netweb Technologies',
+        theme: 'India Manufacturing',
+        market: 'india',
+        themeClass: 'theme-india-tech',
+        conviction: 94,
+        upside: '300%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '₹3,800cr', revenue: '₹734cr', roe: '34%', orders: '₹2,184cr' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20, fill: '#f59e0b',
+            detail: `CMD Sanjay Lodha 26.58% ownership (skin in game); Average tenure 3.8 years; 3.4/5 AmbitionBox (8% below industry); Job security 3.5/5; Skill development 3.5/5; 4.6 years CEO tenure; HPC domain expertise` },
+          { name: 'Innovation', score: 9, weight: 25, fill: '#f59e0b',
+            detail: `ONLY Indian HPC OEM for IndiaAI mission; Tyrone, RackOn proprietary brands; Liquid cooling for AI servers; GPU-as-a-Service (GPUaaS); Edge computing solutions; AI inference optimization; 600% IPO to current rally` },
+          { name: 'Demand', score: 10, weight: 20, fill: '#f59e0b',
+            detail: `₹2,184cr order book (3x revenue); IndiaAI Mission: ₹1,734cr + ₹450cr orders (FY27 completion); Sovereign AI compute mandate; Every PSU AI project routes through Netweb; Data center boom; Import substitution tailwind` },
+          { name: 'Business', score: 9, weight: 20, fill: '#f59e0b',
+            detail: `34% ROE (exceptional); ₹8,000cr+ turnover visibility; 100% India: Intel, Nvidia, AMD partnerships; No listed Indian competitor; Mission-critical infrastructure (high switching); Government relationships deep` },
+          { name: 'Mispricing', score: 9, weight: 15, fill: '#f59e0b',
+            detail: `Market sees "hardware assembler"; misses IP/moats; Not in Nifty = passive exclusion; Valuation 25x earnings for 50%+ growth; Compares to ZTE/Huawei in early days; Sovereign AI tailwind mis-priced` }
+        ]
+      },
+      {
+        ticker: 'KAYNES',
+        name: 'Kaynes Technology',
+        theme: 'India Manufacturing',
+        market: 'india',
+        themeClass: 'theme-india-tech',
+        conviction: 87,
+        upside: '200%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '₹14,500cr', orderbook: '₹6,800cr', fy28: '₹2,500cr', subsidy: '50%' },
+        dimensions: [
+          { name: 'Management', score: 6, weight: 20, fill: '#f59e0b',
+            detail: `CEO Narayanaswamy Muthukumar 1.3 years tenure; 3.1/5 AmbitionBox (21% below industry); Promotions 2.6/5; Culture 2.7/5; Salary 2.7/5; Monday-Saturday work culture; High attrition concerns; BUT: Aggressive transformation vision` },
+          { name: 'Innovation', score: 7, weight: 25, fill: '#f59e0b',
+            detail: `PCB → OSAT + Semiconductor assembly; ₹3,200cr capex for packaging; 50% central + 20% state subsidy; Foxconn/Apple ecosystem supplier; Building India's first commercial OSAT; IoT embedded systems capability` },
+          { name: 'Demand', score: 10, weight: 20, fill: '#f59e0b',
+            detail: `₹6,800cr order book; 75%+ from industrial/auto (defensive); FY28: ₹2,500cr semiconductor revenue target; India Semiconductor Mission 2.0 ₹1 lakh crore; Apple/AirPods assembly ramping; EV electronics demand` },
+          { name: 'Business', score: 8, weight: 20, fill: '#f59e0b',
+            detail: `ODM (own design) + EMS dual model; 50% revenue from high-margin IoT; Government subsidies reduce capex burden; Foxconn relationship; Diversified sector exposure (auto, industrial, medical, consumer); Asset turnover improving` },
+          { name: 'Mispricing', score: 8, weight: 15, fill: '#f59e0b',
+            detail: `Market sees "EMS player"; misses OSAT transformation; 30x PE for 40%+ growth; Semiconductor pivot not priced; Comparable to Dixon but manufacturing focus stronger; Execution risk on 3,200cr capex` }
+        ]
+      },
+      {
+        ticker: 'ZOMATO',
+        name: 'Eternal (Blinkit)',
+        theme: 'India Digital',
+        market: 'india',
+        themeClass: 'theme-india-tech',
+        conviction: 84,
+        upside: '150%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '₹1.6L cr', gofood: '-30%', blinkit: '+100%', ceo: 'transition' },
+        dimensions: [
+          { name: 'Management', score: 7, weight: 20, fill: '#f59e0b',
+            detail: `Deepinder Goyal stepped down Feb 2026 as CEO; Remains Vice Chairman; Albinder Dhindsa (Blinkit CEO) now Group CEO; Goyal pursuing Continue (longevity), LAT Aerospace; 400+ employees in 2nd/3rd stint; Founder transition risk/opportunity` },
+          { name: 'Innovation', score: 9, weight: 25, fill: '#f59e0b',
+            detail: `QUICK COMMERCE (10-min delivery); Blinkit replacing kiranas + e-commerce; Density economics unmatched; 1000+ dark stores; Grocery + electronics + pharmacy convergence; Zomato (food) now mature/cash cow` },
+          { name: 'Demand', score: 9, weight: 20, fill: '#f59e0b',
+            detail: `GOV (Gross Order Value) growth Blinkit ~100%; Zomato food -30% (stabilizing); Tier 2/3 city expansion; Retention improving; Frequency increasing; AOV holding; Quick commerce TAM $45B by 2030; Market leader` },
+          { name: 'Business', score: 7, weight: 20, fill: '#f59e0b',
+            detail: `Density = moat (same-store economics improve with scale); Hyperlocal logistics optimization; Dual brand (Zaika Bazaar in north); Margin expansion path through private label; BUT: Hyper competition (Zepto, Instamart, Blinkit)` },
+          { name: 'Mispricing', score: 7, weight: 15, fill: '#f59e0b',
+            detail: `Market sees "food delivery" stock; misses QUICK COMMERCE pivot; Zomato brand masks Blinkit transformation; Founder exit creates uncertainty = opportunity; Trading at discount to Zepto (private); Operating leverage under-appreciated` }
+        ]
+      },
+      {
+        ticker: 'SYRMA',
+        name: 'Syrma SGS Technology',
+        theme: 'India Manufacturing',
+        market: 'india',
+        themeClass: 'theme-india-tech',
+        conviction: 88,
+        upside: '180%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '₹9,200cr', revenue: '₹4,819cr', profit: '+87%', exports: '41%' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20, fill: '#f59e0b',
+            detail: `Professional management post-IPO; Focus on high-margin mix shift; 3.9/5 AmbitionBox (1400+ reviews); Job security 3.9/5; 6-day work week complaints; Executing margin expansion strategy; Conservative capital allocation` },
+          { name: 'Innovation', score: 7, weight: 25, fill: '#f59e0b',
+            detail: `EMS → ODM capability building; High-mix low-volume expertise; Product design center; NPI (New Product Introduction) services; Industrial IoT focus; RFID/smart card manufacturing; Defense electronics (ISRO, DRDO)` },
+          { name: 'Demand', score: 9, weight: 20, fill: '#f59e0b',
+            detail: `FY26: ₹4,819cr revenue (+27%); Net profit ₹346cr (+87%); Q4 revenue ₹1,465cr (+58%); FY27 guided +30% growth; EXPORTS ₹1,200cr (+41%), crossing ₹1,500cr guide; "By far largest exporter of electronics outside mobile"; ₹1,200cr target exceeded` },
+          { name: 'Business', score: 8, weight: 20, fill: '#f59e0b',
+            detail: `GMV mix shift: Consumer 30% (down from 36%); Industrial 29%, Auto 24%, Healthcare 8%; EBITDA margin 10-10.5% guided; Customer diversification; Long-standing OEM relationships; Order book visibility 12+ months` },
+          { name: 'Mispricing', score: 8, weight: 15, fill: '#f59e0b',
+            detail: `Market sees as "low-margin EMS"; misses MIX SHIFT + EXPORT pivot; Stock 55% up in 2026 but still 30x PE for 30%+ growth; Not in MF radar yet; China's +1 strategy beneficiary; Valuation gap to Dixon/Amber closing` }
+        ]
+      },
+      {
+        ticker: 'CDSL',
+        name: 'Central Depository',
+        theme: 'India Financial',
+        market: 'india',
+        themeClass: 'theme-india-fin',
+        conviction: 78,
+        upside: '100%',
+        risk: 'LOW',
+        riskClass: 'risk-low',
+        metrics: { mcap: '₹15,800cr', demat: '12cr+ accounts', monopoly: ' duopoly', growth: '+33%' },
+        dimensions: [
+          { name: 'Management', score: 7, weight: 20, fill: '#ec4899',
+            detail: `CEO Nehal Vora; Chairman Gurumoorthy Mahalingam; Professional management; 3.5/5 AmbitionBox (5-8% below industry); Job security 4.2/5 (highest); Work-life balance 3.8/5; Promotions 3.3/5; 75% M-F schedules; Regulatory compliance focus` },
+          { name: 'Innovation', score: 6, weight: 25, fill: '#ec4899',
+            detail: `Market infrastructure (not R&D); E-voting, e-disclosure platforms; Blockchain pilot for securities; KYC data services; API ecosystem for fintechs; Transaction surveillance; Limited innovation by design (regulated utility)` },
+          { name: 'Demand', score: 9, weight: 20, fill: '#ec4899',
+            detail: `12cr+ demat accounts (largest); IPO boom = new accounts; Retail participation secular uptrend; Corporate action processing; Dematerialization mandate; E-voting mandatory; Duopoly with NSDL; Market share gains via pricing` },
+          { name: 'Business', score: 9, weight: 20, fill: '#ec4899',
+            detail: `REGULATED DUOPOLY (strongest moat); 50%+ EBITDA margins; 40%+ ROE; Zero debt; Asset-light; Recurring transaction fees; Pricing power (regulated caps but room); Network effect (everyone connects to CDSL); 33% employee growth` },
+          { name: 'Mispricing', score: 6, weight: 15, fill: '#ec4899',
+            detail: `Market sees "boring infrastructure"; misses FINTECH optionality; Growth deceleration fears overblown; 45x PE steep but monopolies trade premium; Not "exciting" like tech but COMPOUNDING; Regulatory risk overestimated` }
+        ]
+      },
+
+      {
+        ticker: 'VKTX',
+        name: 'Viking Therapeutics',
+        theme: 'GLP-1 / Biotech',
+        market: 'us',
+        themeClass: 'theme-gene',
+        conviction: 85,
+        upside: '200%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '~$4B', asset: 'VK2735', runway: '24mo', stage: 'Phase 3 Trials' },
+        dimensions: [
+          { name: 'Management', score: 7, weight: 20, fill: '#10b981',
+            detail: `CEO Brian Lian (founder-led); New CCO Neil Aubuchon (ex-Amgen/Lilly) boosts commercial expertise; Insider sales in early 2026 but offset by new CCO share purchase; Employee outlook is negative (0/100) despite decent ratings.` },
+          { name: 'Innovation', score: 9, weight: 25, fill: '#10b981',
+            detail: `VK2735 oral GLP-1/GIP dual agonist shows 12.2% weight loss in 13 weeks; Multiple new patents strengthen IP; Phase 3 VANQUISH trials for subcutaneous version fully enrolled, data in 2027.` },
+          { name: 'Demand', score: 9, weight: 20, fill: '#10b981',
+            detail: `GLP-1 TAM $150B+ by 2030; Oral formulation targets 60% of patients who refuse needles; High M&A target potential from Big Pharma (Pfizer, Merck, Amgen).` },
+          { name: 'Business', score: 6, weight: 20, fill: '#10b981',
+            detail: `Pre-revenue, single asset risk; R&D expenses surged to $115.2M in Q1 '26 for Phase 3; Competitive space but best-in-class oral potential provides a key edge.` },
+          { name: 'Mispricing', score: 8, weight: 15, fill: '#10b981',
+            detail: `Analyst consensus is 'Strong Buy' with price targets implying massive upside; Institutional ownership is high but mixed; Market may still be undervaluing the oral drug's potential.` }
+        ]
+      },
+
+      {
+        ticker: 'CEG',
+        name: 'Constellation Energy',
+        theme: 'Nuclear Power',
+        market: 'us',
+        themeClass: 'theme-ai',
+        conviction: 82,
+        upside: '100%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '~$70B', reactors: '21', ppa_deal: '$110+/MWh', ppa_customer: 'CyrusOne' },
+        dimensions: [
+          { name: 'Management', score: 7, weight: 20, fill: '#f59e0b',
+            detail: `Stable, experienced leadership team with strong ratings (80/100); Multiple directors received stock awards, but key execs sold shares in Feb 2026; Executing on 'Powered Land' strategy for data centers.` },
+          { name: 'Innovation', score: 8, weight: 25, fill: '#f59e0b',
+            detail: `Awarded $17.3M federal funding for SMR site permitting; First-mover in hyperscaler nuclear PPAs; AI datacenter co-location strategy is a key differentiator.` },
+          { name: 'Demand', score: 10, weight: 20, fill: '#f59e0b',
+            detail: `Q1 '26 revenue surged 63.8% YoY; Secured new PPA with data center operator CyrusOne for 1,100 MW of power, directly linking to AI boom; Unmatched ability to provide 24/7 carbon-free power for data centers.` },
+          { name: 'Business', score: 8, weight: 20, fill: '#f59e0b',
+            detail: `Largest US producer of carbon-free electricity; Gross margins have declined due to higher fuel costs post-Calpine acquisition, but scale is significantly larger; ROE has also declined.` },
+          { name: 'Mispricing', score: 7, weight: 15, fill: '#f59e0b',
+            detail: `Market is recognizing the data center tailwind, but may still undervalue the long-term contracts and SMR optionality; High institutional ownership (82%), but significant rotation among funds.` }
+        ]
+      },
+
+      {
+        ticker: 'DUOL',
+        name: 'Duolingo',
+        theme: 'AI-Native Consumer',
+        market: 'us',
+        themeClass: 'theme-ai',
+        conviction: 83,
+        upside: '150%',
+        risk: 'MED-HIGH',
+        riskClass: 'risk-med',
+        metrics: { mcap: '$18B', users: '100M+', subs: '8M+', dau_growth: '+21%' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20, fill: '#f59e0b',
+            detail: `Founder-led with strong, mission-driven culture (4.2/5 Glassdoor); Smooth CFO transition in Feb 2026; Some compensation concerns but high overall approval.` },
+          { name: 'Innovation', score: 9, weight: 25, fill: '#f59e0b',
+            detail: `Launched 148 new language courses via GenAI, a massive velocity increase; AI-powered Video Call feature expanded; Now includes Chess course, expanding beyond language.` },
+          { name: 'Demand', score: 9, weight: 20, fill: '#f59e0b',
+            detail: `Strong Q1 '26 growth: Revenue +27% YoY, DAUs +21%, Paid Subs +21%; Model is primarily B2C viral loops, less reliant on large partnerships.` },
+          { name: 'Business', score: 8, weight: 20, fill: '#f59e0b',
+            detail: `Strong 73% gross margin, though guided to compress to 69% for strategic AI investment; Dominant player in mobile language learning.` },
+          { name: 'Mispricing', score: 6, weight: 15, fill: '#f59e0b',
+            detail: `Analyst consensus is a neutral 'Hold' due to valuation; High institutional ownership (91.6%) with funds like Baillie Gifford increasing stakes; Market may be mispricing long-term AI-driven expansion.` }
+        ]
+      },
+
+      {
+        ticker: 'NET',
+        name: 'Cloudflare',
+        theme: 'Edge Compute',
+        market: 'us',
+        themeClass: 'theme-ai',
+        conviction: 85,
+        upside: '120%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '$42B', growth: '+34%', large_cust: '+38%', dnr: '118%' },
+        dimensions: [
+          { name: 'Management', score: 7, weight: 20, fill: '#f59e0b',
+            detail: `Numerous planned insider sales under 10b5-1 plans; Mixed Glassdoor ratings (3.3-3.9/5) with management being a weak point; Major strategic pivot to 'agentic AI-first' model with workforce reduction.` },
+          { name: 'Innovation', score: 9, weight: 25, fill: '#f59e0b',
+            detail: `Launched 'Dynamic Workers' in beta to support AI agent use cases; Major focus on building the 'Agent Cloud', positioning Workers as foundational for AI agents.` },
+          { name: 'Demand', score: 10, weight: 20, fill: '#f59e0b',
+            detail: `Strong Q1 '26 revenue growth of 34% YoY; Excellent growth in large customers (revenue from >$100k/yr customers up 38%); Dollar-based net retention a healthy 118%.` },
+          { name: 'Business', score: 8, weight: 20, fill: '#f59e0b',
+            detail: `Gross margin has declined to 71.2% in Q1 '26 from 75.9% YoY; ROCE remains negative; Strategic pivot to AI introduces execution risk but also significant upside.` },
+          { name: 'Mispricing', score: 7, weight: 15, fill: '#f59e0b',
+            detail: `Diverging analyst views, with recent upgrades but also concerns over valuation; High institutional ownership (82.7%); Market is weighing the AI pivot against high valuation and declining margins.` }
+        ]
+      },
+
+      {
+        ticker: 'LITE',
+        name: 'Lumentum Holdings',
+        theme: 'Photonics / Optics',
+        market: 'us',
+        themeClass: 'theme-ai',
+        conviction: 88,
+        upside: '120%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '$6B', growth: '+58%', margin_exp: '+1200bps', partner: 'NVIDIA' },
+        dimensions: [
+          { name: 'Management', score: 7, weight: 20, fill: '#f59e0b',
+            detail: `New CEO appointed Feb 2025; Planned insider sales are a neutral signal; Leadership ratings are average (C-), an area to monitor.` },
+          { name: 'Innovation', score: 9, weight: 25, fill: '#f59e0b',
+            detail: `On track to ship 1.6T transceivers in Summer 2026; Successfully demonstrated 1.6T prototype and signaling 3.2T future capability, placing them at the forefront of optical interconnects.` },
+          { name: 'Demand', score: 10, weight: 20, fill: '#f59e0b',
+            detail: `Record Q1 '26 revenue of $533M (+58% YoY), with >60% driven by AI/cloud; Massive validation via NVIDIA partnership including a $2B investment and purchase commitment.` },
+          { name: 'Business', score: 8, weight: 20, fill: '#f59e0b',
+            detail: `Q3 '26 non-GAAP gross margin expanded by over 1,200bps to 47.9%; Leadership in high-end laser chips provides a competitive edge despite strong competition.` },
+          { name: 'Mispricing', score: 7, weight: 15, fill: '#f59e0b',
+            detail: `Wave of analyst price target upgrades in May 2026; High institutional ownership (94%); Market narrative is firmly centered on AI, but the sheer scale of the trend may still be underestimated.` }
+        ]
+      },
+
+      {
+        ticker: 'RKLB',
+        name: 'Rocket Lab',
+        theme: 'Space Platform',
+        market: 'us',
+        themeClass: 'theme-robotics',
+        conviction: 85,
+        upside: '250%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '$14B', backlog: '$2.2B+', growth: '+63.5%', neutron_launch: '2026' },
+        dimensions: [
+          { name: 'Management', score: 9, weight: 20, fill: '#f97316',
+            detail: `CEO Peter Beck reduced salary to $1 and forfeited RSUs, a strong signal of alignment; Planned insider sales are offset by this move; Average Glassdoor ratings are an area to monitor.` },
+          { name: 'Innovation', score: 9, weight: 25, fill: '#f97316',
+            detail: `Neutron rocket launch still on track for late 2026; Secured largest contract ever for 5 Neutron launches, validating market confidence; Vertically integrated model with acquisitions of Mynaric and Motiv Space Systems.` },
+          { name: 'Demand', score: 10, weight: 20, fill: '#f97316',
+            detail: `Record backlog of $2.2B (doubled YoY); Record 31 launch contracts in Q1 '26; Major deals with Anduril and U.S. Space Force; Record Q1 revenue of $200.3M (+63.5% YoY).` },
+          { name: 'Business', score: 8, weight: 20, fill: '#f97316',
+            detail: `Space Systems division now 68% of revenue with a strong 43% gross margin, providing a profitable, diversified stream; High customer concentration with 69% of backlog from top 5.` },
+          { name: 'Mispricing', score: 7, weight: 15, fill: '#f97316',
+            detail: `Multiple analyst upgrades in May 2026; Market is re-rating from small-lift provider to diversified space platform; Successful Neutron debut is the key re-rating catalyst the market awaits.` }
+        ]
+      },
+
+      {
+        ticker: 'DATAPATTNS',
+        name: 'Data Patterns',
+        theme: 'Defense Electronics',
+        market: 'india',
+        themeClass: 'theme-india-tech',
+        conviction: 90,
+        upside: '200%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '₹8,500cr', orderbook: '₹2000cr+', profit_growth: '+21%', roce: '20.8%' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20, fill: '#f59e0b',
+            detail: `Founder-led with significant 22.8% stake; Long average management tenure (5.7 years); Strong alignment with long-term goals.` },
+          { name: 'Innovation', score: 9, weight: 25, fill: '#f59e0b',
+            detail: `Successfully completed trials for Brahmos missile seeker; Key partner in AMCA fighter jet program; Strategically evolving from component supplier to full systems integrator.` },
+          { name: 'Demand', score: 10, weight: 20, fill: '#f59e0b',
+            detail: `All-time high order book of over ₹2,000 crore, with ₹1,090 crore more under negotiation; FY26 saw highest ever annual order inflows; Rising interest in Indian defense provides macro tailwind.` },
+          { name: 'Business', score: 8, weight: 20, fill: '#f59e0b',
+            detail: `Despite lumpy revenue, grew net profit 21% in Q4, showing high profitability on IP-led products; Healthy and improving ROCE of 20.8%; High customer concentration on Indian government is a risk.` },
+          { name: 'Mispricing', score: 8, weight: 15, fill: '#f59e0b',
+            detail: `Prime beneficiary of multi-year 'Make in India' defense policy; FII and Mutual Fund ownership is steadily increasing, a strong signal of growing institutional conviction.` }
+        ]
+      },
+
+      {
+        ticker: 'MTAR',
+        name: 'MTAR Technologies',
+        theme: 'Precision Engineering',
+        market: 'india',
+        themeClass: 'theme-india-tech',
+        conviction: 92,
+        upside: '250%',
+        risk: 'MED-HIGH',
+        riskClass: 'risk-med',
+        metrics: { mcap: '₹6,000cr', growth: '+67%', profit_growth: '+223%', new_order: '$239M' },
+        dimensions: [
+          { name: 'Management', score: 9, weight: 20, fill: '#f59e0b',
+            detail: `Stable founder-led team with high 4.1/5 AmbitionBox rating, indicating positive employee morale. C-suite appears stable and focused.` },
+          { name: 'Innovation', score: 8, weight: 25, fill: '#f59e0b',
+            detail: `Growth is critically tied to its key customer, Bloom Energy, whose surging demand for fuel cells for AI data centers drives MTAR's scale and R&D.` },
+          { name: 'Demand', score: 10, weight: 20, fill: '#f59e0b',
+            detail: `New $239M order nearly doubles order book; Upgraded FY27 revenue growth guidance from 50% to over 80%; Q4 FY26 revenue grew 67% YoY with profit up 223%.` },
+          { name: 'Business', score: 9, weight: 20, fill: '#f59e0b',
+            detail: `Strong moat due to 7-10 year qualification process for its mission-critical components, despite high customer concentration with Bloom Energy (55-65% of revenue).` },
+          { name: 'Mispricing', score: 8, weight: 15, fill: '#f59e0b',
+            detail: `Market increasingly sees MTAR as an AI play via data center energy needs; FII holding has nearly doubled in the past year, a very strong signal of growing international interest.` }
+        ]
+      },
+
+      {
+        ticker: 'PIIND',
+        name: 'PI Industries',
+        theme: 'Specialty Chemicals',
+        market: 'india',
+        themeClass: 'theme-india-tech',
+        conviction: 83,
+        upside: '120%',
+        risk: 'LOW',
+        riskClass: 'risk-low',
+        metrics: { mcap: '₹62,000cr', revenue: '₹7,500cr', roe: '18%', export: '55%' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20, fill: '#f59e0b',
+            detail: `Professional management with 25+ year track record; CRAMS pioneer in India; Strong capital allocation and consistent dividend payer; High 4.1/5 AmbitionBox rating.` },
+          { name: 'Innovation', score: 8, weight: 25, fill: '#f59e0b',
+            detail: `Leader in Custom Research & Manufacturing (CRAMS) for global agrochem/pharma; Scaling pharma CRAMS business is a key growth vector; Moving up value chain to proprietary products.` },
+          { name: 'Demand', score: 9, weight: 20, fill: '#f59e0b',
+            detail: `Global MNCs outsourcing to India (China+1) is a major tailwind; 55% export revenue growing 20%+; Long-term contracts of 5-7 years provide high visibility.` },
+          { name: 'Business', score: 9, weight: 20, fill: '#f59e0b',
+            detail: `CRAMS model creates sticky relationships and high switching costs; Sustained high ROE of 18% with zero debt; Asset-light model focused on IP and process.` },
+          { name: 'Mispricing', score: 6, weight: 15, fill: '#f59e0b',
+            detail: `Market still views as an 'agrochem player', missing the high-value CRAMS platform and pharma pivot; Not as 'exciting' as tech, but a proven long-term compounder.` }
+        ]
+      },
+
+      {
+        ticker: 'TRENT',
+        name: 'Trent Ltd (Zudio)',
+        theme: 'Value Retail',
+        market: 'india',
+        themeClass: 'theme-india-tech',
+        conviction: 83,
+        upside: '120%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '₹1.7L cr', stores: '700+', roe: '30%+', sssg: 'High teens' },
+        dimensions: [
+          { name: 'Management', score: 9, weight: 20, fill: '#f59e0b',
+            detail: `Tata backing provides deep pockets for expansion; High 4.5/5 AmbitionBox rating; Proven execution with Zudio payback under 12 months and industry-leading inventory turns.` },
+          { name: 'Innovation', score: 8, weight: 25, fill: '#f59e0b',
+            detail: `Zudio is the fastest-scaling apparel format in India; 21-day design-to-store cycle is a key competitive moat; Star Bazaar (grocery) turning profitable provides a second growth engine.` },
+          { name: 'Demand', score: 9, weight: 20, fill: '#f59e0b',
+            detail: `On track to expand from 700 to 2,500 Zudio stores by FY29; High Same-Store Sales Growth (SSSG) in the high teens indicates strong consumer demand.` },
+          { name: 'Business', score: 8, weight: 20, fill: '#f59e0b',
+            detail: `Positive unit economics at scale with a high 30%+ ROE; Dual brand strategy with Zudio (value) and Westside (mid-market) covers a wide audience.` },
+          { name: 'Mispricing', score: 5, weight: 15, fill: '#f59e0b',
+            detail: `Valuation is extremely high at 100x+ trailing P/E, pricing in perfection; Any miss on growth could lead to a sharp correction; Market may be underestimating execution risk at this scale.` }
+        ]
+      }
+    ];
+
+    // Theme Colors
+    const themeColors = {
+      'AI Infrastructure': '#f59e0b',
+      'Quantum Computing': '#8b5cf6',
+      'Robotics/Automation': '#f97316',
+      'Gene Editing': '#10b981',
+      'GLP-1 / Biotech': '#10b981',
+      'Nuclear Power': '#f59e0b',
+      'AI-Native Consumer': '#f59e0b',
+      'Edge Compute': '#f59e0b',
+      'Photonics / Optics': '#f59e0b',
+      'Space Platform': '#f97316',
+      'India Manufacturing': '#f59e0b',
+      'India Digital': '#f59e0b',
+      'India Financial': '#ec4899',
+      'Defense Electronics': '#f59e0b',
+      'Precision Engineering': '#f59e0b',
+      'Specialty Chemicals': '#f59e0b',
+      'Value Retail': '#f59e0b'
+    };
+
+    // Render Stocks
+    function renderStocks(filter = 'all') {
+      const grid = document.getElementById('stockGrid');
+      grid.innerHTML = '';
+
+      const filtered = filter === 'all' ? stocks : 
+                       filter === 'us' ? stocks.filter(s => s.market === 'us') :
+                       filter === 'india' ? stocks.filter(s => s.market === 'india') :
+                       stocks.filter(s => s.theme.toLowerCase().includes(filter) || s.themeClass.includes(filter));
+
+      filtered.forEach(stock => {
+        const card = document.createElement('div');
+        card.className = `stock-card ${stock.market}`;
+        card.innerHTML = `
+          <div class="stock-header">
+            <div>
+              <div class="stock-ticker">${stock.ticker}</div>
+              <div class="stock-name">${stock.name}</div>
+              <span class="stock-theme" style="color: ${themeColors[stock.theme]}; border: 1px solid ${themeColors[stock.theme]};">${stock.theme}</span>
+            </div>
+            <div class="conviction-badge">
+              <div class="conviction-score">${stock.conviction}</div>
+              <div class="conviction-label">Conviction</div>
+            </div>
+          </div>
+          <div class="stock-body">
+            <div class="stock-metrics">
+              ${Object.entries(stock.metrics).map(([k,v]) => `
+                <div class="metric">
+                  <div class="metric-value mono">${v}</div>
+                  <div class="metric-label">${k}</div>
+                </div>
+              `).join('')}
+            </div>
+            <div class="dimensions">
+              ${stock.dimensions.map(d => `
+                <div class="dimension">
+                  <span class="dimension-name">${d.name}</span>
+                  <span class="dimension-score" style="color: ${d.fill}">${d.score}/10</span>
+                  <div class="dimension-bar">
+                    <div class="dimension-fill" style="width: ${d.score * 10}%; background: ${d.fill};"></div>
+                  </div>
+                </div>
+                <div class="dimension-detail">${d.detail}</div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="stock-footer">
+            <span class="upside-tag">3Y: ${stock.upside}</span>
+            <span class="risk-tag ${stock.riskClass}">${stock.risk}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Filter Function
+    function filterStocks(type, clickedBtn) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      if (clickedBtn) clickedBtn.classList.add('active');
+      renderStocks(type);
+    }
+    let convictionChartInstance = null;
+    function renderChart() {
+      const canvas = document.getElementById('convictionChart');
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      const textColor = isDark ? '#94a3b8' : '#64748b';
+      const gridColor = isDark ? '#27273a' : '#e2e8f0';
+
+      if (convictionChartInstance) {
+        convictionChartInstance.destroy();
+      }
+
+      convictionChartInstance = new Chart(ctx, {
+        type: 'bubble',
+        data: {
+          datasets: stocks.map(s => ({
+            label: s.ticker,
+            data: [{
+              x: s.conviction,
+              y: parseInt(s.upside),
+              r: s.conviction / 5
+            }],
+            backgroundColor: themeColors[s.theme] + '80',
+            borderColor: themeColors[s.theme],
+            borderWidth: 1
+          }))
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: { display: true, text: 'Conviction Score', color: textColor, font: { size: 14, weight: '600' } },
+              min: 70, max: 100,
+              grid: { color: gridColor },
+              ticks: { color: textColor }
+            },
+            y: {
+              title: { display: true, text: '3Y Upside Potential (%)', color: textColor, font: { size: 14, weight: '600' } },
+              min: 50, max: 450,
+              grid: { color: gridColor },
+              ticks: { color: textColor }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const stock = stocks[ctx.datasetIndex];
+                  return `${stock.ticker}: ${stock.conviction}/100 | ${stock.upside} upside`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Theme Toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.dataset.theme === 'dark';
+      html.dataset.theme = isDark ? 'light' : 'dark';
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+      renderChart();
+    }
+
+    function renderSummaryTables() {
+      const usTableContainer = document.getElementById('us-summary-table');
+      const indiaTableContainer = document.getElementById('india-summary-table');
+
+      const usStocks = stocks.filter(s => s.market === 'us').sort((a, b) => b.conviction - a.conviction);
+      const indiaStocks = stocks.filter(s => s.market === 'india').sort((a, b) => b.conviction - a.conviction);
+
+      usTableContainer.innerHTML = createTableHTML(usStocks);
+      indiaTableContainer.innerHTML = createTableHTML(indiaStocks);
+    }
+
+    function createTableHTML(stockList) {
+      let table = `<div class="overflow-x-auto rounded-lg border border-[var(--border)]"><table class="min-w-full divide-y divide-[var(--border)]">
+        <thead class="bg-[var(--surface-2)]">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">Stock</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">Theme</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">Conviction</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">Upside</th>
+          </tr>
+        </thead>
+        <tbody class="bg-[var(--surface)] divide-y divide-[var(--border)]">`;
+
+      stockList.forEach(stock => {
+        table += `
+          <tr>
+            <td class="px-4 py-3 whitespace-nowrap">
+              <div class="font-semibold">${stock.ticker}</div>
+              <div class="text-xs text-[var(--text-muted)]">${stock.name}</div>
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm">${stock.theme}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm font-bold" style="color: ${themeColors[stock.theme] || '#f59e0b'};">${stock.conviction}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold">${stock.upside}</td>
+          </tr>`;
+      });
+
+      table += '</tbody></table></div>';
+      return table;
+    }
+
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Render initial content
+      renderStocks('all');
+      renderChart();
+      renderSummaryTables();
+
+      // Filter buttons
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          filterStocks(this.dataset.filter, this);
+        });
+      });
+
+      // Theme toggle
+      const themeBtn = document.getElementById('themeToggleBtn');
+      if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+
+      // Nav links smooth scroll
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+          const target = document.querySelector(link.getAttribute('href'));
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

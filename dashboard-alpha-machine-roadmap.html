@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alpha Machine Roadmap - Strategic Deployment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root[data-theme="dark"] {
+      --color-bg: #08080a;
+      --color-surface: #121217;
+      --color-text: #f1f5f9;
+      --color-text-muted: #64748b;
+      --color-accent: #8b5cf6;
+      --color-border: #1e1e26;
+      --color-success: #10b981;
+      --color-warning: #f59e0b;
+      --color-danger: #ef4444;
+    }
+    :root[data-theme="light"] {
+      --color-bg: #f8fafc;
+      --color-surface: #ffffff;
+      --color-text: #0f172a;
+      --color-text-muted: #475569;
+      --color-accent: #7c3aed;
+      --color-border: #e2e8f0;
+      --color-success: #059669;
+      --color-warning: #d97706;
+      --color-danger: #dc2626;
+    }
+
+    body {
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+
+    .glass-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 1000;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 0.6rem 1rem;
+      cursor: pointer;
+      color: var(--color-text);
+    }
+
+    .step-node {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+    }
+
+    .badge {
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-aggressive { background: rgba(139, 92, 246, 0.1); color: var(--color-accent); border: 1px solid var(--color-accent); }
+    .badge-warning { background: rgba(245, 158, 11, 0.1); color: var(--color-warning); border: 1px solid var(--color-warning); }
+  </style>
+</head>
+<body class="p-4 md:p-12 max-w-7xl mx-auto">
+  <button class="theme-toggle" aria-label="Toggle theme">
+    <span class="theme-icon">🌙</span>
+  </button>
+
+  <header class="mb-16">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="badge badge-aggressive">Phase 2: Execution</span>
+      <span class="text-muted opacity-50">•</span>
+      <span class="text-sm text-muted">May 16, 2026</span>
+    </div>
+    <h1 class="text-5xl font-bold mb-4 tracking-tight">The Alpha Machine Roadmap</h1>
+    <p class="text-xl text-muted max-w-2xl leading-relaxed">
+      Transitioning ₹20.09L into a high-octane, multi-asset portfolio optimized for aggressive growth and global alpha.
+    </p>
+  </header>
+
+  <!-- Capital Overview -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+    <div class="glass-card border-l-4 border-accent">
+      <div class="text-sm text-muted uppercase tracking-wider font-semibold mb-1">Investable Capital</div>
+      <div class="text-3xl font-bold">₹20,09,000</div>
+      <div class="text-xs text-accent mt-2">Ready for Deployment</div>
+    </div>
+    <div class="glass-card border-l-4 border-success">
+      <div class="text-sm text-muted uppercase tracking-wider font-semibold mb-1">Monthly Fuel</div>
+      <div class="text-3xl font-bold">₹40,000</div>
+      <div class="text-xs text-success mt-2">+ Existing SIPs</div>
+    </div>
+    <div class="glass-card border-l-4 border-warning">
+      <div class="text-sm text-muted uppercase tracking-wider font-semibold mb-1">Target Risk</div>
+      <div class="text-3xl font-bold">High Beta</div>
+      <div class="text-xs text-warning mt-2">Aggressive Growth Focus</div>
+    </div>
+  </div>
+
+  <!-- Feedback Section -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold mb-8">1. Critical Feedback on Proposed Changes</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="glass-card">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2 text-red-400">
+          ⚠️ The "Algorithm Concentration" Risk
+        </h3>
+        <p class="text-sm leading-relaxed text-muted mb-4">
+          Consolidating all Quant funds into <strong>Quant Small Cap</strong> is a double-edged sword. While it maximizes upside, you are now 100% dependent on Quant's VLRT model. If their algorithm misreads a trend, your entire MF core collapses.
+        </p>
+        <div class="p-3 bg-red-500/5 rounded-lg border border-red-500/20 text-xs italic">
+          "Diversification is protection against ignorance. It makes very little sense if you know what you are doing." — Warren Buffett. (But do you know what Quant's AI is doing?)
+        </div>
+      </div>
+      <div class="glass-card">
+        <h3 class="text-lg font-bold mb-4 flex items-center gap-2 text-green-400">
+          ✅ The "Fisher" Opportunity
+        </h3>
+        <p class="text-sm leading-relaxed text-muted mb-4">
+          Exiting the "Defensive" funds (Mirae, Kotak, Navi) is bold. To make this work, you <strong>must</strong> replace that stability with <strong>Direct Equity Alpha</strong>. Use the 20L to buy "Outstanding Companies" (Point 1 of Fisher's 15 Points).
+        </p>
+        <div class="p-3 bg-green-500/5 rounded-lg border border-green-500/20 text-xs italic">
+          "The stock market is a device for transferring money from the impatient to the patient." — Warren Buffett.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Allocation Strategy -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold mb-8">2. The "Machine" Allocation Model</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div class="glass-card">
+        <canvas id="allocationChart" height="350"></canvas>
+      </div>
+      <div class="space-y-6">
+        <div class="flex gap-4">
+          <div class="step-node">40</div>
+          <div>
+            <h4 class="font-bold">Direct Equity (India) - ₹8L</h4>
+            <p class="text-sm text-muted">Concentrated portfolio of 10-12 stocks. Focus: High R&D, Scalability, and Management Integrity. (Fisher Style)</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="step-node">30</div>
+          <div>
+            <h4 class="font-bold">Global Tech (US) - ₹6L</h4>
+            <p class="text-sm text-muted">Nasdaq 100 Index or S&P 500. Hedge against INR depreciation + exposure to Global AI/SaaS. (Blue-chip growth)</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="step-node">20</div>
+          <div>
+            <h4 class="font-bold">Aggressive MFs - ₹4L</h4>
+            <p class="text-sm text-muted">Quant Small Cap + HSBC Midcap. This is your "Momentum" engine. (High churn, high yield)</p>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <div class="step-node">10</div>
+          <div>
+            <h4 class="font-bold">Speculative Alpha - ₹2L</h4>
+            <p class="text-sm text-muted">Crypto (BTC/ETH), Smallcases, or Angel Investing. High risk of zero, but potential for 10x. (The "Moonshot" fund)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Execution Timeline -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold mb-8">3. Execution Strategy: The 6-Month Stagger</h2>
+    <div class="glass-card overflow-hidden">
+      <div class="grid grid-cols-1 md:grid-cols-4 border-b border-border">
+        <div class="p-6 border-r border-border bg-accent/5">
+          <div class="text-xs font-bold text-accent mb-2">MONTH 1</div>
+          <div class="text-sm font-semibold">Redeem & Park</div>
+          <p class="text-xs text-muted mt-2">Exit Mirae/Kotak/Navi. Park 20L in a Liquid Fund. Start ₹40k SIP in Nasdaq 100.</p>
+        </div>
+        <div class="p-6 border-r border-border">
+          <div class="text-xs font-bold text-muted mb-2">MONTH 2-3</div>
+          <div class="text-sm font-semibold">Direct Equity Build</div>
+          <p class="text-xs text-muted mt-2">Deploy ₹4L into 5 high-conviction stocks. Increase Quant Small Cap SIP.</p>
+        </div>
+        <div class="p-6 border-r border-border">
+          <div class="text-xs font-bold text-muted mb-2">MONTH 4-5</div>
+          <div class="text-sm font-semibold">Global & Speculative</div>
+          <p class="text-xs text-muted mt-2">Deploy ₹6L into US Indices. Start small position in Crypto (BTC/ETH).</p>
+        </div>
+        <div class="p-6">
+          <div class="text-xs font-bold text-muted mb-2">MONTH 6+</div>
+          <div class="text-sm font-semibold">Full Throttle</div>
+          <p class="text-xs text-muted mt-2">All 20L deployed. Shift to "Maintenance Mode" with monthly ₹40k fueling the winners.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tracking & Rebalancing -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold mb-8">4. Tracking & The "Kill Switch"</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="glass-card">
+        <h3 class="text-lg font-bold mb-4">When to Change Allocation?</h3>
+        <ul class="text-sm space-y-3 text-muted">
+          <li class="flex gap-2"><span>📉</span> <span><strong>The 10% Drift Rule:</strong> If any asset class grows to be 10% larger than its target (e.g., Crypto becomes 20% of portfolio), sell the excess and move to laggards.</span></li>
+          <li class="flex gap-2"><span>🚨</span> <span><strong>Fisher's Integrity Test:</strong> If a company's management lies or integrity is questioned, sell 100% immediately, regardless of profit/loss.</span></li>
+          <li class="flex gap-2"><span>🔄</span> <span><strong>Quarterly Audit:</strong> Review performance vs. Benchmark (Nifty 500). If underperforming for 3 consecutive quarters, switch vehicles.</span></li>
+        </ul>
+      </div>
+      <div class="glass-card">
+        <h3 class="text-lg font-bold mb-4">The Monthly ₹40k Fuel</h3>
+        <p class="text-sm text-muted mb-4">Don't just add to everything. Use the "Add to Winners" strategy:</p>
+        <div class="space-y-2">
+          <div class="flex justify-between text-xs font-semibold">
+            <span>Nasdaq 100 (Global)</span>
+            <span>₹15,000</span>
+          </div>
+          <div class="w-full bg-border h-1 rounded-full"><div class="bg-accent h-1 rounded-full" style="width: 37%"></div></div>
+          
+          <div class="flex justify-between text-xs font-semibold mt-4">
+            <span>Direct Equity (India)</span>
+            <span>₹15,000</span>
+          </div>
+          <div class="w-full bg-border h-1 rounded-full"><div class="bg-success h-1 rounded-full" style="width: 37%"></div></div>
+
+          <div class="flex justify-between text-xs font-semibold mt-4">
+            <span>Aggressive MFs</span>
+            <span>₹10,000</span>
+          </div>
+          <div class="w-full bg-border h-1 rounded-full"><div class="bg-warning h-1 rounded-full" style="width: 26%"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="mt-20 text-center border-t border-border pt-8">
+    <p class="text-muted text-xs opacity-50 uppercase tracking-widest">
+      Analysis based on Graham-Fisher Multi-Asset Framework • Not Regulated Financial Advice
+    </p>
+  </footer>
+
+  <script>
+    // Theme Toggle
+    document.querySelector('.theme-toggle').addEventListener('click', () => {
+      const html = document.documentElement;
+      const isDark = html.dataset.theme === 'dark';
+      html.dataset.theme = isDark ? 'light' : 'dark';
+      document.querySelector('.theme-icon').textContent = isDark ? '☀️' : '🌙';
+    });
+
+    // Allocation Chart
+    const ctx = document.getElementById('allocationChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'polarArea',
+      data: {
+        labels: ['Direct Equity (IN)', 'US Tech (Global)', 'Aggressive MFs', 'Speculative/Crypto'],
+        datasets: [{
+          data: [40, 30, 20, 10],
+          backgroundColor: [
+            'rgba(139, 92, 246, 0.6)',
+            'rgba(16, 185, 129, 0.6)',
+            'rgba(245, 158, 11, 0.6)',
+            'rgba(239, 68, 68, 0.6)'
+          ],
+          borderColor: 'transparent'
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#64748b', font: { size: 12, family: 'Inter' } } }
+        },
+        scales: {
+          r: { grid: { color: '#1e1e26' }, ticks: { display: false } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

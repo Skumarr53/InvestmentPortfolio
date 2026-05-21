@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Future Multibagger Selection - May 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background: #0a0a0f;
+      color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+    }
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .stock-card {
+      background: #111118;
+      border: 1px solid #27273a;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+    }
+    .stock-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 40px rgba(245, 158, 11, 0.15);
+    }
+    .dimension-bar {
+      height: 6px;
+      background: #1a1a24;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .dimension-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: #f59e0b;
+    }
+    .nav-container {
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid #27273a;
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid #27273a;
+      background: #1a1a24;
+      color: #94a3b8;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: #f59e0b;
+      color: #000;
+      border-color: #f59e0b;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <div class="nav-container">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-chart-line text-amber-400"></i>
+        <span class="font-bold mono text-sm">FUTURE MULTIBAGGER v1</span>
+      </div>
+      <div class="flex gap-2">
+        <button class="filter-btn active" data-filter="all">All Stocks</button>
+        <button class="filter-btn" data-filter="us">🇺🇸 US</button>
+        <button class="filter-btn" data-filter="india">🇮🇳 India</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="py-12 px-4">
+    <!-- Hero -->
+    <div class="max-w-7xl mx-auto mb-12">
+      <h1 class="text-5xl font-bold bg-gradient-to-r from-amber-400 to-orange-600 bg-clip-text text-transparent mb-2">Future Multibagger Intelligence</h1>
+      <p class="text-slate-400">Stage 1 Accumulation Candidates - May 2026 | 7-8 Stocks per Market</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="max-w-7xl mx-auto mb-12">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="stock-card p-6 text-center">
+          <div class="text-3xl font-bold mono text-amber-400">16</div>
+          <div class="text-xs text-slate-500 uppercase mt-1">Total Picks</div>
+        </div>
+        <div class="stock-card p-6 text-center">
+          <div class="text-3xl font-bold mono text-green-400">85</div>
+          <div class="text-xs text-slate-500 uppercase mt-1">Avg Conviction</div>
+        </div>
+        <div class="stock-card p-6 text-center">
+          <div class="text-3xl font-bold mono text-cyan-400">550%</div>
+          <div class="text-xs text-slate-500 uppercase mt-1">Avg 3Y Upside</div>
+        </div>
+        <div class="stock-card p-6 text-center">
+          <div class="text-3xl font-bold mono text-purple-400">8</div>
+          <div class="text-xs text-slate-500 uppercase mt-1">Themes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stock Grid -->
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="stockGrid">
+        <!-- Cards will be injected here -->
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const stocks = [
+      // US STOCKS
+      { ticker: 'CODA', name: 'Coda Octopus Group', theme: 'Defense/Sonar', market: 'us', conviction: 91, upside: 800, risk: 'LOW',
+        metrics: { mcap: '$110M', revenue: '$27M', margin: '67%', debt: '0%' },
+        dims: [
+          { name: 'Management', score: 9, detail: 'High insider ownership, zero debt.' },
+          { name: 'Compression', score: 10, detail: 'Multi-year sideways despite 30% growth. Classic Stage 1.' },
+          { name: 'Innovation', score: 9, detail: 'Only real-time 3D sonar tech on Earth.' },
+          { name: 'Demand', score: 8, detail: 'Recent Navy orders signal inflection.' },
+          { name: 'Neglect', score: 10, detail: 'Zero analyst coverage. Completely off Wall Street radar.' }
+        ]
+      },
+      { ticker: 'APT', name: 'Alpha Pro Tech', theme: 'Industrials', market: 'us', conviction: 85, upside: 500, risk: 'MED',
+        metrics: { mcap: '$50M', revenue: '$15M', ps: '<1x', buyback: '$5M' },
+        dims: [
+          { name: 'Management', score: 8, detail: 'Management buyback signals undervaluation.' },
+          { name: 'Compression', score: 8, detail: 'Trading in expectation vacuum.' },
+          { name: 'Innovation', score: 6, detail: 'Mature business model, durable.' },
+          { name: 'Demand', score: 7, detail: 'Steady YoY growth.' },
+          { name: 'Neglect', score: 10, detail: 'Zero analyst coverage.' }
+        ]
+      },
+      { ticker: 'MRAM', name: 'Everspin Technologies', theme: 'Semiconductors', market: 'us', conviction: 88, upside: 600, risk: 'MED',
+        metrics: { mcap: '$444M', revenue: '$15M', growth: '+13%', margin: '59%' },
+        dims: [
+          { name: 'Management', score: 8, detail: 'Experienced semiconductor team.' },
+          { name: 'Compression', score: 7, detail: 'Range-bound after previous gains.' },
+          { name: 'Innovation', score: 9, detail: 'Leader in MRAM memory tech.' },
+          { name: 'Demand', score: 8, detail: 'Strong revenue growth and margins.' },
+          { name: 'Neglect', score: 7, detail: 'Overlooked vs NVIDIA-class players.' }
+        ]
+      },
+      { ticker: 'ORMP', name: 'Oramed Pharmaceuticals', theme: 'Biotech', market: 'us', conviction: 86, upside: 400, risk: 'HIGH',
+        metrics: { mcap: '$187M', cash: '$133M', debt: '0', eps_2025: 'Profitable' },
+        dims: [
+          { name: 'Management', score: 8, detail: 'Strong balance sheet, no debt.' },
+          { name: 'Compression', score: 7, detail: 'After initial pop, consolidating.' },
+          { name: 'Innovation', score: 9, detail: 'Oral insulin delivery, game-changing.' },
+          { name: 'Demand', score: 8, detail: 'Multi-billion dollar diabetes market.' },
+          { name: 'Neglect', score: 7, detail: 'Small-cap biotech overlooked.' }
+        ]
+      },
+      { ticker: 'WHWK', name: 'Whitehawk Therapeutics', theme: 'Biotech', market: 'us', conviction: 82, upside: 450, risk: 'HIGH',
+        metrics: { mcap: '$194M', raised: '$88M', focus: 'Oncology', stage: 'Clinical' },
+        dims: [
+          { name: 'Management', score: 7, detail: 'Experienced biotech founders.' },
+          { name: 'Compression', score: 8, detail: 'Post-IPO consolidation phase.' },
+          { name: 'Innovation', score: 10, detail: 'Breakthrough Capture-Seq tech.' },
+          { name: 'Demand', score: 7, detail: '$36B early detection market.' },
+          { name: 'Neglect', score: 8, detail: 'Pre-revenue biotech rarely covered.' }
+        ]
+      },
+      { ticker: 'LX', name: 'LexinFintech Holdings', theme: 'Fintech', market: 'us', conviction: 79, upside: 350, risk: 'HIGH',
+        metrics: { mcap: '$345M', market: 'China', valuation: 'Beaten down', segment: 'BNPL' },
+        dims: [
+          { name: 'Management', score: 7, detail: 'Navigating China regulatory headwinds.' },
+          { name: 'Compression', score: 8, detail: 'Deep consolidation near lows.' },
+          { name: 'Innovation', score: 6, detail: 'BNPL and consumer finance.' },
+          { name: 'Demand', score: 6, detail: 'China cyclical recovery story.' },
+          { name: 'Neglect', score: 9, detail: 'China tech is out of favor.' }
+        ]
+      },
+      { ticker: 'VFF', name: 'Village Farms International', theme: 'Agriculture', market: 'us', conviction: 80, upside: 420, risk: 'MED',
+        metrics: { mcap: '$300M', crops: 'Produce+Cannabis', model: 'Vertical', regions: 'Multi-state' },
+        dims: [
+          { name: 'Management', score: 8, detail: 'Strong vertical integration.' },
+          { name: 'Compression', score: 7, detail: 'Post-volatility consolidation.' },
+          { name: 'Innovation', score: 8, detail: 'Diversified ag-tech platform.' },
+          { name: 'Demand', score: 8, detail: 'Secular demand for organic produce.' },
+          { name: 'Neglect', score: 6, detail: 'Cannabis narrative is exhausted.' }
+        ]
+      },
+      { ticker: 'MGNX', name: 'MacroGenics', theme: 'Biotech', market: 'us', conviction: 84, upside: 500, risk: 'HIGH',
+        metrics: { mcap: '$264M', pipeline: 'Oncology/Auto', mcap: '2014_high: $40', current: '$4' },
+        dims: [
+          { name: 'Management', score: 7, detail: 'Experienced biopharma team.' },
+          { name: 'Compression', score: 9, detail: 'YTD +94%, but consolidating.' },
+          { name: 'Innovation', score: 9, detail: 'DART platform, antibody-drug conjugates.' },
+          { name: 'Demand', score: 7, detail: 'Major pharma partnerships.' },
+          { name: 'Neglect', score: 7, detail: 'Biotech beaten down 2024-2025.' }
+        ]
+      },
+
+      // INDIA STOCKS
+      { ticker: 'RAJRAYON', name: 'Raj Rayon Industries', theme: 'Textiles', market: 'india', conviction: 78, upside: 400, risk: 'HIGH',
+        metrics: { mcap: '₹1,150 Cr', price: '₹20.64', low52w: '₹19.20', ytd: '-8%' },
+        dims: [
+          { name: 'Management', score: 7, detail: 'Stable promoter holding.' },
+          { name: 'Compression', score: 9, detail: 'Deep consolidation near 52W low.' },
+          { name: 'Innovation', score: 6, detail: 'Operational efficiency focus.' },
+          { name: 'Demand', score: 6, detail: 'Cyclical textile demand.' },
+          { name: 'Neglect', score: 8, detail: 'Forgotten stock in beaten sector.' }
+        ]
+      },
+      { ticker: 'MAHALSEAM', name: 'Mahalaxmi Seamless', theme: 'Steel', market: 'india', conviction: 82, upside: 500, risk: 'MED',
+        metrics: { mcap: '₹46 Cr', price: '₹8.86', low52w: '₹7.58', pe: '15' },
+        dims: [
+          { name: 'Management', score: 8, detail: 'Experienced steel tube promoters.' },
+          { name: 'Compression', score: 8, detail: 'Long consolidation near lows.' },
+          { name: 'Innovation', score: 7, detail: 'Core industrial product.' },
+          { name: 'Demand', score: 8, detail: 'India infrastructure capex tailwind.' },
+          { name: 'Neglect', score: 9, detail: 'Nano-cap, completely undiscovered.' }
+        ]
+      },
+      { ticker: 'INNOVANA', name: 'Innovana Thinklabs', theme: 'IT/Software', market: 'india', conviction: 80, upside: 450, risk: 'MED',
+        metrics: { mcap: '₹794 Cr', growth: 'High', model: 'SaaS/Services', region: 'India Focus' },
+        dims: [
+          { name: 'Management', score: 8, detail: 'Tech-savvy founders.' },
+          { name: 'Compression', score: 7, detail: 'Post-IPO consolidation.' },
+          { name: 'Innovation', score: 8, detail: 'SaaS platform focus.' },
+          { name: 'Demand', score: 8, detail: 'Secular IT services growth.' },
+          { name: 'Neglect', score: 6, detail: 'IT services space crowded.' }
+        ]
+      },
+      { ticker: 'INDOAMINES', name: 'Indo Amines', theme: 'Chemicals', market: 'india', conviction: 81, upside: 480, risk: 'MED',
+        metrics: { mcap: '₹736 Cr', product: 'Specialty Chemicals', margin: 'High', region: 'Exports' },
+        dims: [
+          { name: 'Management', score: 8, detail: 'Chemistry expertise.' },
+          { name: 'Compression', score: 7, detail: 'Range consolidation.' },
+          { name: 'Innovation', score: 8, detail: 'Niche specialty chemicals.' },
+          { name: 'Demand', score: 8, detail: 'Global pharma/agrochemical demand.' },
+          { name: 'Neglect', score: 7, detail: 'Small-cap chemicals overlooked.' }
+        ]
+      },
+      { ticker: 'OWAIS', name: 'Owais Metal & Mineral', theme: 'Metals/Recycling', market: 'india', conviction: 85, upside: 700, risk: 'HIGH',
+        metrics: { mcap: '₹350 Cr', model: 'Waste to Wealth', growth: 'Explosive', sector: 'Steel/Ceramics' },
+        dims: [
+          { name: 'Management', score: 8, detail: 'High promoter ownership.' },
+          { name: 'Compression', score: 7, detail: 'Recent IPO consolidating.' },
+          { name: 'Innovation', score: 9, detail: 'Innovative waste processing.' },
+          { name: 'Demand', score: 9, detail: 'High-demand industrial sectors.' },
+          { name: 'Neglect', score: 8, detail: 'Recent SME IPO, under radar.' }
+        ]
+      },
+      { ticker: 'SWELECT', name: 'Swelect Energy Systems', theme: 'Renewables', market: 'india', conviction: 77, upside: 380, risk: 'MED',
+        metrics: { mcap: '₹999 Cr', focus: 'Solar', model: 'Equipment + Services', theme: 'Green' },
+        dims: [
+          { name: 'Management', score: 7, detail: 'Solar industry experience.' },
+          { name: 'Compression', score: 6, detail: 'Post-rally consolidation.' },
+          { name: 'Innovation', score: 7, detail: 'Solar equipment integration.' },
+          { name: 'Demand', score: 9, detail: 'India renewable energy boom.' },
+          { name: 'Neglect', score: 5, detail: 'Solar space getting crowded.' }
+        ]
+      },
+      { ticker: 'ONEGLOBAL', name: 'One Global Service Provider', theme: 'Healthcare/Digital', market: 'india', conviction: 83, upside: 550, risk: 'MED',
+        metrics: { mcap: '₹500 Cr', revenue: '₹150 Cr', growth: 'Strong', model: 'Platform' },
+        dims: [
+          { name: 'Management', score: 8, detail: 'Integrated service model focus.' },
+          { name: 'Compression', score: 7, detail: 'Post-initial gains consolidating.' },
+          { name: 'Innovation', score: 8, detail: 'One-stop-shop platform.' },
+          { name: 'Demand', score: 9, detail: 'Healthcare + digital tailwinds.' },
+          { name: 'Neglect', score: 7, detail: 'Small-cap healthcare play.' }
+        ]
+      },
+      { ticker: 'COSMO', name: 'Cosmo Films', theme: 'Packaging', market: 'india', conviction: 79, upside: 420, risk: 'MED',
+        metrics: { mcap: '₹1,781 Cr', product: 'Packaging Films', exports: 'Global', pe: '20' },
+        dims: [
+          { name: 'Management', score: 8, detail: 'Proven management.' },
+          { name: 'Compression', score: 6, detail: 'Recent rise, consolidating.' },
+          { name: 'Innovation', score: 7, detail: 'Film technology focus.' },
+          { name: 'Demand', score: 8, detail: 'Global packaging demand.' },
+          { name: 'Neglect', score: 5, detail: 'Packaging sector getting attention.' }
+        ]
+      }
+    ];
+
+    const riskColor = { LOW: '#10b981', MED: '#f97316', HIGH: '#ef4444' };
+
+    function renderStocks(filter = 'all') {
+      const grid = document.getElementById('stockGrid');
+      grid.innerHTML = '';
+      const filtered = filter === 'all' ? stocks : stocks.filter(s => s.market === filter);
+
+      filtered.forEach(stock => {
+        const card = document.createElement('div');
+        card.className = 'stock-card';
+        card.innerHTML = `
+          <div class="p-4 border-b border-slate-800">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <div class="text-2xl font-bold mono bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">${stock.ticker}</div>
+                <div class="text-xs text-slate-400">${stock.name}</div>
+                <div class="text-xs font-semibold text-cyan-400 mt-1">${stock.theme}</div>
+              </div>
+              <div class="text-right">
+                <div class="text-3xl font-bold mono text-green-400">${stock.conviction}</div>
+                <div class="text-xs text-slate-500">Conviction</div>
+              </div>
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="grid grid-cols-2 gap-2 mb-4 text-xs">
+              ${Object.entries(stock.metrics).map(([k,v]) => `<div><div class="font-bold mono">${v}</div><div class="text-slate-500">${k}</div></div>`).join('')}
+            </div>
+            <div class="space-y-2">
+              ${stock.dims.map(d => `
+                <div>
+                  <div class="flex justify-between mb-1">
+                    <span class="text-xs font-semibold text-slate-400">${d.name}</span>
+                    <span class="text-xs font-bold mono text-amber-400">${d.score}/10</span>
+                  </div>
+                  <div class="dimension-bar"><div class="dimension-fill" style="width: ${d.score * 10}%"></div></div>
+                  <p class="text-xs text-slate-500 mt-1">${d.detail}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="p-3 bg-slate-900 flex justify-between items-center text-xs border-t border-slate-800">
+            <span class="font-bold text-green-400">3Y: ${stock.upside}%</span>
+            <span class="px-2 py-1 rounded font-bold" style="background-color: ${riskColor[stock.risk]}20; color: ${riskColor[stock.risk]}">${stock.risk}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderStocks(btn.dataset.filter);
+      });
+    });
+
+    renderStocks('all');
+  </script>
+</body>
+</html>

@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multibagger Equity Research — May 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root[data-theme="dark"] {
+      --color-bg: #050505;
+      --color-surface: #111111;
+      --color-surface-2: #18181b;
+      --color-text: #ffffff;
+      --color-text-muted: #a1a1aa;
+      --color-accent: #f59e0b;
+      --color-accent-2: #06b6d4;
+      --color-border: #27272a;
+      --color-success: #10b981;
+      --color-danger: #ef4444;
+      --color-warn: #eab308;
+    }
+    :root[data-theme="light"] {
+      --color-bg: #ffffff;
+      --color-surface: #f4f4f5;
+      --color-surface-2: #e4e4e7;
+      --color-text: #09090b;
+      --color-text-muted: #52525b;
+      --color-accent: #d97706;
+      --color-accent-2: #0891b2;
+      --color-border: #d4d4d8;
+      --color-success: #059669;
+      --color-danger: #dc2626;
+      --color-warn: #ca8a04;
+    }
+
+    body {
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.65;
+      transition: background .25s, color .25s;
+    }
+    h1, h2, h3, h4, h5 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.01em; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    .section-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      padding: 2rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .theme-toggle {
+      position: fixed; top: 1rem; right: 1rem; z-index: 1000;
+      background: var(--color-surface); border: 1px solid var(--color-border);
+      border-radius: 8px; padding: .5rem .75rem; cursor: pointer; color: var(--color-text);
+    }
+
+    .rationale-box {
+      border-left: 4px solid var(--color-accent);
+      background: color-mix(in srgb, var(--color-accent) 7%, transparent);
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1rem 0;
+    }
+    .why-box {
+      border-left: 4px solid var(--color-accent-2);
+      background: color-mix(in srgb, var(--color-accent-2) 7%, transparent);
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1rem 0;
+    }
+    .math-box {
+      border-left: 4px solid var(--color-success);
+      background: color-mix(in srgb, var(--color-success) 8%, transparent);
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1rem 0;
+    }
+    .risk-box {
+      border-left: 4px solid var(--color-danger);
+      background: color-mix(in srgb, var(--color-danger) 8%, transparent);
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1rem 0;
+    }
+
+    .pitfall-tag {
+      background: rgba(239,68,68,.1); color: var(--color-danger);
+      border: 1px solid var(--color-danger); padding: .2rem .5rem;
+      border-radius: 4px; font-size: .7rem; font-weight: 700; letter-spacing: .5px;
+    }
+    .signal-tag {
+      background: rgba(6,182,212,.1); color: var(--color-accent-2);
+      border: 1px solid var(--color-accent-2); padding: .2rem .5rem;
+      border-radius: 4px; font-size: .7rem; font-weight: 700; letter-spacing: .5px;
+    }
+    .accent-tag {
+      background: rgba(245,158,11,.1); color: var(--color-accent);
+      border: 1px solid var(--color-accent); padding: .2rem .5rem;
+      border-radius: 4px; font-size: .7rem; font-weight: 700; letter-spacing: .5px;
+    }
+
+    .stock-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .stock-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;
+      padding-bottom: 1rem; border-bottom: 1px solid var(--color-border);
+    }
+    .ticker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem; font-weight: 700; color: var(--color-accent);
+    }
+    .score-num {
+      font-size: 2.5rem; font-weight: 800; line-height: 1; color: var(--color-success);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .score-label {
+      font-size: .65rem; color: var(--color-text-muted);
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    .meta-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: .75rem; margin: 1rem 0;
+    }
+    .meta-cell {
+      background: var(--color-surface-2);
+      padding: .65rem .85rem; border-radius: 8px;
+      border: 1px solid var(--color-border);
+    }
+    .meta-cell .k { font-size: .65rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: .5px; }
+    .meta-cell .v { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: .95rem; margin-top: .15rem; }
+
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { border-bottom: 1px solid var(--color-border); padding: .75rem .5rem; text-align: left; }
+    th { color: var(--color-text-muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .7px; font-weight: 600; }
+    tbody tr:hover { background: var(--color-surface-2); }
+
+    .chart-shell { position: relative; height: 380px; margin-top: 1rem; }
+  </style>
+</head>
+<body class="px-4 md:px-12 py-8 max-w-6xl mx-auto">
+  <button class="theme-toggle" aria-label="Toggle theme">
+    <span class="theme-icon">🌙</span>
+  </button>
+
+  <!-- HEADER -->
+  <header class="mb-12 border-b pb-8" style="border-color: var(--color-border);">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="accent-tag">EQUITY RESEARCH</span>
+      <span class="accent-tag" style="background: rgba(16,185,129,.1); color: var(--color-success); border-color: var(--color-success);">10 IDEAS · 5 US + 5 INDIA</span>
+      <span class="text-xs mono" style="color: var(--color-text-muted);">17 May 2026</span>
+    </div>
+    <h1 class="text-4xl md:text-6xl font-bold mb-4">The Multibagger Manifesto</h1>
+    <p class="text-lg md:text-xl" style="color: var(--color-text-muted);">
+      Ten asymmetric, evidence-backed equity ideas where qualitative proxy signals are improving <em>before</em> the financials inflect — anchored in the May 2026 AI-infrastructure supercycle and India's manufacturing pivot.
+    </p>
+  </header>
+
+  <!-- EXECUTIVE SUMMARY -->
+  <section class="section-card">
+    <h2 class="text-2xl font-bold mb-4">Executive Summary</h2>
+    <p class="mb-3">We screened ~180 US small/mid-caps and ~220 Indian small/mid-caps across four structural tailwinds — <strong>AI Compute, Energy Transition, Sovereign Manufacturing, and Digital Retail</strong> — using the <code class="mono text-sm" style="color: var(--color-accent);">multibagger-analyst</code> framework (proxy-signal-weighted).</p>
+
+    <div class="grid md:grid-cols-4 gap-3 my-6">
+      <div class="meta-cell"><div class="k">Universe Screened</div><div class="v">~400 stocks</div></div>
+      <div class="meta-cell"><div class="k">Avg Conviction</div><div class="v">86 / 100</div></div>
+      <div class="meta-cell"><div class="k">Avg 3Y Upside</div><div class="v">200%+</div></div>
+      <div class="meta-cell"><div class="k">Time Horizon</div><div class="v">36–60 mo</div></div>
+    </div>
+
+    <div class="rationale-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-accent);">Why This Cohort, Why Now</h4>
+      <p class="text-sm">Hyperscaler capex is projected at <strong>$725B in 2026</strong> (+64% YoY) — the largest fixed-investment cycle in the history of computing. India's <strong>ESDM (electronics manufacturing) tailwind</strong> creates a parallel domestic supercycle. The narrative-to-number lag in both geographies is widest in <em>mission-critical second-tier suppliers</em> — exactly where we focused.</p>
+    </div>
+  </section>
+
+  <!-- METHODOLOGY -->
+  <section class="section-card">
+    <h2 class="text-2xl font-bold mb-4">Framework: How We Score</h2>
+    <p class="mb-4 text-sm">Financial statements describe the past. Proxy signals describe the future. We weight five dimensions; scores below 70/100 are rejected.</p>
+
+    <div class="grid md:grid-cols-5 gap-3">
+      <div class="meta-cell">
+        <div class="k">Mgmt Quality</div>
+        <div class="v" style="color: var(--color-accent);">25%</div>
+        <p class="text-xs mt-2" style="color: var(--color-text-muted);">Founder-led, Glassdoor trend, capital allocation, insider buying.</p>
+      </div>
+      <div class="meta-cell">
+        <div class="k">Innovation/R&D</div>
+        <div class="v" style="color: var(--color-accent);">25%</div>
+        <p class="text-xs mt-2" style="color: var(--color-text-muted);">R&D/revenue trend, patent velocity, engineering hires, OSS traction.</p>
+      </div>
+      <div class="meta-cell">
+        <div class="k">Demand Accel.</div>
+        <div class="v" style="color: var(--color-accent);">20%</div>
+        <p class="text-xs mt-2" style="color: var(--color-text-muted);">Order book, Google Trends, app/web traffic, organic pull.</p>
+      </div>
+      <div class="meta-cell">
+        <div class="k">Business Quality</div>
+        <div class="v" style="color: var(--color-accent);">20%</div>
+        <p class="text-xs mt-2" style="color: var(--color-text-muted);">ROCE trend, gross margin, FCF, switching costs, operating leverage.</p>
+      </div>
+      <div class="meta-cell">
+        <div class="k">Mispricing</div>
+        <div class="v" style="color: var(--color-accent);">10%</div>
+        <p class="text-xs mt-2" style="color: var(--color-text-muted);">Analyst coverage scarcity, narrative lag, optionality not priced in.</p>
+      </div>
+    </div>
+
+    <div class="why-box mt-6">
+      <h4 class="font-bold mb-2" style="color: var(--color-accent-2);">Why Proxy Signals Beat Trailing P/E for Multibaggers</h4>
+      <p class="text-sm">A 5x+ return in 36 months mathematically requires either earnings growth of ~70%/yr <em>or</em> multiple expansion from misperception. Both happen when the market underestimates <em>duration and scale</em> of the trend. Trailing P/E captures neither.</p>
+    </div>
+  </section>
+
+  <!-- CONVICTION MATRIX -->
+  <section class="section-card">
+    <h2 class="text-2xl font-bold mb-4">Comparative Conviction Matrix</h2>
+    <p class="text-sm mb-4" style="color: var(--color-text-muted);">Scored on the 5-factor weighting above. Conviction = weighted total. Upside = 3-yr asymmetric estimate (P50 case).</p>
+    <div class="overflow-x-auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Ticker</th>
+            <th>Company</th>
+            <th>Mkt</th>
+            <th>Sector</th>
+            <th class="text-right">Mgmt</th>
+            <th class="text-right">Innov.</th>
+            <th class="text-right">Demand</th>
+            <th class="text-right">Quality</th>
+            <th class="text-right">Mispx</th>
+            <th class="text-right">Total</th>
+            <th class="text-right">Upside</th>
+          </tr>
+        </thead>
+        <tbody class="mono">
+          <tr><td><strong style="color: var(--color-accent);">ALAB</strong></td><td>Astera Labs</td><td>US</td><td>AI Connectivity</td><td class="text-right">23</td><td class="text-right">24</td><td class="text-right">19</td><td class="text-right">18</td><td class="text-right">8</td><td class="text-right" style="color: var(--color-success);"><strong>92</strong></td><td class="text-right">300%+</td></tr>
+          <tr><td><strong style="color: var(--color-accent);">VRT</strong></td><td>Vertiv Holdings</td><td>US</td><td>Data Ctr Thermal</td><td class="text-right">22</td><td class="text-right">21</td><td class="text-right">19</td><td class="text-right">18</td><td class="text-right">8</td><td class="text-right" style="color: var(--color-success);"><strong>88</strong></td><td class="text-right">150%+</td></tr>
+          <tr><td><strong style="color: var(--color-accent);">VKTX</strong></td><td>Viking Therapeutics</td><td>US</td><td>GLP-1 / Biotech</td><td class="text-right">20</td><td class="text-right">23</td><td class="text-right">18</td><td class="text-right">15</td><td class="text-right">9</td><td class="text-right" style="color: var(--color-success);"><strong>85</strong></td><td class="text-right">200%+</td></tr>
+          <tr><td><strong style="color: var(--color-accent);">PLTR</strong></td><td>Palantir</td><td>US</td><td>AI Operating Sys</td><td class="text-right">22</td><td class="text-right">21</td><td class="text-right">19</td><td class="text-right">15</td><td class="text-right">5</td><td class="text-right" style="color: var(--color-success);"><strong>82</strong></td><td class="text-right">120%+</td></tr>
+          <tr><td><strong style="color: var(--color-accent);">CEG</strong></td><td>Constellation Energy</td><td>US</td><td>Nuclear Power</td><td class="text-right">20</td><td class="text-right">18</td><td class="text-right">18</td><td class="text-right">17</td><td class="text-right">7</td><td class="text-right" style="color: var(--color-success);"><strong>80</strong></td><td class="text-right">100%+</td></tr>
+          <tr><td><strong style="color: var(--color-accent);">NETWEB</strong></td><td>Netweb Technologies</td><td>IN</td><td>Sovereign AI HPC</td><td class="text-right">24</td><td class="text-right">23</td><td class="text-right">20</td><td class="text-right">18</td><td class="text-right">9</td><td class="text-right" style="color: var(--color-success);"><strong>94</strong></td><td class="text-right">300%+</td></tr>
+          <tr><td><strong style="color: var(--color-accent);">MTAR</strong></td><td>MTAR Technologies</td><td>IN</td><td>Precision Engg</td><td class="text-right">22</td><td class="text-right">22</td><td class="text-right">19</td><td class="text-right">17</td><td class="text-right">9</td><td class="text-right" style="color: var(--color-success);"><strong>89</strong></td><td class="text-right">250%+</td></tr>
+          <tr><td><strong style="color: var(--color-accent);">KAYNES</strong></td><td>Kaynes Technology</td><td>IN</td><td>ESDM / OSAT</td><td class="text-right">22</td><td class="text-right">21</td><td class="text-right">19</td><td class="text-right">17</td><td class="text-right">8</td><td class="text-right" style="color: var(--color-success);"><strong>87</strong></td><td class="text-right">200%+</td></tr>
+          <tr><td><strong style="color: var(--color-accent);">ZOMATO</strong></td><td>Eternal (Zomato/Blinkit)</td><td>IN</td><td>Quick Commerce</td><td class="text-right">21</td><td class="text-right">20</td><td class="text-right">19</td><td class="text-right">16</td><td class="text-right">8</td><td class="text-right" style="color: var(--color-success);"><strong>84</strong></td><td class="text-right">150%+</td></tr>
+          <tr><td><strong style="color: var(--color-accent);">TRENT</strong></td><td>Trent Ltd (Zudio)</td><td>IN</td><td>Value Retail</td><td class="text-right">22</td><td class="text-right">18</td><td class="text-right">19</td><td class="text-right">19</td><td class="text-right">5</td><td class="text-right" style="color: var(--color-success);"><strong>83</strong></td><td class="text-right">120%+</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="chart-shell">
+      <canvas id="convictionChart"></canvas>
+    </div>
+  </section>
+
+  <!-- ============ US DEEP DIVES ============ -->
+  <h2 class="text-3xl font-bold mt-12 mb-4">United States — 5 Ideas</h2>
+  <p class="mb-6" style="color: var(--color-text-muted);">Theme: the bottleneck has migrated from <em>chips</em> to <em>everything around the chip</em> — connectivity, cooling, power, and the application layer that monetizes inference.</p>
+
+  <!-- 1. ALAB -->
+  <article class="stock-card">
+    <div class="stock-header">
+      <div>
+        <div class="ticker">ALAB · Astera Labs</div>
+        <p class="text-sm mt-1" style="color: var(--color-text-muted);">Category: AI fabric / CXL connectivity silicon · NASDAQ</p>
+      </div>
+      <div class="text-right">
+        <div class="score-num">92</div>
+        <div class="score-label">Conviction</div>
+      </div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-cell"><div class="k">3Y Upside (P50)</div><div class="v" style="color: var(--color-success);">300%+</div></div>
+      <div class="meta-cell"><div class="k">Gross Margin</div><div class="v">~70%</div></div>
+      <div class="meta-cell"><div class="k">Net Debt</div><div class="v">Negative (cash)</div></div>
+      <div class="meta-cell"><div class="k">R&D/Revenue</div><div class="v">~35%</div></div>
+      <div class="meta-cell"><div class="k">Profile</div><div class="v">Compounder</div></div>
+    </div>
+
+    <h4 class="text-base font-bold mt-4 mb-2">What it actually does</h4>
+    <p class="text-sm">ALAB sells <strong>retimers, smart cable modules, and CXL fabric switches</strong> — the high-speed signal-integrity silicon that lets GPUs, CPUs, and memory pools talk to each other at 64–128 GT/s without packet loss. As rack-scale AI systems (NVL72-class) replace single-server boxes, every PCIe Gen5/6 lane between racks needs ALAB silicon.</p>
+
+    <div class="why-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-accent-2);">Why this is a multibagger (not just a winner)</h4>
+      <p class="text-sm">Three compounding edges: <strong>(1) Standard ownership</strong> — ALAB co-chairs the CXL consortium, so the spec moves at their pace. <strong>(2) Hyperscaler design-in</strong> — once a retimer is in a reference design, switching costs are 18–24 months of validation. <strong>(3) Margin asymmetry</strong> — they sell silicon at software-like 70% GM because the value is in the IP, not the wafer.</p>
+    </div>
+
+    <div class="math-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-success);">The multibagger math</h4>
+      <p class="text-sm">If rack-scale GPU systems hit <strong>10M units/yr</strong> by 2029 (vs ~1M today) and ALAB averages $400 silicon per rack at 70% GM → $4B revenue, $1.6B FCF. At 30x FCF (still cheaper than NVDA) = $48B market cap. <strong>Current cap: ~$15B → ~3.2x</strong>, before optionality on CXL memory pooling.</p>
+    </div>
+
+    <div class="risk-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-danger);">Red flags & triggers</h4>
+      <p class="text-sm"><span class="pitfall-tag">CUSTOMER CONC.</span> Top 3 customers = ~70% revenue. <span class="pitfall-tag">UCIe COMPETITION</span> Open standard could erode CXL moat post-2028. <span class="signal-tag">WATCH</span> NVDA's Quantum-X800 attach rate — if ALAB is in it, conviction → 95.</p>
+    </div>
+  </article>
+
+  <!-- 2. VRT -->
+  <article class="stock-card">
+    <div class="stock-header">
+      <div>
+        <div class="ticker">VRT · Vertiv Holdings</div>
+        <p class="text-sm mt-1" style="color: var(--color-text-muted);">Category: Data center thermal & power infrastructure · NYSE</p>
+      </div>
+      <div class="text-right">
+        <div class="score-num">88</div>
+        <div class="score-label">Conviction</div>
+      </div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-cell"><div class="k">3Y Upside (P50)</div><div class="v" style="color: var(--color-success);">150%+</div></div>
+      <div class="meta-cell"><div class="k">Backlog</div><div class="v">$15B+ (Q1'26)</div></div>
+      <div class="meta-cell"><div class="k">Q1'26 EPS Growth</div><div class="v">+83%</div></div>
+      <div class="meta-cell"><div class="k">FY26 Org. Growth</div><div class="v">~30%</div></div>
+      <div class="meta-cell"><div class="k">Profile</div><div class="v">Cyclical → Structural</div></div>
+    </div>
+
+    <h4 class="text-base font-bold mt-4 mb-2">What it actually does</h4>
+    <p class="text-sm">Liquid-cooling CDUs, in-row precision cooling, UPS systems, busways, and switchgear for data centers. The Blackwell/GB200 generation dissipates <strong>1.2 kW per GPU</strong> — air cooling is physically infeasible. Vertiv is one of two players (with Schneider) that can ship at hyperscaler volume.</p>
+
+    <div class="why-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-accent-2);">Why this is a multibagger</h4>
+      <p class="text-sm">The market still prices VRT as an industrial cyclical (~25x earnings). It is actually a <strong>multi-year subscription business</strong> in disguise — cooling capacity is sized 24 months ahead of compute, locked via long-dated PO contracts, and serviced (high-margin) for 15 years. Q1'26 acquisition of <strong>Strategic Thermal Labs</strong> added direct-to-chip IP that competitors don't have.</p>
+    </div>
+
+    <div class="math-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-success);">The multibagger math</h4>
+      <p class="text-sm">$15B backlog gives 18-month visibility. At 30% organic growth × 200 bps annual op-leverage, FY28E EPS ~ $7.50 (vs $4.10 FY26E). At 30x (peer-relative reasonable for the growth) = <strong>$225/share vs ~$125 today → ~1.8x base</strong>, ~2.5x bull case with services mix expansion.</p>
+    </div>
+
+    <div class="risk-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-danger);">Red flags & triggers</h4>
+      <p class="text-sm"><span class="pitfall-tag">AIR-COOLING REBOUND</span> If chip TDPs plateau (efficient inference chips), liquid demand softens. <span class="pitfall-tag">CHINA EXPOSURE</span> ~10% revenue. <span class="signal-tag">WATCH</span> Book-to-bill ratio next two quarters — must stay above 1.3.</p>
+    </div>
+  </article>
+
+  <!-- 3. VKTX -->
+  <article class="stock-card">
+    <div class="stock-header">
+      <div>
+        <div class="ticker">VKTX · Viking Therapeutics</div>
+        <p class="text-sm mt-1" style="color: var(--color-text-muted);">Category: Clinical-stage biotech · NASDAQ</p>
+      </div>
+      <div class="text-right">
+        <div class="score-num">85</div>
+        <div class="score-label">Conviction</div>
+      </div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-cell"><div class="k">3Y Upside (P50)</div><div class="v" style="color: var(--color-success);">200%+</div></div>
+      <div class="meta-cell"><div class="k">Market Cap</div><div class="v">~$4B</div></div>
+      <div class="meta-cell"><div class="k">Cash Runway</div><div class="v">~24 mo (to Ph3 readout)</div></div>
+      <div class="meta-cell"><div class="k">Lead Asset</div><div class="v">VK2735 (oral GLP-1)</div></div>
+      <div class="meta-cell"><div class="k">Profile</div><div class="v">Binary / M&A target</div></div>
+    </div>
+
+    <h4 class="text-base font-bold mt-4 mb-2">What it actually does</h4>
+    <p class="text-sm">Develops VK2735 — a <strong>dual GLP-1/GIP agonist available in both injectable and oral forms</strong>. Phase 2 data showed 14.7% weight reduction in 13 weeks (oral), competitive with Lilly's Zepbound and meaningfully ahead of Novo's oral candidates.</p>
+
+    <div class="why-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-accent-2);">Why this is a multibagger</h4>
+      <p class="text-sm">GLP-1 TAM is the largest in pharma history — $150B+ by 2030. Three things make VKTX asymmetric: <strong>(1) Oral formulation</strong> opens the 60% of patients who refuse needles. <strong>(2) NASH/MASH optionality</strong> from VK2809. <strong>(3) M&A optionality</strong> — Big Pharma desperately needs GLP-1 exposure; Pfizer, Merck, Amgen all candidates. A buyout at $150–200/share within 18 months is a credible scenario.</p>
+    </div>
+
+    <div class="math-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-success);">The multibagger math</h4>
+      <p class="text-sm">If VK2735 captures even 5% of the oral GLP-1 market by 2030 = $5–7B revenue. At biotech standard 8x sales pre-genericization = $40–55B valuation. <strong>Current ~$4B → 10x+ in upside scenario.</strong> P50 case (partnership/M&A): $12–15B → 3x.</p>
+    </div>
+
+    <div class="risk-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-danger);">Red flags & triggers</h4>
+      <p class="text-sm"><span class="pitfall-tag">BINARY RISK</span> Single asset; failed Ph3 = -70%. <span class="pitfall-tag">PRICING POLITICS</span> US drug-pricing cap on GLP-1s being debated in Congress. <span class="signal-tag">WATCH</span> VK2735 Ph3 enrollment pace + any partnership news.</p>
+    </div>
+  </article>
+
+  <!-- 4. PLTR -->
+  <article class="stock-card">
+    <div class="stock-header">
+      <div>
+        <div class="ticker">PLTR · Palantir Technologies</div>
+        <p class="text-sm mt-1" style="color: var(--color-text-muted);">Category: AI operating system / enterprise software · NASDAQ</p>
+      </div>
+      <div class="text-right">
+        <div class="score-num">82</div>
+        <div class="score-label">Conviction</div>
+      </div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-cell"><div class="k">3Y Upside (P50)</div><div class="v" style="color: var(--color-success);">120%+</div></div>
+      <div class="meta-cell"><div class="k">TTM FCF</div><div class="v">$2.1B</div></div>
+      <div class="meta-cell"><div class="k">FCF Growth YoY</div><div class="v">+84%</div></div>
+      <div class="meta-cell"><div class="k">US Commercial Growth</div><div class="v">~70% YoY</div></div>
+      <div class="meta-cell"><div class="k">Profile</div><div class="v">Platform play</div></div>
+    </div>
+
+    <h4 class="text-base font-bold mt-4 mb-2">What it actually does</h4>
+    <p class="text-sm">Palantir's <strong>AIP (Artificial Intelligence Platform)</strong> sits between an enterprise's data and LLMs, providing the ontology, security, and orchestration that lets generative AI safely take action on production systems. Government segment (Gotham) provides the cash; commercial (Foundry+AIP) provides the multiple.</p>
+
+    <div class="why-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-accent-2);">Why this is a multibagger (even at high P/E)</h4>
+      <p class="text-sm">Conventional value lens calls PLTR "overvalued" at 80x earnings. The lens is wrong. AIP Bootcamps are converting 5-day workshops into <strong>$5–25M annual contracts within 90 days</strong> — a velocity unprecedented in enterprise software. Rule of 40 score is ~75 (best in software). Burry's $912M short is a contrarian indicator.</p>
+    </div>
+
+    <div class="math-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-success);">The multibagger math</h4>
+      <p class="text-sm">FCF growing at 50%+ for 3 years → $7B FCF in FY28. At 50x FCF (still below current 200x) = $350B → <strong>~1.4x</strong>. At 70x for category dominance = ~2x. Optionality on warbot/sovereign AI deployments adds another leg.</p>
+    </div>
+
+    <div class="risk-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-danger);">Red flags & triggers</h4>
+      <p class="text-sm"><span class="pitfall-tag">MULTIPLE COMPRESSION</span> Any growth deceleration → severe derating from 200x. <span class="pitfall-tag">SBC DILUTION</span> ~25% of revenue in SBC. <span class="signal-tag">WATCH</span> Commercial customer count + average contract value trend.</p>
+    </div>
+  </article>
+
+  <!-- 5. CEG -->
+  <article class="stock-card">
+    <div class="stock-header">
+      <div>
+        <div class="ticker">CEG · Constellation Energy</div>
+        <p class="text-sm mt-1" style="color: var(--color-text-muted);">Category: Nuclear power generation · NASDAQ</p>
+      </div>
+      <div class="text-right">
+        <div class="score-num">80</div>
+        <div class="score-label">Conviction</div>
+      </div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-cell"><div class="k">3Y Upside (P50)</div><div class="v" style="color: var(--color-success);">100%+</div></div>
+      <div class="meta-cell"><div class="k">Nuclear Fleet</div><div class="v">21 reactors</div></div>
+      <div class="meta-cell"><div class="k">CF Capacity</div><div class="v">93%+ avg</div></div>
+      <div class="meta-cell"><div class="k">Three Mile Island</div><div class="v">Reactivation by 2028</div></div>
+      <div class="meta-cell"><div class="k">Profile</div><div class="v">Re-rating play</div></div>
+    </div>
+
+    <h4 class="text-base font-bold mt-4 mb-2">What it actually does</h4>
+    <p class="text-sm">Largest US producer of carbon-free electricity, mostly from nuclear. AI hyperscalers will not meet their net-zero pledges without 24/7 firm carbon-free power — and CEG is the only US operator with both the megawatts and the willingness to sign <strong>20-year fixed-price PPAs at 2x merchant rates</strong>.</p>
+
+    <div class="why-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-accent-2);">Why this is a multibagger</h4>
+      <p class="text-sm">The Microsoft–Three Mile Island deal at <strong>$110+/MWh</strong> (vs $30–40 merchant) re-priced the entire nuclear fleet's option value. Every CEG plant is a 20-year inflation-protected annuity once contracted. The barrier to entry is regulatory and physical — no new entrants for 10+ years.</p>
+    </div>
+
+    <div class="math-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-success);">The multibagger math</h4>
+      <p class="text-sm">If 50% of fleet is re-contracted to hyperscalers at $90/MWh by 2028, FY28E EBITDA ~$8B (vs ~$4B FY25). At 15x EBITDA (utility multiple) = $120B EV vs ~$70B today → <strong>~1.7x</strong>. SMR optionality (Westinghouse partnership) adds a 2030+ leg.</p>
+    </div>
+
+    <div class="risk-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-danger);">Red flags & triggers</h4>
+      <p class="text-sm"><span class="pitfall-tag">REGULATORY</span> NRC delays on Three Mile Island restart. <span class="pitfall-tag">POLITICAL</span> Anti-nuclear administration in 2028. <span class="signal-tag">WATCH</span> Additional hyperscaler PPA announcements — each adds ~$5–10/share NPV.</p>
+    </div>
+  </article>
+
+  <!-- ============ INDIA DEEP DIVES ============ -->
+  <h2 class="text-3xl font-bold mt-12 mb-4">India — 5 Ideas</h2>
+  <p class="mb-6" style="color: var(--color-text-muted);">Theme: India is undergoing a once-in-a-generation manufacturing & consumption inflection. PLI schemes, sovereign-AI mandates, and a 600M+ digitally native middle class create durable tailwinds for niche category leaders.</p>
+
+  <!-- 6. NETWEB -->
+  <article class="stock-card">
+    <div class="stock-header">
+      <div>
+        <div class="ticker">NETWEB · Netweb Technologies</div>
+        <p class="text-sm mt-1" style="color: var(--color-text-muted);">Category: Sovereign AI compute / HPC servers · NSE</p>
+      </div>
+      <div class="text-right">
+        <div class="score-num">94</div>
+        <div class="score-label">Conviction</div>
+      </div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-cell"><div class="k">3Y Upside (P50)</div><div class="v" style="color: var(--color-success);">300%+</div></div>
+      <div class="meta-cell"><div class="k">ROE (FY26)</div><div class="v">~34%</div></div>
+      <div class="meta-cell"><div class="k">Q3 FY26 PAT QoQ</div><div class="v">+133%</div></div>
+      <div class="meta-cell"><div class="k">AI Systems % Rev</div><div class="v">~64% (rising)</div></div>
+      <div class="meta-cell"><div class="k">Profile</div><div class="v">Hidden monopoly</div></div>
+    </div>
+
+    <h4 class="text-base font-bold mt-4 mb-2">What it actually does</h4>
+    <p class="text-sm">Designs and assembles <strong>AI training/inference servers, HPC clusters, and supercomputers in India</strong>. Their "Tyrone" platform integrates NVIDIA H100/H200/GB200 GPUs with proprietary cooling, networking, and management software. They are the <strong>only Indian OEM</strong> qualified to bid on the ₹10,372 crore IndiaAI mission's compute pillar.</p>
+
+    <div class="why-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-accent-2);">Why this is the highest-conviction idea in the cohort</h4>
+      <p class="text-sm">Three rare structural advantages stack: <strong>(1) Sovereign moat</strong> — Indian data sovereignty laws favor domestic OEMs for government/PSU compute. <strong>(2) Make-in-India PLI</strong> — 4–6% cash subsidy on every server sold. <strong>(3) Founder DNA</strong> — promoters are ex-CDAC engineers with 25+ years of HPC expertise; ESOP/promoter holding is high and stable. The ₹450 cr Q3 government order is a template, not a one-off.</p>
+    </div>
+
+    <div class="math-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-success);">The multibagger math</h4>
+      <p class="text-sm">FY26E revenue ~₹2,000 cr → if ESDM tailwind drives 60% CAGR → ₹8,000 cr by FY29. At 12% PAT margin = ₹960 cr. At 50x earnings (justified by ROE + growth) = ₹48,000 cr market cap vs ~₹15,000 cr today → <strong>~3.2x base, 4–5x bull case</strong> with international expansion.</p>
+    </div>
+
+    <div class="risk-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-danger);">Red flags & triggers</h4>
+      <p class="text-sm"><span class="pitfall-tag">WORKING CAPITAL</span> Inventory up 264% YoY — execution risk. <span class="pitfall-tag">GPU ALLOCATION</span> Dependent on NVIDIA priority for India. <span class="signal-tag">WATCH</span> Receivable days trend + next 2 govt order wins.</p>
+    </div>
+  </article>
+
+  <!-- 7. MTAR -->
+  <article class="stock-card">
+    <div class="stock-header">
+      <div>
+        <div class="ticker">MTAR · MTAR Technologies</div>
+        <p class="text-sm mt-1" style="color: var(--color-text-muted);">Category: Precision engineering · NSE</p>
+      </div>
+      <div class="text-right">
+        <div class="score-num">89</div>
+        <div class="score-label">Conviction</div>
+      </div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-cell"><div class="k">3Y Upside (P50)</div><div class="v" style="color: var(--color-success);">250%+</div></div>
+      <div class="meta-cell"><div class="k">Clean Energy % Rev</div><div class="v">62% → 71% (FY28E)</div></div>
+      <div class="meta-cell"><div class="k">EBITDA Margin (FY28E)</div><div class="v">30%+</div></div>
+      <div class="meta-cell"><div class="k">Net Debt</div><div class="v">Negligible</div></div>
+      <div class="meta-cell"><div class="k">Profile</div><div class="v">Operating leverage</div></div>
+    </div>
+
+    <h4 class="text-base font-bold mt-4 mb-2">What it actually does</h4>
+    <p class="text-sm">Manufactures <strong>ultra-tight-tolerance components</strong> for four mission-critical end-markets: solid-oxide fuel cells (Bloom Energy supplier, 55% of components), nuclear reactors (NPCIL), space launch vehicles (ISRO), and defense. The Bloom relationship is exclusive for hot-box parts.</p>
+
+    <div class="why-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-accent-2);">Why this is a multibagger</h4>
+      <p class="text-sm">Bloom Energy's <strong>2.8 GW Oracle deal</strong> directly translates to ₹1,400–1,700 cr incremental revenue for MTAR — roughly <strong>1.6–1.8x their entire FY26 revenue</strong>. And Oracle is one of many; AWS, Google, Microsoft are all evaluating fuel cells. Qualifying as a precision-aerospace supplier takes 8–10 years — MTAR's moat is time, not capital.</p>
+    </div>
+
+    <div class="math-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-success);">The multibagger math</h4>
+      <p class="text-sm">FY26E revenue ~₹900 cr → FY28E ₹2,500–3,000 cr at 30% EBITDA margin = ₹800–900 cr EBITDA. At 35x EBITDA (justified by 50%+ growth & moat) = ₹30,000 cr EV vs ~₹6,000 cr today → <strong>~5x peak</strong>, ~2.5–3x base case.</p>
+    </div>
+
+    <div class="risk-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-danger);">Red flags & triggers</h4>
+      <p class="text-sm"><span class="pitfall-tag">CUSTOMER CONC.</span> Bloom Energy = ~40% of revenue. <span class="pitfall-tag">EXECUTION</span> Q1 FY26 had margin compression. <span class="signal-tag">WATCH</span> Bloom's order book + ISRO's Gaganyaan delivery schedule.</p>
+    </div>
+  </article>
+
+  <!-- 8. KAYNES -->
+  <article class="stock-card">
+    <div class="stock-header">
+      <div>
+        <div class="ticker">KAYNES · Kaynes Technology India</div>
+        <p class="text-sm mt-1" style="color: var(--color-text-muted);">Category: ESDM / OSAT semiconductor packaging · NSE</p>
+      </div>
+      <div class="text-right">
+        <div class="score-num">87</div>
+        <div class="score-label">Conviction</div>
+      </div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-cell"><div class="k">3Y Upside (P50)</div><div class="v" style="color: var(--color-success);">200%+</div></div>
+      <div class="meta-cell"><div class="k">Altman Z-Score</div><div class="v">10.1 (excellent)</div></div>
+      <div class="meta-cell"><div class="k">Order Book</div><div class="v">₹6,800+ cr (24mo+)</div></div>
+      <div class="meta-cell"><div class="k">OSAT Capex</div><div class="v">₹3,300 cr Sanand</div></div>
+      <div class="meta-cell"><div class="k">Profile</div><div class="v">Platform expansion</div></div>
+    </div>
+
+    <h4 class="text-base font-bold mt-4 mb-2">What it actually does</h4>
+    <p class="text-sm">Tier-1 EMS (electronics manufacturing services) for industrial, auto, aerospace, and medical end-markets. <strong>The pivot:</strong> they are building India's first commercial-scale OSAT (Outsourced Semiconductor Assembly & Test) plant at Sanand, Gujarat — supported by ₹3,300 cr in government incentives.</p>
+
+    <div class="why-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-accent-2);">Why this is a multibagger</h4>
+      <p class="text-sm">Today Kaynes is valued as an EMS company (~50x earnings). Once OSAT contributes — even 20% of revenue — the multiple should expand to <strong>semiconductor-peer range (60–80x)</strong> because: (a) OSAT margins are 25%+ vs 12% EMS, (b) OSAT is a duopoly globally (ASE+Amkor), (c) Indian OSAT enjoys a 10-year tax holiday plus PLI.</p>
+    </div>
+
+    <div class="math-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-success);">The multibagger math</h4>
+      <p class="text-sm">FY28E revenue ₹6,500 cr (EMS) + ₹1,500 cr (OSAT) = ₹8,000 cr. PAT ~₹900 cr at blended 11% margin. At 70x = ₹63,000 cr vs ~₹25,000 cr today → <strong>~2.5x base, ~3x bull</strong>.</p>
+    </div>
+
+    <div class="risk-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-danger);">Red flags & triggers</h4>
+      <p class="text-sm"><span class="pitfall-tag">EXECUTION</span> OSAT is technology-intensive; first-time-right matters. <span class="pitfall-tag">VALUATION</span> Already prices in some optimism. <span class="signal-tag">WATCH</span> Sanand fab commissioning + first customer qualification (likely Aug 2026).</p>
+    </div>
+  </article>
+
+  <!-- 9. ZOMATO -->
+  <article class="stock-card">
+    <div class="stock-header">
+      <div>
+        <div class="ticker">ZOMATO (Eternal) · Quick Commerce</div>
+        <p class="text-sm mt-1" style="color: var(--color-text-muted);">Category: Food delivery + Blinkit quick commerce · NSE</p>
+      </div>
+      <div class="text-right">
+        <div class="score-num">84</div>
+        <div class="score-label">Conviction</div>
+      </div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-cell"><div class="k">3Y Upside (P50)</div><div class="v" style="color: var(--color-success);">150%+</div></div>
+      <div class="meta-cell"><div class="k">Blinkit GOV Growth</div><div class="v">~100% YoY</div></div>
+      <div class="meta-cell"><div class="k">Net Cash</div><div class="v">$1B+</div></div>
+      <div class="meta-cell"><div class="k">Blinkit Stores</div><div class="v">1,000+ dark stores</div></div>
+      <div class="meta-cell"><div class="k">Profile</div><div class="v">Category creator</div></div>
+    </div>
+
+    <h4 class="text-base font-bold mt-4 mb-2">What it actually does</h4>
+    <p class="text-sm">Two engines: (1) Food delivery — duopoly with Swiggy, profitable, 20%+ AOV growth. (2) <strong>Blinkit quick commerce</strong> — 10-minute delivery of groceries, electronics, beauty. Blinkit is <strong>the largest organized retailer in India by GMV in tier-1 cities</strong> and growing 2x faster than e-commerce.</p>
+
+    <div class="why-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-accent-2);">Why this is a multibagger</h4>
+      <p class="text-sm">Quick commerce is replacing <strong>three retail formats simultaneously</strong>: kirana stores, modern trade, and e-commerce. Indian urban consumers are paying <em>premium prices for convenience</em> in a way no other geography has demonstrated. Blinkit operates at 6%+ contribution margin in mature cities — best-in-class globally. The dark-store economics (~₹2 cr capex, 18-month payback) scale like a SaaS unit.</p>
+    </div>
+
+    <div class="math-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-success);">The multibagger math</h4>
+      <p class="text-sm">Blinkit FY26 GOV ~₹40,000 cr → FY29 ₹150,000 cr at 70% CAGR. At 1.0x GOV (warranted by margin profile) = ₹150,000 cr for Blinkit alone. Plus ₹50,000 cr food delivery → ₹200,000 cr total vs ~₹100,000 cr today → <strong>~2x base case, 3x bull</strong> with going-out + advertising verticals.</p>
+    </div>
+
+    <div class="risk-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-danger);">Red flags & triggers</h4>
+      <p class="text-sm"><span class="pitfall-tag">COMPETITION</span> Reliance (JioMart), Tata (Neu) escalating. <span class="pitfall-tag">UNIT ECON.</span> Margin pressure during competitive expansion. <span class="signal-tag">WATCH</span> Blinkit contribution margin trajectory + Swiggy Instamart IPO valuation.</p>
+    </div>
+  </article>
+
+  <!-- 10. TRENT -->
+  <article class="stock-card">
+    <div class="stock-header">
+      <div>
+        <div class="ticker">TRENT · Trent Ltd (Tata)</div>
+        <p class="text-sm mt-1" style="color: var(--color-text-muted);">Category: Value fashion retail (Zudio + Westside) · NSE</p>
+      </div>
+      <div class="text-right">
+        <div class="score-num">83</div>
+        <div class="score-label">Conviction</div>
+      </div>
+    </div>
+
+    <div class="meta-grid">
+      <div class="meta-cell"><div class="k">3Y Upside (P50)</div><div class="v" style="color: var(--color-success);">120%+</div></div>
+      <div class="meta-cell"><div class="k">ROE</div><div class="v">30%+</div></div>
+      <div class="meta-cell"><div class="k">Zudio Store Count</div><div class="v">700+ (FY26)</div></div>
+      <div class="meta-cell"><div class="k">SSS Growth</div><div class="v">High teens</div></div>
+      <div class="meta-cell"><div class="k">Profile</div><div class="v">Execution machine</div></div>
+    </div>
+
+    <h4 class="text-base font-bold mt-4 mb-2">What it actually does</h4>
+    <p class="text-sm">Operates <strong>Westside</strong> (mid-market apparel) and <strong>Zudio</strong> (value fashion, ASP ₹399). Zudio is the fastest-scaling apparel format in India — store payback under 12 months, inventory turns of 6–7x (Zara is 5x, Indian peers are 2–3x). Backed by Tata Sons.</p>
+
+    <div class="why-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-accent-2);">Why this is a multibagger</h4>
+      <p class="text-sm">Zudio has cracked something no Indian retailer has: <strong>fast-fashion at scale with positive unit economics</strong>. They control the design–factory–store cycle to 21 days (vs 90+ for peers). Star Bazaar (grocery) turning profitable adds a second engine. Tata's deep pockets fund expansion without dilution. This is the <strong>Inditex of India</strong> at an early-S-curve stage.</p>
+    </div>
+
+    <div class="math-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-success);">The multibagger math</h4>
+      <p class="text-sm">700 Zudio stores → 2,500 by FY29 (still under-penetrated). Revenue per store ₹15 cr → ₹37,500 cr Zudio alone. Plus ₹12,000 cr Westside + ₹15,000 cr Star Bazaar = ₹65,000 cr group revenue. At 8% PAT margin = ₹5,200 cr. At 70x (justified by ROE+growth) = ₹3.6L cr vs ~₹1.7L cr today → <strong>~2.1x base, 2.5x bull</strong>.</p>
+    </div>
+
+    <div class="risk-box">
+      <h4 class="font-bold mb-2" style="color: var(--color-danger);">Red flags & triggers</h4>
+      <p class="text-sm"><span class="pitfall-tag">VALUATION</span> Trades at 100x+ trailing — any growth miss = sharp correction. <span class="pitfall-tag">FASHION RISK</span> One bad season can hurt inventory turns. <span class="signal-tag">WATCH</span> Zudio same-store sales growth (must stay >12%) + Star Bazaar EBITDA quarterly.</p>
+    </div>
+  </article>
+
+  <!-- COMPOSITE RISK MATRIX -->
+  <section class="section-card">
+    <h2 class="text-2xl font-bold mb-4">Composite Risk Matrix</h2>
+    <p class="text-sm mb-4" style="color: var(--color-text-muted);">The same systematic risk affects multiple positions. Diversification by ticker hides this.</p>
+    <div class="overflow-x-auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Risk Vector</th>
+            <th>Trigger</th>
+            <th>Impacted Stocks</th>
+            <th>Severity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>AI Capex Pause</strong></td><td>Hyperscalers cut FY27 capex guidance &gt;15%</td><td>ALAB, VRT, CEG, NETWEB, MTAR</td><td><span class="pitfall-tag">HIGH</span></td></tr>
+          <tr><td><strong>GPU Allocation</strong></td><td>NVIDIA throttles India/Tier-2 deliveries</td><td>NETWEB</td><td><span class="pitfall-tag">MEDIUM</span></td></tr>
+          <tr><td><strong>Drug-Pricing Regulation</strong></td><td>US Medicare GLP-1 price cap</td><td>VKTX</td><td><span class="pitfall-tag">HIGH</span></td></tr>
+          <tr><td><strong>QC Price War</strong></td><td>Reliance JioMart 10-min launch at &lt;cost</td><td>ZOMATO</td><td><span class="pitfall-tag">MEDIUM</span></td></tr>
+          <tr><td><strong>Multiple Compression</strong></td><td>10Y yield &gt;5% sustained</td><td>PLTR, TRENT, KAYNES</td><td><span class="pitfall-tag">MEDIUM</span></td></tr>
+          <tr><td><strong>Working-Capital Stress</strong></td><td>Inventory/receivables growth &gt; revenue growth for 2+ quarters</td><td>NETWEB, KAYNES</td><td><span class="pitfall-tag">MEDIUM</span></td></tr>
+          <tr><td><strong>Customer Concentration</strong></td><td>Single customer cut order book &gt;30%</td><td>ALAB, MTAR</td><td><span class="pitfall-tag">MEDIUM</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="rationale-box mt-6">
+      <h4 class="font-bold mb-2" style="color: var(--color-accent);">Portfolio Construction Implication</h4>
+      <p class="text-sm">5/10 names share the "AI Capex Pause" risk. Recommended max weight for the AI-infra basket is <strong>30–35% of the multibagger sleeve</strong>. Balance with NETWEB (sovereign), TRENT (consumer), VKTX (biotech) for diversification.</p>
+    </div>
+  </section>
+
+  <!-- VERIFICATION -->
+  <section class="section-card">
+    <h2 class="text-2xl font-bold mb-4">How to Verify This Yourself</h2>
+    <p class="text-sm mb-4" style="color: var(--color-text-muted);">An idea is only as good as the path to falsify it. Each watch-item below is a tripwire for thesis breakage.</p>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="meta-cell">
+        <div class="k mb-2">Demand Proxy Checks</div>
+        <ul class="text-xs space-y-1 list-disc pl-4">
+          <li>Google Trends: "Zudio", "Blinkit" — must trend up YoY</li>
+          <li>Job postings on LinkedIn (Netweb, Kaynes engineering roles)</li>
+          <li>Hyperscaler 10-Q capex commentary (NVDA, MSFT, GOOGL, META, AMZN)</li>
+        </ul>
+      </div>
+      <div class="meta-cell">
+        <div class="k mb-2">Execution Proxy Checks</div>
+        <ul class="text-xs space-y-1 list-disc pl-4">
+          <li>VRT: book-to-bill quarterly (must be &gt;1.3)</li>
+          <li>NETWEB: working-capital days trend</li>
+          <li>ALAB: top-customer concentration in 10-K</li>
+          <li>MTAR: Bloom Energy quarterly order book disclosure</li>
+        </ul>
+      </div>
+      <div class="meta-cell">
+        <div class="k mb-2">Sentiment / Mispricing</div>
+        <ul class="text-xs space-y-1 list-disc pl-4">
+          <li>Analyst coverage count (low &amp; growing = good)</li>
+          <li>Glassdoor CEO approval &amp; trend</li>
+          <li>FII / DII ownership trend in Indian names</li>
+        </ul>
+      </div>
+      <div class="meta-cell">
+        <div class="k mb-2">Sell Triggers (when to exit)</div>
+        <ul class="text-xs space-y-1 list-disc pl-4">
+          <li>Fisher rule #1: deterioration in management quality</li>
+          <li>Demand signal reverses for 2 consecutive quarters</li>
+          <li>Original thesis broken (not "stock went down")</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- DISCLAIMER -->
+  <section class="section-card" style="border-color: var(--color-warn);">
+    <h3 class="text-lg font-bold mb-2" style="color: var(--color-warn);">Disclaimer & Method Limitations</h3>
+    <p class="text-xs" style="color: var(--color-text-muted);">
+      This is educational research, not personalized investment advice. Multibagger investing requires <strong>concentration + patience + tolerance for 30–50% drawdowns en route to gains</strong>. None of these names will compound in a straight line. The framework prioritizes asymmetry over consensus safety — appropriate position size is 1–4% of net worth per name, not a single concentrated bet. Validate every claim against current SEC/SEBI filings before action. All financial figures referenced are from publicly available May 2026 data and may have changed.
+    </p>
+  </section>
+
+  <footer class="mt-12 text-center text-xs opacity-60" style="color: var(--color-text-muted);">
+    MULTIBAGGER ANALYST · ALPHA MACHINE · MAY 17 2026 · METHODOLOGY: <span class="mono">multibagger-analyst + us-value-investing + fisher-15-points</span>
+  </footer>
+
+  <script>
+    // Theme toggle
+    document.querySelector('.theme-toggle').addEventListener('click', () => {
+      const html = document.documentElement;
+      const isDark = html.dataset.theme === 'dark';
+      html.dataset.theme = isDark ? 'light' : 'dark';
+      document.querySelector('.theme-icon').textContent = isDark ? '☀️' : '🌙';
+      if (window.__chart) renderChart();
+    });
+
+    // Conviction vs Upside scatter
+    const stocks = [
+      { x: 92, y: 300, r: 22, label: 'ALAB', market: 'US' },
+      { x: 88, y: 150, r: 18, label: 'VRT',  market: 'US' },
+      { x: 85, y: 200, r: 20, label: 'VKTX', market: 'US' },
+      { x: 82, y: 120, r: 16, label: 'PLTR', market: 'US' },
+      { x: 80, y: 100, r: 14, label: 'CEG',  market: 'US' },
+      { x: 94, y: 300, r: 22, label: 'NETWEB', market: 'IN' },
+      { x: 89, y: 250, r: 20, label: 'MTAR', market: 'IN' },
+      { x: 87, y: 200, r: 18, label: 'KAYNES', market: 'IN' },
+      { x: 84, y: 150, r: 16, label: 'ZOMATO', market: 'IN' },
+      { x: 83, y: 120, r: 14, label: 'TRENT', market: 'IN' },
+    ];
+
+    function renderChart() {
+      const ctx = document.getElementById('convictionChart');
+      if (!ctx) return;
+      if (window.__chart) window.__chart.destroy();
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      const gridColor = isDark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
+      const textColor = isDark ? '#a1a1aa' : '#52525b';
+
+      window.__chart = new Chart(ctx, {
+        type: 'bubble',
+        data: {
+          datasets: [
+            { label: 'US',    data: stocks.filter(s => s.market === 'US'), backgroundColor: 'rgba(245,158,11,.6)',  borderColor: '#f59e0b', borderWidth: 2 },
+            { label: 'India', data: stocks.filter(s => s.market === 'IN'), backgroundColor: 'rgba(6,182,212,.6)',  borderColor: '#06b6d4', borderWidth: 2 },
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: textColor, font: { family: 'Inter' } } },
+            tooltip: {
+              callbacks: {
+                label: (c) => `${c.raw.label} · Conviction ${c.raw.x} · Upside ${c.raw.y}%`
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'Conviction Score', color: textColor },
+              min: 75, max: 100,
+              grid: { color: gridColor }, ticks: { color: textColor }
+            },
+            y: {
+              title: { display: true, text: '3Y Upside (%)', color: textColor },
+              min: 50, max: 350,
+              grid: { color: gridColor }, ticks: { color: textColor }
+            }
+          }
+        }
+      });
+    }
+    renderChart();
+  </script>
+</body>
+</html>

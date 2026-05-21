@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alpha Machine — Multibagger Intelligence Dashboard v3</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root[data-theme="dark"] {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface-2: #1a1a24;
+      --surface-3: #22222e;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #f59e0b;
+      --accent-2: #06b6d4;
+      --accent-3: #8b5cf6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f97316;
+      --border: #27273a;
+      --gradient-1: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+      --gradient-2: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+      --glow: 0 0 40px rgba(245, 158, 11, 0.15);
+    }
+    :root[data-theme="light"] {
+      --bg: #ffffff;
+      --surface: #f8fafc;
+      --surface-2: #f1f5f9;
+      --surface-3: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #d97706;
+      --accent-2: #0891b2;
+      --accent-3: #7c3aed;
+      --success: #059669;
+      --danger: #dc2626;
+      --warning: #ea580c;
+      --border: #cbd5e1;
+      --gradient-1: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
+      --gradient-2: linear-gradient(135deg, #0891b2 0%, #7c3aed 100%);
+      --glow: 0 0 40px rgba(217, 119, 6, 0.1);
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: all 0.3s ease;
+    }
+    h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .nav-container {
+      position: fixed; top: 0; left: 0; right: 0;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      z-index: 1000;
+      padding: 0.75rem 2rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    :root[data-theme="light"] .nav-container { background: rgba(255,255,255,0.9); }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-link {
+      color: var(--text-muted); text-decoration: none; font-size: 0.875rem;
+      font-weight: 500; padding: 0.5rem 0; position: relative;
+      transition: color 0.2s;
+    }
+    .nav-link:hover, .nav-link.active { color: var(--accent); }
+    .nav-link::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px; background: var(--gradient-1); transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+    .nav-link:hover::after, .nav-link.active::after { transform: scaleX(1); }
+    .theme-toggle {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.5rem 0.75rem; cursor: pointer;
+      color: var(--text); transition: all 0.2s;
+    }
+    .theme-toggle:hover { border-color: var(--accent); }
+    .main-content { padding-top: 80px; }
+    .section { padding: 3rem 2rem; max-width: 1400px; margin: 0 auto; }
+    .hero {
+      text-align: center; padding: 4rem 2rem;
+      background: radial-gradient(ellipse at center top, rgba(245,158,11,0.1) 0%, transparent 50%);
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 700;
+      background: var(--gradient-1);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+    .hero-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;
+      max-width: 1000px; margin: 2rem auto 0;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.5rem; text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: var(--glow); }
+    .stat-value { font-size: 2rem; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .filter-bar {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      margin: 2rem 0; padding: 1.5rem; background: var(--surface); border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+    .filter-btn {
+      padding: 0.5rem 1.25rem; border-radius: 9999px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--text-muted); font-size: 0.875rem;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent); color: #000; border-color: var(--accent);
+    }
+    .stock-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 1.5rem;
+    }
+    .stock-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stock-card:hover { transform: translateY(-4px); box-shadow: var(--glow); }
+    .stock-header {
+      padding: 1.5rem; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .stock-ticker {
+      font-family: 'JetBrains Mono', monospace; font-size: 1.75rem; font-weight: 700;
+      color: var(--accent);
+    }
+    .stock-name { font-size: 0.8125rem; color: var(--text-muted); }
+    .stock-theme {
+      display: inline-block; padding: 0.25rem 0.75rem;
+      background: var(--surface-2); border-radius: 9999px;
+      font-size: 0.6875rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.5px; margin-top: 0.5rem;
+    }
+    .conviction-badge {
+      text-align: right;
+    }
+    .conviction-score {
+      font-size: 2rem; font-weight: 700; color: var(--success);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .conviction-label { font-size: 0.6875rem; color: var(--text-muted); text-transform: uppercase; }
+    .stock-body { padding: 1.5rem; }
+    .stock-metrics {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+      margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+    }
+    .metric { text-align: center; }
+    .metric-value { font-size: 1.125rem; font-weight: 600; }
+    .metric-label { font-size: 0.625rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .dimensions { display: flex; flex-direction: column; gap: 0.75rem; }
+    .dimension {
+      display: grid; grid-template-columns: 100px 40px 1fr; gap: 0.75rem; align-items: center;
+    }
+    .dimension-name { font-size: 0.6875rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .dimension-score {
+      font-size: 0.875rem; font-weight: 700; text-align: right;
+    }
+    .dimension-bar {
+      height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden;
+    }
+    .dimension-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+    .dimension-detail {
+      grid-column: 1 / -1; font-size: 0.75rem; color: var(--text-muted);
+      line-height: 1.5; padding: 0.5rem; background: var(--surface-2);
+      border-radius: 6px; margin-top: 0.25rem;
+    }
+    .stock-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.5rem; background: var(--surface-2);
+      border-top: 1px solid var(--border);
+    }
+    .upside-tag {
+      font-size: 0.875rem; font-weight: 700; color: var(--success);
+    }
+    .risk-tag {
+      padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.6875rem;
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .risk-low { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+    .risk-med { background: rgba(249, 115, 22, 0.1); color: var(--warning); }
+    .risk-high { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+    .chart-section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2rem; margin: 3rem 0;
+    }
+    .chart-container { position: relative; height: 450px; }
+    .hidden { display: none !important; }
+    @media (max-width: 768px) {
+      .hero-stats { grid-template-columns: repeat(2, 1fr); }
+      .stock-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav-container">
+    <div class="flex items-center gap-3">
+      <i class="fas fa-chart-line" style="color: var(--accent);"></i>
+      <span class="font-bold mono text-sm">ALPHA MACHINE v3</span>
+    </div>
+    <button class="theme-toggle" id="themeToggleBtn">
+      <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Hero -->
+    <section class="hero" id="hero">
+      <h1>Fresh Multibagger Intelligence (v3)</h1>
+      <p class="text-lg" style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">
+        A fresh list of potential multibagger stocks (US & India) screened as of May 18, 2026.
+      </p>
+      <div class="hero-stats" id="hero-stats">
+        <!-- Stats will be dynamically generated -->
+      </div>
+    </section>
+
+    <!-- Filters & Watchlist -->
+    <section class="section" id="watchlist">
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All Stocks</button>
+        <button class="filter-btn" data-filter="us">🇺🇸 US Market</button>
+        <button class="filter-btn" data-filter="india">🇮🇳 India Market</button>
+      </div>
+
+      <!-- Stock Grid -->
+      <div class="stock-grid" id="stockGrid">
+        <!-- Stocks will be dynamically generated -->
+      </div>
+
+      <!-- Conviction Chart -->
+      <div class="chart-section" id="conviction">
+        <h2 class="text-2xl font-bold mb-6">Conviction vs Upside Matrix (2026)</h2>
+        <div class="chart-container">
+          <canvas id="convictionChart"></canvas>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Stock Data will be populated here
+    const stocks = [
+      {
+        ticker: 'VNRX',
+        name: 'VolitionRx',
+        theme: 'Genomics',
+        market: 'us',
+        conviction: 85,
+        upside: '450%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '$250M', revenue: '$2M', cash: '$40M', burn: '-$15M' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20, detail: `Experienced leadership in biotech, but still navigating the path to full commercialization.` },
+          { name: 'Innovation', score: 10, weight: 25, detail: `Breakthrough Capture-Seq™ liquid biopsy tech with >99% purity in isolating cancer DNA, targeting a massive $36B early detection market.` },
+          { name: 'Demand', score: 7, weight: 20, detail: `Initial traction in the veterinary market (Nu.Q Vet). The key catalyst will be human clinical adoption, which is still in early stages but has enormous potential.` },
+          { name: 'Business', score: 6, weight: 20, detail: `Pre-commercial stage with minimal revenue. Strong cash position provides runway, but the business model hinges on successful clinical trials and regulatory approvals.` },
+          { name: 'Mispricing', score: 9, weight: 15, detail: `A classic high-risk, high-reward biotech play. The market is pricing in the risk, creating a significant mispricing opportunity if the technology is validated.` }
+        ]
+      },
+      {
+        ticker: 'ALAB',
+        name: 'Astera Labs',
+        theme: 'AI/Compute',
+        market: 'us',
+        conviction: 92,
+        upside: '280%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '$12B', revenue: '$500M', growth: '+120%', gross_margin: '75%' },
+        dimensions: [
+          { name: 'Management', score: 9, weight: 20, detail: `Proven leadership team with deep experience in the semiconductor industry. Strong execution on product roadmap.` },
+          { name: 'Innovation', score: 9, weight: 25, detail: `Solves critical connectivity bottlenecks for AI data centers with its PCIe/CXL retimers and memory controllers. Essential for scaling AI infrastructure.` },
+          { name: 'Demand', score: 10, weight: 20, detail: `Massive, growing demand from all major hyperscalers and AI hardware companies. Directly benefits from the build-out of AI infrastructure.` },
+          { name: 'Business', score: 8, weight: 20, detail: `Hyper-growth phase with exceptional revenue increases and high gross margins. Strong partnerships with key ecosystem players.` },
+          { name: 'Mispricing', score: 7, weight: 15, detail: `The market recognizes its potential, but the sheer scale of the AI infrastructure boom may still not be fully priced in. Valuation is high but supported by growth.` }
+        ]
+      },
+      {
+        ticker: 'ASTS',
+        name: 'AST SpaceMobile',
+        theme: 'Space',
+        market: 'us',
+        conviction: 88,
+        upside: '500%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '$1.5B', revenue: '$0', backlog: '$1B+', partners: 'AT&T, Voda' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20, detail: `Founder-led with strong vision. Key partnerships with major telcos demonstrate significant industry validation.` },
+          { name: 'Innovation', score: 10, weight: 25, detail: `Developing the first space-based cellular broadband network to connect directly to standard smartphones. A technological leap if successful.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `Large backlog of contracted revenue and agreements with major telecom operators. Taps into the massive market for global connectivity.` },
+          { name: 'Business', score: 5, weight: 20, detail: `Pre-revenue and highly capital-intensive. Business success is binary and depends on the successful deployment of their satellite constellation.` },
+          { name: 'Mispricing', score: 9, weight: 15, detail: `The market is pricing this as a speculative, high-risk venture, which is fair. However, a successful deployment could lead to an exponential re-rating of the stock.` }
+        ]
+      },
+      {
+        ticker: 'LUNR',
+        name: 'Intuitive Machines',
+        theme: 'Space',
+        market: 'us',
+        conviction: 90,
+        upside: '400%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '$1B', revenue: '$200M', backlog: '$500M', missions: '3+' },
+        dimensions: [
+          { name: 'Management', score: 9, weight: 20, detail: `Experienced team that has successfully executed multiple lunar missions. Strong relationships with NASA and other key partners.` },
+          { name: 'Innovation', score: 9, weight: 25, detail: `First US company to land a spacecraft on the moon in over 50 years. Key enabler of the emerging cislunar economy.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `Strong demand from both government (NASA) and commercial customers for lunar access and services. A key player in a new and growing market.` },
+          { name: 'Business', score: 7, weight: 20, detail: `Revenue is growing, but profitability is still developing. Business model relies on winning competitive contracts for lunar missions.` },
+          { name: 'Mispricing', score: 8, weight: 15, detail: `The market is still trying to understand and value the lunar economy. LUNR's leadership position is not fully appreciated, offering a significant upside.` }
+        ]
+      },
+      {
+        ticker: 'PRCT',
+        name: 'PROCEPT BioRobotics',
+        theme: 'Robotics',
+        market: 'us',
+        conviction: 87,
+        upside: '320%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '$1.8B', revenue: '$250M', growth: '+37%', gross_margin: '64%' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20, detail: `Strong execution with consistent revenue growth and improving margins.` },
+          { name: 'Innovation', score: 8, weight: 25, detail: `AquaBeam robotic system for urological surgery is gaining traction and addressing a large market need.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `Consistent high growth in system installations and recurring revenue from consumables.` },
+          { name: 'Business', score: 8, weight: 20, detail: `Proven product with a strong financial profile. High gross margins and on a clear path to profitability.` },
+          { name: 'Mispricing', score: 7, weight: 15, detail: `As a small-cap medical robotics company, it is often overlooked compared to larger players like Intuitive Surgical. This creates a potential mispricing opportunity.` }
+        ]
+      },
+      {
+        ticker: 'AMCI',
+        name: 'AMC Robotics',
+        theme: 'Robotics',
+        market: 'us',
+        conviction: 82,
+        upside: '600%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '$400M', revenue: '$0', ipo: 'SPAC', launch: '2026' },
+        dimensions: [
+          { name: 'Management', score: 7, weight: 20, detail: `Early-stage team, but with relevant experience in robotics and automation.` },
+          { name: 'Innovation', score: 9, weight: 25, detail: `Developing both warehouse automation (NovaArm) and quadruped robots (Kyro), targeting two high-growth segments.` },
+          { name: 'Demand', score: 6, weight: 20, detail: `Pre-revenue, so demand is not yet proven. Success depends on a successful commercial launch in 2026.` },
+          { name: 'Business', score: 5, weight: 20, detail: `High-risk, early-stage venture. Success is binary and tied to product launch and market adoption.` },
+          { name: 'Mispricing', score: 8, weight: 15, detail: `Recent SPAC IPO, making it a non-obvious and potentially under-the-radar opportunity. A successful launch could lead to a significant re-rating.` }
+        ]
+      },
+      {
+        ticker: 'SOUN',
+        name: 'SoundHound AI',
+        theme: 'AI/Voice',
+        market: 'us',
+        conviction: 84,
+        upside: '380%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '$1.2B', revenue: '$50M', growth: '+50%', backlog: '$300M+' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20, detail: `Experienced team in voice AI. Key partnerships with auto and electronics OEMs.` },
+          { name: 'Innovation', score: 9, weight: 25, detail: `Proprietary voice AI platform with a strong focus on in-vehicle and IoT applications.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `Strong demand from automotive sector for in-car voice assistants. Growing adoption in IoT devices.` },
+          { name: 'Business', score: 6, weight: 20, detail: `Revenue growing strongly, but still unprofitable. Path to profitability depends on scaling existing contracts.` },
+          { name: 'Mispricing', score: 8, weight: 15, detail: `Market is volatile on AI stocks, and SOUN is often overlooked compared to larger players. A successful scale-up could lead to a significant re-rating.` }
+        ]
+      },
+      {
+        ticker: 'JYOTIRES',
+        name: 'Jyoti Resins & Adhesives',
+        theme: 'Specialty Chemicals',
+        market: 'india',
+        conviction: 90,
+        upside: '300%',
+        risk: 'LOW',
+        riskClass: 'risk-low',
+        metrics: { mcap: '₹1500cr', revenue: '₹250cr', roce: '70%' },
+        dimensions: [
+          { name: 'Management', score: 9, weight: 20, detail: `Strong, focused management with a proven track record of profitable growth.` },
+          { name: 'Innovation', score: 8, weight: 25, detail: `Unique carpenter-focused loyalty program creates a powerful moat.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `Dominant player in a niche market with strong brand recognition.` },
+          { name: 'Business', score: 9, weight: 20, detail: `Asset-light model with high ROCE and a debt-free balance sheet.` },
+          { name: 'Mispricing', score: 9, weight: 15, detail: `Small-cap company not widely covered by analysts, offering a significant mispricing opportunity.` }
+        ]
+      },
+      {
+        ticker: 'ACCELYA',
+        name: 'Accelya Solutions India',
+        theme: 'IT/Aviation',
+        market: 'india',
+        conviction: 88,
+        upside: '250%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '₹2500cr', revenue: '₹500cr', growth: 'Slowdown' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20, detail: `Experienced management navigating a dynamic industry.` },
+          { name: 'Innovation', score: 9, weight: 25, detail: `Global leader in a niche software market for the airline industry.` },
+          { name: 'Demand', score: 8, weight: 20, detail: `Strong tailwinds from NDC adoption and airline industry recovery.` },
+          { name: 'Business', score: 9, weight: 20, detail: `Durable moat through high switching costs and deep domain expertise.` },
+          { name: 'Mispricing', score: 8, weight: 15, detail: `Temporary slowdown in financials offers a potential entry point for a quality business.` }
+        ]
+      },
+      {
+        ticker: 'OWAIS',
+        name: 'Owais Metal and Mineral',
+        theme: 'Metals',
+        market: 'india',
+        conviction: 85,
+        upside: '400%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '₹350cr', revenue: '₹100cr', growth: 'Explosive' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20, detail: `Founder-led with high promoter holding (skin in the game).` },
+          { name: 'Innovation', score: 8, weight: 25, detail: `Innovative 'Waste to Wealth' business model with high demand.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `Caters to high-demand sectors like steel and ceramics.` },
+          { name: 'Business', score: 7, weight: 20, detail: `Explosive growth in revenue and profits, but sustainability is a key risk.` },
+          { name: 'Mispricing', score: 9, weight: 15, detail: `High-risk, high-reward bet on a disruptive business model.` }
+        ]
+      },
+      {
+        ticker: 'ONEGLOBAL',
+        name: 'One Global Service Provider',
+        theme: 'Healthcare/Digital',
+        market: 'india',
+        conviction: 86,
+        upside: '350%',
+        risk: 'MEDIUM',
+        riskClass: 'risk-med',
+        metrics: { mcap: '₹500cr', revenue: '₹150cr', growth: 'Strong' },
+        dimensions: [
+          { name: 'Management', score: 8, weight: 20, detail: `Focused on an integrated service model for a high-growth industry.` },
+          { name: 'Innovation', score: 8, weight: 25, detail: `One-stop-shop model offers convenience and a potential competitive advantage.` },
+          { name: 'Demand', score: 9, weight: 20, detail: `Strong secular tailwinds in the Indian healthcare and digital services market.` },
+          { name: 'Business', score: 7, weight: 20, detail: `Strong sales growth, but requires effective working capital management.` },
+          { name: 'Mispricing', score: 8, weight: 15, detail: `Small-cap in a high-growth sector with potential to scale its platform.` }
+        ]
+      },
+      {
+        ticker: 'CONNPLEX',
+        name: 'Connplex Cinemas',
+        theme: 'Entertainment',
+        market: 'india',
+        conviction: 84,
+        upside: '500%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '₹200cr', revenue: '₹50cr', model: 'Franchise' },
+        dimensions: [
+          { name: 'Management', score: 7, weight: 20, detail: `Executing a rapid, asset-light expansion strategy.` },
+          { name: 'Innovation', score: 8, weight: 25, detail: `Focus on underpenetrated Tier-2 and Tier-3 cities with a scalable franchise model.` },
+          { name: 'Demand', score: 8, weight: 20, detail: `Tapping into the growing demand for organized entertainment beyond metro areas.` },
+          { name: 'Business', score: 8, weight: 20, detail: `Asset-light model allows for high ROCE and scalability.` },
+          { name: 'Mispricing', score: 9, weight: 15, detail: `A niche market leader that is overlooked by most analysts.` }
+        ]
+      },
+      {
+        ticker: 'WORKMATES',
+        name: 'Workmates Core2 Solutions',
+        theme: 'HR Tech',
+        market: 'india',
+        conviction: 80,
+        upside: '400%',
+        risk: 'HIGH',
+        riskClass: 'risk-high',
+        metrics: { mcap: '₹150cr', revenue: 'N/A', model: 'Tech-led Staffing' },
+        dimensions: [
+            { name: 'Management', score: 7, weight: 20, detail: `Depends on the execution capabilities of the team in a competitive market.` },
+            { name: 'Innovation', score: 8, weight: 25, detail: `Technology platform to disrupt the fragmented staffing industry.` },
+            { name: 'Demand', score: 8, weight: 20, detail: `Benefits from the formalization of the Indian workforce, a long-term trend.` },
+            { name: 'Business', score: 6, weight: 20, detail: `Success hinges on building a strong brand and a scalable tech platform.` },
+            { name: 'Mispricing', score: 8, weight: 15, detail: `Potential to be a significant player in the formalization of the Indian workforce.` }
+        ]
+      },
+      {
+          ticker: 'SAFE',
+          name: 'Safe Enterprises',
+          theme: 'Industrial Safety',
+          market: 'india',
+          conviction: 82,
+          upside: '350%',
+          risk: 'MEDIUM',
+          riskClass: 'risk-med',
+          metrics: { mcap: '₹400cr', revenue: 'N/A', model: 'B2B Safety Solutions' },
+          dimensions: [
+              { name: 'Management', score: 8, weight: 20, detail: `Requires a team with strong industrial client relationships.` },
+              { name: 'Innovation', score: 7, weight: 25, detail: `High-quality, innovative safety products can command high margins.` },
+              { name: 'Demand', score: 9, weight: 20, detail: `Structural growth driven by India's manufacturing and industrialization push.` },
+              { name: 'Business', score: 8, weight: 20, detail: `B2B model with potential for high margins and a strong brand.` },
+              { name: 'Mispricing', score: 7, weight: 15, detail: `Beneficiary of the long-term "Make in India" trend.` }
+          ]
+      }
+    ];
+
+    // Theme Colors
+    const themeColors = {
+        'AI/Compute': '#f59e0b',
+        'Genomics': '#10b981',
+        'Space': '#8b5cf6',
+        'Robotics': '#f97316',
+        'Defense': '#ef4444',
+        'Specialty Chemicals': '#06b6d4',
+        'IT/Aviation': '#06b6d4',
+        'Metals': '#f97316',
+        'Healthcare/Digital': '#10b981',
+        'Entertainment': '#8b5cf6',
+        'HR Tech': '#f59e0b',
+        'Industrial Safety': '#ef4444',
+        'AI/Voice': '#06b6d4'
+    };
+
+    // Render Stocks
+    function renderStocks(filter = 'all') {
+      const grid = document.getElementById('stockGrid');
+      grid.innerHTML = '';
+
+      const filtered = filter === 'all' ? stocks : stocks.filter(s => s.market === filter);
+
+      filtered.forEach(stock => {
+        const card = document.createElement('div');
+        card.className = `stock-card ${stock.market}`;
+        card.innerHTML = `
+          <div class="stock-header">
+            <div>
+              <div class="stock-ticker">${stock.ticker}</div>
+              <div class="stock-name">${stock.name}</div>
+              <span class="stock-theme" style="color: ${themeColors[stock.theme]}; border: 1px solid ${themeColors[stock.theme]};">${stock.theme}</span>
+            </div>
+            <div class="conviction-badge">
+              <div class="conviction-score">${stock.conviction}</div>
+              <div class="conviction-label">Conviction</div>
+            </div>
+          </div>
+          <div class="stock-body">
+            <div class="stock-metrics">
+              ${Object.entries(stock.metrics).map(([k,v]) => `
+                <div class="metric">
+                  <div class="metric-value mono">${v}</div>
+                  <div class="metric-label">${k}</div>
+                </div>
+              `).join('')}
+            </div>
+            <div class="dimensions">
+              ${stock.dimensions.map(d => `
+                <div class="dimension">
+                  <span class="dimension-name">${d.name}</span>
+                  <span class="dimension-score" style="color: ${themeColors[stock.theme]}">${d.score}/10</span>
+                  <div class="dimension-bar">
+                    <div class="dimension-fill" style="width: ${d.score * 10}%; background: ${themeColors[stock.theme]};"></div>
+                  </div>
+                </div>
+                <div class="dimension-detail">${d.detail}</div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="stock-footer">
+            <span class="upside-tag">3Y: ${stock.upside}</span>
+            <span class="risk-tag ${stock.riskClass}">${stock.risk}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Filter Function
+    function filterStocks(type, clickedBtn) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      if (clickedBtn) clickedBtn.classList.add('active');
+      renderStocks(type);
+    }
+    
+    let convictionChartInstance = null;
+    function renderChart() {
+      const canvas = document.getElementById('convictionChart');
+      if (!canvas || stocks.length === 0) return;
+      
+      const ctx = canvas.getContext('2d');
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      const textColor = isDark ? '#94a3b8' : '#64748b';
+      const gridColor = isDark ? '#27273a' : '#e2e8f0';
+
+      if (convictionChartInstance) {
+        convictionChartInstance.destroy();
+      }
+
+      convictionChartInstance = new Chart(ctx, {
+        type: 'bubble',
+        data: {
+          datasets: stocks.map(s => ({
+            label: s.ticker,
+            data: [{
+              x: s.conviction,
+              y: parseInt(s.upside),
+              r: s.conviction / 5
+            }],
+            backgroundColor: (themeColors[s.theme] || '#f59e0b') + '80',
+            borderColor: themeColors[s.theme] || '#f59e0b',
+            borderWidth: 1
+          }))
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: { display: true, text: 'Conviction Score', color: textColor, font: { size: 14, weight: '600' } },
+              min: 70, max: 100,
+              grid: { color: gridColor },
+              ticks: { color: textColor }
+            },
+            y: {
+              title: { display: true, text: '3Y Upside Potential (%)', color: textColor, font: { size: 14, weight: '600' } },
+              min: 50, max: 600,
+              grid: { color: gridColor },
+              ticks: { color: textColor }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  if (!stocks[ctx.datasetIndex]) return '';
+                  const stock = stocks[ctx.datasetIndex];
+                  return `${stock.ticker}: ${stock.conviction}/100 | ${stock.upside} upside`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Theme Toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.dataset.theme === 'dark';
+      html.dataset.theme = isDark ? 'light' : 'dark';
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+      renderChart();
+    }
+    
+    function updateHeroStats() {
+      const heroStatsContainer = document.getElementById('hero-stats');
+      if (!heroStatsContainer) return;
+
+      const totalPositions = stocks.length;
+      const avgConviction = stocks.reduce((sum, s) => sum + s.conviction, 0) / totalPositions;
+      const avgUpside = stocks.reduce((sum, s) => sum + parseInt(s.upside), 0) / totalPositions;
+      const totalThemes = new Set(stocks.map(s => s.theme)).size;
+
+      heroStatsContainer.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-value mono">${totalPositions}</div>
+          <div class="stat-label">Positions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value mono">${Math.round(avgConviction)}<span style="font-size:1rem;">/100</span></div>
+          <div class="stat-label">Avg Conviction</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value mono">${Math.round(avgUpside)}%</div>
+          <div class="stat-label">Avg 3Y Upside</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value mono">${totalThemes}</div>
+          <div class="stat-label">Themes</div>
+        </div>
+      `;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // populate data, then render
+      renderStocks('all');
+      renderChart();
+      updateHeroStats();
+
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          filterStocks(this.dataset.filter, this);
+        });
+      });
+      
+      const themeBtn = document.getElementById('themeToggleBtn');
+      if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+    });
+  </script>
+</body>
+</html>

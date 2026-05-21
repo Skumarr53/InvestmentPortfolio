@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Alpha Report - Senior Analyst Advisor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root[data-theme="dark"] {
+      --color-bg: #0a0a0c;
+      --color-surface: #16161a;
+      --color-text: #f8fafc;
+      --color-text-muted: #94a3b8;
+      --color-accent: #38bdf8;
+      --color-border: #2d2d35;
+      --color-success: #22c55e;
+      --color-warning: #f59e0b;
+      --color-danger: #ef4444;
+    }
+    :root[data-theme="light"] {
+      --color-bg: #f8fafc;
+      --color-surface: #ffffff;
+      --color-text: #0f172a;
+      --color-text-muted: #64748b;
+      --color-accent: #0284c7;
+      --color-border: #e2e8f0;
+      --color-success: #16a34a;
+      --color-warning: #d97706;
+      --color-danger: #dc2626;
+    }
+
+    body {
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-family: 'Inter', sans-serif;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+
+    .glass-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .glass-card:hover {
+      border-color: var(--color-accent);
+      transform: translateY(-2px);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 1000;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      color: var(--color-text);
+    }
+
+    .kpi-value { font-size: 1.875rem; font-weight: 700; color: var(--color-accent); }
+    .kpi-label { font-size: 0.875rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-danger { background: rgba(239, 68, 68, 0.1); color: var(--color-danger); border: 1px solid var(--color-danger); }
+    .badge-success { background: rgba(34, 197, 94, 0.1); color: var(--color-success); border: 1px solid var(--color-success); }
+  </style>
+</head>
+<body class="p-4 md:p-8">
+  <button class="theme-toggle" aria-label="Toggle theme">
+    <span class="theme-icon">🌙</span>
+  </button>
+
+  <header class="mb-12">
+    <h1 class="text-4xl font-bold mb-2">Portfolio Alpha Report</h1>
+    <p class="text-muted text-lg opacity-70">Strategic Analysis & Diversification Roadmap for Indian Resident Individual</p>
+  </header>
+
+  <!-- KPI Section -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+    <div class="glass-card">
+      <div class="kpi-label">Total Invested</div>
+      <div class="kpi-value">₹37.21L</div>
+    </div>
+    <div class="glass-card">
+      <div class="kpi-label">Current Value</div>
+      <div class="kpi-value">₹53.72L</div>
+    </div>
+    <div class="glass-card">
+      <div class="kpi-label">Absolute Gain</div>
+      <div class="kpi-value text-green-500">+₹16.51L</div>
+      <div class="text-xs text-green-500 mt-1">44.3% Total ROI</div>
+    </div>
+    <div class="glass-card">
+      <div class="kpi-label">Risk Posture</div>
+      <div class="kpi-value text-orange-500">High Beta</div>
+      <div class="text-xs text-muted mt-1">Heavy Mid/Small Cap Bias</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+    <!-- Current Allocation Chart -->
+    <div class="glass-card">
+      <h2 class="text-xl font-semibold mb-6">Current Fund Distribution</h2>
+      <canvas id="allocationChart" height="300"></canvas>
+    </div>
+
+    <!-- AMC Concentration Risk -->
+    <div class="glass-card">
+      <h2 class="text-xl font-semibold mb-6">Concentration Risk Audit</h2>
+      <div class="space-y-4">
+        <div class="flex justify-between items-center p-3 bg-red-500/5 border border-red-500/20 rounded-lg">
+          <div>
+            <div class="font-bold">Quant AMC Concentration</div>
+            <div class="text-sm text-muted">3 Funds (Small, Mid, Multi)</div>
+          </div>
+          <span class="badge badge-danger">CRITICAL RISK</span>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-green-500/5 border border-green-500/20 rounded-lg">
+          <div>
+            <div class="font-bold">Mirae Asset AI Outperformance</div>
+            <div class="text-sm text-muted">243% Gain - Tactical Alpha</div>
+          </div>
+          <span class="badge badge-success">HOLD TACTICAL</span>
+        </div>
+        <div class="flex justify-between items-center p-3 bg-orange-500/5 border border-orange-500/20 rounded-lg">
+          <div>
+            <div class="font-bold">Mid/Small Cap Exposure</div>
+            <div class="text-sm text-muted">~65% of Portfolio</div>
+          </div>
+          <span class="badge badge-danger">HIGH VOLATILITY</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- The Machine Roadmap -->
+  <div class="glass-card mb-12 border-accent/30">
+    <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+      🚀 The "Money Machine" Roadmap (10L - 50L Deployment)
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="p-4 border border-border rounded-xl">
+        <h3 class="font-bold text-accent mb-2">1. Structural Cleanup</h3>
+        <ul class="text-sm space-y-2 text-muted">
+          <li>• Exit Quant Mid & Multi-cap</li>
+          <li>• Retain Quant Small Cap (Aggressive)</li>
+          <li>• Consolidate to Kotak Flexicap as Core</li>
+        </ul>
+      </div>
+      <div class="p-4 border border-border rounded-xl">
+        <h3 class="font-bold text-accent mb-2">2. Global Diversification</h3>
+        <ul class="text-sm space-y-2 text-muted">
+          <li>• Add Nasdaq 100 Index (15% Allocation)</li>
+          <li>• Add S&P 500 for broad US stability</li>
+          <li>• Hedge against INR depreciation</li>
+        </ul>
+      </div>
+      <div class="p-4 border border-border rounded-xl">
+        <h3 class="font-bold text-accent mb-2">3. Direct Alpha (Fisher Style)</h3>
+        <ul class="text-sm space-y-2 text-muted">
+          <li>• Deploy 15L into Direct Equity</li>
+          <li>• Focus: High R&D, Management Integrity</li>
+          <li>• Use Smallcases for thematic momentum</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Table -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+    <div class="glass-card">
+      <h2 class="text-xl font-semibold mb-4 text-warning">🛡️ Graham's Safety Audit</h2>
+      <p class="text-sm text-muted mb-4">"An investment operation is one which, upon thorough analysis, promises safety of principal and an adequate return."</p>
+      <ul class="space-y-3 text-sm">
+        <li class="flex gap-2"><span>⚠️</span> <span><strong>Speculative Overlap:</strong> Owning 3 Quant funds is not diversification; it's a bet on one algorithm.</span></li>
+        <li class="flex gap-2"><span>⚠️</span> <span><strong>Principal Risk:</strong> 65% exposure to Mid/Small caps is vulnerable to 40%+ drawdowns in bear markets.</span></li>
+        <li class="flex gap-2"><span>✅</span> <span><strong>Margin of Safety:</strong> Navi Nifty Next 50 and Kotak Flexicap provide the "defensive" anchor.</span></li>
+      </ul>
+    </div>
+    <div class="glass-card">
+      <h2 class="text-xl font-semibold mb-4 text-green-400">🔍 Fisher's Growth Lens</h2>
+      <p class="text-sm text-muted mb-4">"The stock market is filled with individuals who know the price of everything, but the value of nothing."</p>
+      <ul class="space-y-3 text-sm">
+        <li class="flex gap-2"><span>🚀</span> <span><strong>Uncommon Profits:</strong> Mirae AI ETF is a classic "Point 1" growth play (huge market potential).</span></li>
+        <li class="flex gap-2"><span>🚀</span> <span><strong>Scuttlebutt:</strong> Your next move should be direct equity in companies with high R&D and "Management integrity".</span></li>
+        <li class="flex gap-2"><span>🚀</span> <span><strong>Hold Forever:</strong> HSBC Midcap and Mirae Large/Mid are your "compounders". Don't sell early.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="glass-card overflow-x-auto">
+    <h2 class="text-xl font-semibold mb-6">Portfolio Deep Dive</h2>
+    <table class="w-full text-left">
+      <thead>
+        <tr class="border-b border-border text-muted text-sm">
+          <th class="pb-4 font-medium">Fund Name</th>
+          <th class="pb-4 font-medium">Invested</th>
+          <th class="pb-4 font-medium">Current</th>
+          <th class="pb-4 font-medium">Gain %</th>
+          <th class="pb-4 font-medium">Analyst Verdict</th>
+        </tr>
+      </thead>
+      <tbody class="text-sm">
+        <tr class="border-b border-border/50">
+          <td class="py-4 font-semibold">Mirae Large & Midcap</td>
+          <td class="py-4">₹7.37L</td>
+          <td class="py-4">₹10.48L</td>
+          <td class="py-4 text-green-500">42.3%</td>
+          <td class="py-4"><span class="badge badge-success">CORE HOLD</span></td>
+        </tr>
+        <tr class="border-b border-border/50">
+          <td class="py-4 font-semibold">Mirae Global X AI ETF</td>
+          <td class="py-4">₹3.00L</td>
+          <td class="py-4">₹10.32L</td>
+          <td class="py-4 text-green-500">243.9%</td>
+          <td class="py-4"><span class="badge badge-success">RIDE THE WINNER</span></td>
+        </tr>
+        <tr class="border-b border-border/50">
+          <td class="py-4 font-semibold">Quant Small Cap</td>
+          <td class="py-4">₹6.43L</td>
+          <td class="py-4">₹6.74L</td>
+          <td class="py-4 text-green-500">4.8%</td>
+          <td class="py-4"><span class="badge badge-success">RETAIN AGGRESSIVE</span></td>
+        </tr>
+        <tr class="border-b border-border/50">
+          <td class="py-4 font-semibold">HSBC Midcap</td>
+          <td class="py-4">₹1.92L</td>
+          <td class="py-4">₹5.51L</td>
+          <td class="py-4 text-green-500">187.0%</td>
+          <td class="py-4"><span class="badge badge-success">HOLD</span></td>
+        </tr>
+        <tr class="border-b border-border/50">
+          <td class="py-4 font-semibold">Quant Mid/Multi Cap</td>
+          <td class="py-4">₹10.86L</td>
+          <td class="py-4">₹11.08L</td>
+          <td class="py-4 text-green-500">~2%</td>
+          <td class="py-4"><span class="badge badge-danger">EXIT / CONSOLIDATE</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="mt-12 text-center text-muted text-xs opacity-50">
+    Analysis based on Graham-Fisher Framework. Not regulated financial advice. For educational purposes only.
+  </footer>
+
+  <script>
+    // Theme Toggle
+    document.querySelector('.theme-toggle').addEventListener('click', () => {
+      const html = document.documentElement;
+      const isDark = html.dataset.theme === 'dark';
+      html.dataset.theme = isDark ? 'light' : 'dark';
+      document.querySelector('.theme-icon').textContent = isDark ? '☀️' : '🌙';
+    });
+
+    // Allocation Chart
+    const ctx = document.getElementById('allocationChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Mirae Large/Mid', 'Mirae AI ETF', 'Quant Small', 'Navi Next 50', 'Quant Mid/Multi', 'HSBC Mid', 'Kotak Flexi'],
+        datasets: [{
+          data: [10.48, 10.32, 6.74, 5.69, 11.08, 5.51, 3.9],
+          backgroundColor: [
+            '#38bdf8', '#818cf8', '#f472b6', '#fbbf24', '#ef4444', '#10b981', '#6366f1'
+          ],
+          borderWidth: 0,
+          hoverOffset: 10
+        }]
+      },
+      options: {
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { color: '#94a3b8', font: { size: 12 } }
+          }
+        },
+        cutout: '70%'
+      }
+    });
+  </script>
+</body>
+</html>
